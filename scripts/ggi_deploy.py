@@ -99,9 +99,10 @@ with open(file_json_out, 'w', encoding='utf-8') as f:
 # Connect to GitLab
 #
 
-print(f"\n# Connection to GitLab at {conf['gitlab_url']}.")
-gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=conf['gitlab_token'])
-project = gl.projects.get(conf['gitlab_project'])
+if (args.opt_activities) or (args.opt_board):
+    print(f"\n# Connection to GitLab at {conf['gitlab_url']}.")
+    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=conf['gitlab_token'])
+    project = gl.projects.get(conf['gitlab_project'])
 
 
 #
@@ -167,7 +168,39 @@ if (args.opt_board):
 print("Done.")
 
 
+#
+# Setup website
+#
 
+import urllib.parse, glob, os
+from fileinput import FileInput
 
+print("# Replacing keywords in static website.")
+# List of
+ggi_activities_url = urllib.parse.urljoin(
+    conf['gitlab_url'],
+    os.path.join(conf['gitlab_project'], '/-/issues'))
+print(os.path.join(conf['gitlab_project'], '/-/issues'))
+keywords = {'[GGI-ACTIVITIES_URL]': ggi_activities_url}
+print(keywords)
 
+# Replace keywords in md files.
+def update_keywords(file_in, keywords):
+    for keyword in keywords:
+        print(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
+        for line in FileInput(file_in, inplace=1, backup='.bak'):
+            line = line.replace(keyword, keywords[keyword])
+            print(line, end = '')
+            
+#    with open(file_in, 'w') as f:
+#        for keyword, value in enumerate(keywords):
+#            print('- Changing "{keyword}" to "{value}" in {file_in}'.format(**locals()))
+#            content = f.read()
+#            content = content.replace(keyword, value)
+#        f.write(s)
 
+update_keywords('web/config.toml', keywords)
+files = glob.glob("web/content/*.md")
+files_ = [ f for f in files if os.path.isfile(f) ]
+for file in files_:
+    update_keywords(file, keywords)
