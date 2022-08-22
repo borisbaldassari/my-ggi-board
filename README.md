@@ -2,7 +2,7 @@
 
 ## Usage
 
-1. Create a new, empty project in a GitLab instance. 
+1. Create a new, empty project in a GitLab instance. // OR clone the my-ggi-board repository / project.
 2. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`.
 3. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url`, `gitlab_project`, `gitlab_token`.
 4. Run the deploy script: `python3 scripts/ggi_deploy.py --activities --board`.
@@ -10,7 +10,7 @@
 
 ## Notes
 
-* Prerequisites: `python-gitlab`.
+* Python prerequisites: `python-gitlab`.
 * GitLab CE doesn't allow to create Boards through the API.
 
 
@@ -22,7 +22,7 @@ conf/
 └── ggi_deployment.json
 scripts/
 └── ggi_deploy.py
-README.md 
+README.md
 ```
 
 
