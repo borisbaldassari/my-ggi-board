@@ -7,6 +7,8 @@ layout: default
 
 Quick intro
 
+Look at [your own dashboard](/dashboard)!
+
 ## Next steps
 
 Do the following steps to finish the deployment of your own GGI.
