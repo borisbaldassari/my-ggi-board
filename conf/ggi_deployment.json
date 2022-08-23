@@ -2,5 +2,6 @@
   "gitlab_url": "https://gitlab.ow2.org",
   "gitlab_project": "ggi/my-ggi-board-test",
   "gitlab_token": "xxxx",
+  "proxy_url": "",
   "activities_url": "https://gitlab.ow2.org/ggi/ggi/-/archive/main/ggi-main.tar.bz2?path=handbook/content"
 }

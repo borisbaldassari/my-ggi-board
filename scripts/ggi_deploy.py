@@ -26,7 +26,7 @@
 
 import gitlab
 import json
-import urllib.request 
+import requests 
 import tarfile
 import argparse
 
@@ -75,8 +75,17 @@ with open(file_conf, 'r', encoding='utf-8') as f:
 
 # Download activities content from the main gitlab project.
 url_activities = conf['activities_url']
-print(f"\n# Downloading file from {url_activities}.")
-urllib.request.urlretrieve(url_activities, tmp_gz_file)
+if conf['proxy_url'] != '':
+    proxy = {conf['proxy_url']}
+    print(f"\n# Downloading file from {url_activities} with proxy {proxy}.")
+    resp = requests.get(url_activities, proxies=proxy)
+else:
+    print(f"\n# Downloading file from {url_activities}.")
+    resp = requests.get(url_activities)
+
+with open(tmp_gz_file, 'wb') as fd:
+    for chunk in resp.iter_content(chunk_size=128):
+        fd.write(chunk)
 
 activities = []
 print("\n# Building activities.")
