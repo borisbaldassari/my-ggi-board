@@ -1,0 +1,26 @@
+issue_id,state,title,labels,updated_at,url
+50,opened,Open source enabling digital transformation,"Decision Maker,In Progress,Strategy Goal",2022-08-23T16:45:15.535Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/50
+49,opened,Open source enabling innovation,"Decision Maker,Done,Strategy Goal",2022-08-23T16:47:37.790Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/49
+48,opened,Open source and digital sovereignty,"Decision Maker,Not started,Strategy Goal",2022-08-23T10:06:49.008Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/48
+47,opened,C-Level awareness,"Decision Maker,Not started,Strategy Goal",2022-08-23T10:06:48.690Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/47
+46,opened,Setup a strategy for corporate open source governance,"Decision Maker,Not started,Strategy Goal",2022-08-23T10:06:48.202Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/46
+45,opened,Open source procurement policy,"Decision Maker,Engagement Goal,Not started",2022-08-23T10:06:47.868Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/45
+44,opened,Engage with open source vendors,"Decision Maker,Engagement Goal,Not started",2022-08-23T10:06:47.577Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/44
+43,opened,Publicly assert use of open source,"Decision Maker,Engagement Goal,Not started,Team Leader",2022-08-23T10:06:47.163Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/43
+42,opened,Support open source communities,"Decision Maker,Engagement Goal,Not started",2022-08-23T10:06:46.807Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/42
+41,opened,Engage with open source projects,"Decision Maker,Developer,Engagement Goal,Not started",2022-08-23T10:06:46.471Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/41
+40,opened,Upstream first,"Culture Goal,Developer,Not started,Team Leader",2022-08-23T10:06:46.060Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/40
+39,opened,HR perspective,"Culture Goal,Decision Maker,Not started",2022-08-23T10:06:45.516Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/39
+38,opened,Belong to the open source community,"Culture Goal,Decision Maker,Not started,Team Leader",2022-08-23T10:06:45.123Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/38
+37,opened,Contribute to open source projects,"Culture Goal,Developer,Not started,Team Leader",2022-08-23T10:06:44.773Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/37
+36,opened,Promote open source development best practices,"Culture Goal,Developer,Not started,Team Leader",2022-08-23T10:06:44.428Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/36
+35,opened,Run code reviews,"Developer,Not started,Team Leader,Trust Goal",2022-08-23T10:06:44.118Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/35
+34,opened,Manage key indicators,"Decision Maker,Not started,Team Leader,Trust Goal",2022-08-23T10:06:43.784Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/34
+33,opened,Manage software dependencies,"Developer,Not started,Team Leader,Trust Goal",2022-08-23T10:06:43.385Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/33
+32,opened,Manage software vulnerabilities,"Not started,Team Leader,Trust Goal",2022-08-23T10:06:43.025Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/32
+31,opened,Manage legal compliance,"Decision Maker,Not started,Trust Goal",2022-08-23T10:06:42.659Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/31
+30,opened,Manage open source skills and resources,"Not started,Team Leader,Usage Goal",2022-08-23T10:06:42.306Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/30
+29,opened,Open source enterprise software,"Decision Maker,Not started,Usage Goal",2022-08-23T10:06:41.934Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/29
+28,opened,Open source supervision,"Not started,Team Leader,Usage Goal",2022-08-23T10:06:41.585Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/28
+27,opened,Open source competency growth,"Not started,Team Leader,Usage Goal",2022-08-23T10:06:41.158Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/27
+26,opened,Inventory of open source skills and resources,"Developer,Not started,Team Leader,Usage Goal",2022-08-23T10:06:40.697Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/26

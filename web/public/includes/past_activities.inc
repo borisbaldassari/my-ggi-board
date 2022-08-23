@@ -1,0 +1,1 @@
+* 49 [Open source enabling innovation](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/49).

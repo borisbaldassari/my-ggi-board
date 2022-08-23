@@ -1,0 +1,1 @@
+* 50 [Open source enabling digital transformation](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/50).
