@@ -83,6 +83,7 @@ else:
     print(f"\n# Downloading file from {url_activities}.")
     resp = requests.get(url_activities)
 
+# And store content as a gz file.
 with open(tmp_gz_file, 'wb') as fd:
     for chunk in resp.iter_content(chunk_size=128):
         fd.write(chunk)
@@ -131,7 +132,16 @@ if (args.opt_activities):
             project.labels.create(
                 {'name': label, 'color': metadata['roles'][label]}
               )
-        
+
+    # Create labels for activity tracking
+    for label in conf['progress_labels'].keys():
+        if label not in existing_labels:
+            name = conf['progress_labels'][label]
+            print(f"  - Creating label: {name}.")
+            project.labels.create(
+                {'name': name, 'color': '#ed9121'}
+              )
+
     # Create goal labels if needed
     for goal in metadata['goals']:
         if goal['name'] not in existing_labels:
@@ -144,7 +154,8 @@ if (args.opt_activities):
     print("\n# Create activities.")
     for activity in activities:
       print(f"  - Creating issue [{activity['name']}]..")
-      labels = [activity['goal']] + activity['roles']
+      labels = [activity['goal']] + activity['roles'] \
+          + [conf['progress_labels']['not_started']]
       print(f"    with labels {labels}")
       description = "".join( [i for i in activity['content']] )
       ret = project.issues.create({'title': activity['name'],
