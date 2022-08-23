@@ -175,22 +175,24 @@ print("Done.")
 import urllib.parse, glob, os
 from fileinput import FileInput
 
-print("# Replacing keywords in static website.")
-# List of
+print("\n# Replacing keywords in static website.")
+
+# List of strings to be replaced.
 ggi_activities_url = urllib.parse.urljoin(
     conf['gitlab_url'],
-    os.path.join(conf['gitlab_project'], '/-/issues'))
-print(os.path.join(conf['gitlab_project'], '/-/issues'))
+    os.path.join(conf['gitlab_project'], '-/issues'))
 keywords = {'[GGI-ACTIVITIES_URL]': ggi_activities_url}
-print(keywords)
 
 # Replace keywords in md files.
 def update_keywords(file_in, keywords):
+    occurrences = []
     for keyword in keywords:
-        print(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
         for line in FileInput(file_in, inplace=1, backup='.bak'):
-            line = line.replace(keyword, keywords[keyword])
-            print(line, end = '')
+            if keyword in line:
+                occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
+                line = line.replace(keyword, keywords[keyword])
+            print(line, end='')
+    [ print(o) for o in occurrences ]
             
 #    with open(file_in, 'w') as f:
 #        for keyword, value in enumerate(keywords):
@@ -204,3 +206,6 @@ files = glob.glob("web/content/*.md")
 files_ = [ f for f in files if os.path.isfile(f) ]
 for file in files_:
     update_keywords(file, keywords)
+    
+print("Done.")
+
