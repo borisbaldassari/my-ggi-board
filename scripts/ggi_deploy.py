@@ -198,10 +198,14 @@ from fileinput import FileInput
 print("\n# Replacing keywords in static website.")
 
 # List of strings to be replaced.
+ggi_url = conf['gitlab_project'].split('/')[0] + "." + conf['gitlab_url'].split('.')[-2] + ".io/" + conf['gitlab_project'].split('/')[-1]
 ggi_activities_url = urllib.parse.urljoin(
     conf['gitlab_url'],
     os.path.join(conf['gitlab_project'], '-/issues'))
-keywords = {'[GGI-ACTIVITIES_URL]': ggi_activities_url}
+keywords = {
+    '[GGI_URL]': ggi_url,
+    '[GGI_ACTIVITIES_URL]': ggi_activities_url
+}
 
 # Replace keywords in md files.
 def update_keywords(file_in, keywords):

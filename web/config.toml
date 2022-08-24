@@ -1,4 +1,4 @@
-baseURL = '/'
+baseURL = '[GGI_URL]'
 languageCode = 'en-us'
 title = 'My Good Governance Initiative'
 
@@ -52,7 +52,7 @@ paginate = 6
 [menu]
 [[menu.header]]
   name = "Activities"
-  url = "https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues"
+  url = "[GGI_ACTIVITIES_URL]"
 [[menu.header]]
   name = "Dashboard"
   url = "/dashboard"
