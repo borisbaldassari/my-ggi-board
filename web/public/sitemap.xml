@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>/roadmap/</loc>
+    <loc>ggi.ow2.io/my-ggi-board-test/roadmap/</loc>
   </url><url>
-    <loc>/categories/</loc>
+    <loc>ggi.ow2.io/my-ggi-board-test/categories/</loc>
   </url><url>
-    <loc>/dashboard/</loc>
+    <loc>ggi.ow2.io/my-ggi-board-test/dashboard/</loc>
   </url><url>
-    <loc>/tags/</loc>
+    <loc>ggi.ow2.io/my-ggi-board-test/tags/</loc>
   </url><url>
-    <loc>/</loc>
+    <loc>ggi.ow2.io/my-ggi-board-test/</loc>
   </url>
 </urlset>

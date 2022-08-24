@@ -18,5 +18,8 @@ Do the following steps to finish the deployment of your own GGI.
 
 ## Current activities
 
+{{% content "includes/current_activities.inc" %}}
 
 ## Completed activities
+
+{{% content "includes/past_activities.inc" %}}
