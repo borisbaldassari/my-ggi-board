@@ -20,6 +20,10 @@ import json
 import tarfile
 import argparse
 import pandas as pd
+import re
+import glob, os
+from fileinput import FileInput
+
 
 # Define some variables.
 
@@ -27,6 +31,9 @@ file_conf = 'conf/ggi_deployment.json'
 file_meta = 'conf/ggi_activities_metadata.json'
 file_json_out = 'ggi_activities_full.json'
 
+# Define regexps
+# Identify tasks in description:
+re_tasks = re.compile(r"^\s*- \[(.)\] (.+)$")
 
 #
 # Parse arguments from command line.
@@ -58,7 +65,10 @@ with open(file_conf, 'r', encoding='utf-8') as f:
     conf = json.load(f)
     
 issues = []
+issues_cols = ['issue_id', 'state', 'title', 'labels', 'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
+tasks = []
 hist = []
+hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
 if args.opt_issues_csv:
     print(f"# Reading issues from {issues_csv_file}.")
     with open(issues_csv_file, 'r') as f:
@@ -73,10 +83,21 @@ else:
     print("# Fetching issues..")
     gl_issues = project.issues.list(state='opened', all=True)
 
-    #pd.DataFrame(columns=['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url'])
+    count = 1
     for i in gl_issues:
         print(f"- {i.iid} - {i.title} - {i.web_url} - {i.updated_at}.")
-        issues.append([i.iid, i.state, i.title, ','.join(i.labels), i.updated_at, i.web_url])
+        desc = i.description
+        paragraphs = desc.split('\n\n')
+        short_desc = paragraphs[3]
+        lines = desc.split('\n')
+        for l in lines:
+            tasks_match = re_tasks.match(l)
+            if tasks_match:
+                tasks.append([i.iid, tasks_match.group(0), tasks_match.group(1)])
+        tasks_total = i.task_completion_status['count']
+        tasks_done = i.task_completion_status['completed_count']
+        issues.append([i.iid, i.state, i.title, ','.join(i.labels),
+                       i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
     
         # Retrieve information about labels.
         for n in i.resourcelabelevents.list():
@@ -88,54 +109,80 @@ else:
                     n.id, n_type, n.user['username'], 
                     n_action, i.web_url]
             hist.append(line)
-
+        # Remove these lines when dev/debug is over
+        if count == 50:
+            break
+        else:
+            count += 1
+            
 # Convert lists to dataframes
-issues = pd.DataFrame(issues, columns=['issue_id', 'state', 'title', 'labels', 'updated_at', 'url'])
-hist = pd.DataFrame(hist, columns=['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url'])
+issues = pd.DataFrame(issues, columns=issues_cols)
+tasks = pd.DataFrame(tasks, columns=['issue_id', 'state', 'task'])
+hist = pd.DataFrame(hist, columns=hist_cols)
 
-
+# Identify activities depending on their progress
 issues_in_progress = []
 issues_done = []
-print(issues)
-print(f" len issues {len(issues)}.")
-for issue in issues.itertuples():
-    print(f"- i {conf['progress_labels']['in_progress']} {issue.issue_id} {issue[4].split(',')}.")
-    if conf['progress_labels']['in_progress'] in issue[4].split(','):
-        print(f"- {issue.issue_id} in progress.")
-        issues_in_progress.append([issue.issue_id, issue.state, issue.title, ','.join(issue.labels), issue.updated_at, issue.url])
+issues_not_started = []
+for issue in issues.itertuples(index=False):
+    if conf['progress_labels']['not_started'] in issue[3].split(','):
+        issues_not_started.append(issue)
+    if conf['progress_labels']['in_progress'] in issue[3].split(','):
+        issues_in_progress.append(issue)
+    if conf['progress_labels']['done'] in issue[3].split(','):
+        issues_done.append(issue)
 
-    if conf['progress_labels']['done'] in issue[4].split(','):
-        print(f"- {issue.issue_id} done.")
-        issues_done.append([issue.issue_id, issue.state, issue.title, ','.join(issue.labels), issue.updated_at, issue.url])
-
-issues_in_progress = pd.DataFrame(issues_in_progress, columns=['issue_id', 'state', 'title', 'labels', 'updated_at', 'url'])
-issues_done = pd.DataFrame(issues_done, columns=['issue_id', 'state', 'title', 'labels', 'updated_at', 'url'])
+issues_not_started = pd.DataFrame(issues_not_started,
+                           columns=issues_cols)
+issues_in_progress = pd.DataFrame(issues_in_progress,
+                                  columns=issues_cols)
+issues_done = pd.DataFrame(issues_done,
+                           columns=issues_cols)
 
 # Print all rows to CSV file
+print("\n# Writing issues and history to files.") 
 issues.to_csv('web/content/includes/issues.csv', index=False)
 hist.to_csv('web/content/includes/labels_hist.csv', index=False)
 
 # Generate list of current activities
-state_in_progress = conf['progress_labels']['in_progress']
+print("\n# Writing current issues.") 
+my_issues = []
+my_issues_long = []
+for id, title, url, desc in zip(
+        issues_in_progress['issue_id'],
+        issues_in_progress['title'],
+        issues_in_progress['url'],
+        issues_in_progress['desc']):
+    print(f" {id}, {title}, {url}")
+    my_issues.append(f"* [{title}]({url}) ({id}).")
+    my_issues_long.append(f"## {title}\n")
+    my_issues_long.append(f"Link to activitiy in board: {url} \n")
+    my_issues_long.append(f"{desc}\n\n")
+
 with open('web/content/includes/current_activities.inc', 'w') as f:
-    my_issues = []
-    print(f"issue in progress {issues_in_progress['issue_id']}")
-    for x, y, z in zip(issues_in_progress['issue_id'], issues_in_progress['title'], issues_in_progress['url']):
-        print(f" {x}, {y}, {z}")
-        my_issues.append(f"* {x} [{y}]({z}).")
-    print(f"f {my_issues}.")
     f.write('\n'.join(my_issues))
+with open('web/content/includes/current_activities_long.inc', 'w') as f:
+    f.write('\n'.join(my_issues_long))
 
 # Generate list of past activities
-state_done = conf['progress_labels']['in_progress']
+print("\n# Writing past issues.") 
+my_issues = []
+my_issues_long = []
+for id, title, url, desc in zip(
+        issues_done['issue_id'],
+        issues_done['title'],
+        issues_done['url'],
+        issues_done['desc']):
+    print(f" {id}, {title}, {url}")
+    my_issues.append(f"* [{title}]({url}) {id}.")
+    my_issues_long.append(f"## {title}\n")
+    my_issues_long.append(f"Link to activitiy in board: {url} \n")
+    my_issues_long.append(f"{desc}\n\n")
+
 with open('web/content/includes/past_activities.inc', 'w') as f:
-    my_issues = []
-    print(f"issue done {issues_done['issue_id']}")
-    for x, y, z in zip(issues_done['issue_id'], issues_done['title'], issues_done['url']):
-        print(f" {x}, {y}, {z}")
-        my_issues.append(f"* {x} [{y}]({z}).")
-    print(f"f {my_issues}.")
     f.write('\n'.join(my_issues))
+with open('web/content/includes/past_activities_long.inc', 'w') as f:
+    f.write('\n'.join(my_issues_long))
 
 #
 # Replace 
@@ -152,3 +199,14 @@ def update_keywords(file_in, keywords):
             print(line, end='')
     [ print(o) for o in occurrences ]
             
+keywords = {
+    '[GGI_DATA_1]': f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]',
+}
+
+print("\n# Replacing strings.")
+files = glob.glob("web/content/*.md")
+files_ = [ f for f in files if os.path.isfile(f) ]
+for file in files_:
+    update_keywords(file, keywords)
+    
+print("Done.")

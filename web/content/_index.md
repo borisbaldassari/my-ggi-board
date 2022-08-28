@@ -7,7 +7,7 @@ layout: default
 
 Quick intro
 
-Look at [your own dashboard](/dashboard)!
+Look at [your own dashboard](dashboard)!
 
 ## Next steps
 
