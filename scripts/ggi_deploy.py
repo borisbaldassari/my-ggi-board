@@ -1,4 +1,5 @@
-######################################################################
+#!/usr/bin/python3
+# ######################################################################
 # Copyright (c) 2022 Boris Baldassari and others
 #
 # This program and the accompanying materials are made
