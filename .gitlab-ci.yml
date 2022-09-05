@@ -9,10 +9,10 @@ update_website:
   script:
     - python -m	pip install -r requirements.txt
     - python scripts/ggi_update_website.py
-    - git config user.email gitlab@my-ggi.com
-    - git config user.name "GitLab pipeline"
-    - git commit -m "[skip ci] Update website." -a
-
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID"
+    paths:
+      - ./web
 
 pages:
   stage: deploy
@@ -22,6 +22,10 @@ pages:
   script:
     - cd web && hugo && cd -
     - mv -v web/public .
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID"
+    paths:
+      - ./web
   artifacts:
     paths:
       - public/
