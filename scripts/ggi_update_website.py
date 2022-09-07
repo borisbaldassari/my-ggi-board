@@ -196,6 +196,11 @@ ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.
 with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
     f.write(ggi_data_all_activities)
 
+# Empty (or not) the initialisation banner text in index.
+if issues_not_started.shape[0] < 25:
+    with open('web/content/includes/initialisation.inc', 'w') as f:
+        f.write('')
+
 #
 # Replace 
 #
