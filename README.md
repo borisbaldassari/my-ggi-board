@@ -40,9 +40,12 @@ $
 
 2. Create a new, empty project in a GitLab instance.
 
-3. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. 
+3. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. Remember it, you will never see it see it again.
+  - In case the instance admin has disabled the _project_ access token, you can use an _account_ access token, although we recommend creating a dedicated account for security purposes in that case. Go to Preferences > Access Tokens and create the token from there.
 
-4. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url`, `gitlab_project`, `gitlab_token`.
+4. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url` and `gitlab_project`
+
+5. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_ACCESS_TOKEN` and set the access token as the value. Make it `Protected` and `Masked`.
 
 5. Run the deploy script: `python3 scripts/ggi_deploy.py --activities --board`. That will:
   - Create labels, activities, board.
