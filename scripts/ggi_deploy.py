@@ -29,6 +29,9 @@ import json
 import requests 
 import tarfile
 import argparse
+import tldextract
+import urllib.parse, glob, os
+from fileinput import FileInput
 
 # Define some variables.
 
@@ -192,16 +195,23 @@ print("Done.")
 # Setup website
 #
 
-import urllib.parse, glob, os
-from fileinput import FileInput
 
 print("\n# Replacing keywords in static website.")
 
 # List of strings to be replaced.
-ggi_activities_url = urllib.parse.urljoin(
-    conf['gitlab_url'],
-    os.path.join(conf['gitlab_project'], '-/issues'))
-keywords = {'[GGI-ACTIVITIES_URL]': ggi_activities_url}
+pieces = tldextract.extract(conf['gitlab_url'])
+ggi_url = urllib.parse.urljoin(
+    conf['gitlab_url'], conf['gitlab_project'])
+ggi_pages_url = 'https://' + conf['gitlab_project'].split('/')[0] + "." + pieces.domain + ".io/" + conf['gitlab_project'].split('/')[-1]
+ggi_activities_url = os.path.join(ggi_url, '-/issues')
+keywords = {
+    '[GGI_URL]': ggi_url,
+    '[GGI_PAGES_URL]': ggi_pages_url,
+    '[GGI_ACTIVITIES_URL]': ggi_activities_url
+}
+
+[ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
+
 
 # Replace keywords in md files.
 def update_keywords(file_in, keywords):
@@ -222,6 +232,7 @@ def update_keywords(file_in, keywords):
 #        f.write(s)
 
 update_keywords('web/config.toml', keywords)
+update_keywords('README.md', keywords)
 files = glob.glob("web/content/*.md")
 files_ = [ f for f in files if os.path.isfile(f) ]
 for file in files_:

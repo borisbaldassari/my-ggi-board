@@ -1,4 +1,6 @@
-
+# This file is derived from a GitLab template.
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Pages/Hugo.gitlab-ci.yml
 
 variables:
   GIT_SUBMODULE_STRATEGY: none
