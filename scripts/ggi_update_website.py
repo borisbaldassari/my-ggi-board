@@ -24,7 +24,7 @@ import re
 import glob, os
 from fileinput import FileInput
 
-
+print(f"DEBUG {os.environ['GGI_ACCESS_TOKEN']}")
 # Define some variables.
 
 file_conf = 'conf/ggi_deployment.json'
@@ -63,7 +63,13 @@ if args.opt_issues_csv:
 print(f"# Reading deployment options from {file_conf}.")
 with open(file_conf, 'r', encoding='utf-8') as f:
     conf = json.load(f)
-    
+
+if os.environ['GGI_ACCESS_TOKEN']:
+    print("- Using access_token from env var.")
+else:
+    print(" Cannot find env var GGI_ACCESS_TOKEN. Please set it and re-run me.")
+    exit(1)
+
 issues = []
 issues_cols = ['issue_id', 'state', 'title', 'labels', 'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
 tasks = []
@@ -77,7 +83,7 @@ if args.opt_issues_csv:
         print(f"- {row[0]} {row[2]}.")
 else:
     print(f"\n# Connection to GitLab at {conf['gitlab_url']} - {conf['gitlab_project']}.")
-    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=conf['gitlab_token'])
+    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=os.environ['GGI_ACCESS_TOKEN'])
     project = gl.projects.get(conf['gitlab_project'])
 
     print("# Fetching issues..")
