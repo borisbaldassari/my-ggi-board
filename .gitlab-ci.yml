@@ -1,23 +1,33 @@
-# This file is a template, and might need editing before it works on your project.
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This file is derived from a GitLab template.
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Pages/Hugo.gitlab-ci.yml
 
----
-# All available Hugo versions are listed here:
-# https://gitlab.com/pages/hugo/container_registry
-image: registry.gitlab.com/pages/hugo/hugo_extended:latest
-
 variables:
   GIT_SUBMODULE_STRATEGY: none
-#  HUGO_ENV: production
+
+update_website:
+  stage: build
+  image: python:3.7
+  script:
+    - python -m	pip install -r requirements.txt
+    - python scripts/ggi_update_website.py
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID"
+    paths:
+      - ./web
 
 pages:
   stage: deploy
+  # All available Hugo versions are listed here:
+  # https://gitlab.com/pages/hugo/container_registry
+  image: registry.gitlab.com/pages/hugo/hugo_extended:latest
   script:
     - cd web && hugo && cd -
     - mv -v web/public .
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID"
+    paths:
+      - ./web
   artifacts:
     paths:
       - public/

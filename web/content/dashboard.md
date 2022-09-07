@@ -9,13 +9,13 @@ layout: default
 <script>
 data = {
   labels: [
-    'Done',
+    'Not Started',
     'Working',
-    'Roadmap'
+    'Done'
   ],
   datasets: [{
     label: 'My activities',
-    data: [7, 3, 15],
+    data: [GGI_DATA_1],
     backgroundColor: [
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',
