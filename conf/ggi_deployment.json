@@ -1,6 +1,13 @@
 {
-  "gitlab_url": "https://gitlab.ow2.org",
-  "gitlab_project": "ggi/my-ggi-board-test",
-  "gitlab_token": "xxxx",
-  "activities_url": "https://gitlab.ow2.org/ggi/ggi/-/archive/main/ggi-main.tar.bz2?path=handbook/content"
+    "gitlab_url": "https://gitlab.com",
+    "gitlab_project": "bbaldassari/my-ggi",
+    "gitlab_token": "xxx",
+    "proxy_url": "",
+    "activities_url": "https://gitlab.ow2.org/ggi/ggi/-/archive/main/ggi-main.tar.bz2?path=handbook/content",
+    "progress_labels": {
+	    "not_selected": "Not selected",
+        "not_started": "Not started",
+        "in_progress": "In Progress",
+        "done": "Done"
+    }
 }

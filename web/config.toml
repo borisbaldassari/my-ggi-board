@@ -1,4 +1,4 @@
-baseURL = 'http://example.org/'
+baseURL = '[GGI_PAGES_URL]'
 languageCode = 'en-us'
 title = 'My Good Governance Initiative'
 
@@ -36,7 +36,7 @@ paginate = 6
   # Show your social information with icon on index bio with `_index.md` content.
   [params.socialOptions]
     dev-to = ""
-    email = ""
+    email = "contact@myggi.com"
     facebook = ""
     github = ""
     instagram = ""
@@ -52,13 +52,13 @@ paginate = 6
 [menu]
 [[menu.header]]
   name = "Activities"
-  url = "[GGI-ACTIVITIES_URL]"
+  url = "[GGI_ACTIVITIES_URL]"
 [[menu.header]]
   name = "Dashboard"
-  url = "/dashboard"
+  url = "dashboard"
 [[menu.footer]]
     name = "RSS"
-    url = "/index.xml"
+    url = "index.xml"
 
 [markup]
 [markup.highlight]

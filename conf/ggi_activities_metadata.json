@@ -3,189 +3,270 @@
     "Developer": "#6699cc",
     "Team Leader": "#6699cc",
     "Decision Maker": "#6699cc"
-    },
+  },
   "goals": [
-    {"name": "Usage Goal", "colour": "#8fbc8f"},
-    {"name": "Trust Goal", "colour": "#8fbc8f"},
-    {"name": "Culture Goal", "colour": "#8fbc8f"},
-    {"name": "Engagement Goal", "colour": "#8fbc8f"},
-    {"name": "Strategy Goal", "colour": "#8fbc8f"}
-    ],
+    {
+      "name": "Usage Goal",
+      "colour": "#8fbc8f"
+    },
+    {
+      "name": "Trust Goal",
+      "colour": "#8fbc8f"
+    },
+    {
+      "name": "Culture Goal",
+      "colour": "#8fbc8f"
+    },
+    {
+      "name": "Engagement Goal",
+      "colour": "#8fbc8f"
+    },
+    {
+      "name": "Strategy Goal",
+      "colour": "#8fbc8f"
+    }
+  ],
   "activities": [
     {
       "id": "GGI-A-17",
       "name": "Inventory of open source skills and resources",
       "path": "51_activity_17.md",
-      "roles": ["Team Leader", "Developer"],
+      "roles": [
+        "Team Leader",
+        "Developer"
+      ],
       "goal": "Usage Goal"
     },
     {
       "id": "GGI-A-18",
       "name": "Open source competency growth",
       "path": "51_activity_18.md",
-      "roles": ["Team Leader"],
+      "roles": [
+        "Team Leader"
+      ],
       "goal": "Usage Goal"
     },
     {
       "id": "GGI-A-19",
       "name": "Open source supervision",
       "path": "51_activity_19.md",
-      "roles": ["Team Leader"],
+      "roles": [
+        "Team Leader"
+      ],
       "goal": "Usage Goal"
     },
     {
       "id": "GGI-A-20",
       "name": "Open source enterprise software",
       "path": "51_activity_20.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Usage Goal"
     },
     {
       "id": "GGI-A-42",
       "name": "Manage open source skills and resources",
       "path": "51_activity_42.md",
-      "roles": ["Team Leader"],
+      "roles": [
+        "Team Leader"
+      ],
       "goal": "Usage Goal"
     },
     {
       "id": "GGI-A-21",
       "name": "Manage legal compliance",
       "path": "52_activity_21.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Trust Goal"
     },
     {
       "id": "GGI-A-22",
       "name": "Manage software vulnerabilities",
       "path": "52_activity_22.md",
-      "roles": ["Team Leader"],
+      "roles": [
+        "Team Leader"
+      ],
       "goal": "Trust Goal"
     },
     {
       "id": "GGI-A-23",
       "name": "Manage software dependencies",
       "path": "52_activity_23.md",
-      "roles": ["Team Leader", "Developer"],
+      "roles": [
+        "Team Leader",
+        "Developer"
+      ],
       "goal": "Trust Goal"
     },
     {
       "id": "GGI-A-24",
       "name": "Manage key indicators",
       "path": "52_activity_24.md",
-      "roles": ["Decision Maker", "Team Leader"],
+      "roles": [
+        "Decision Maker",
+        "Team Leader"
+      ],
       "goal": "Trust Goal"
     },
     {
       "id": "GGI-A-44",
       "name": "Run code reviews",
       "path": "52_activity_44.md",
-      "roles": ["Team Leader", "Developer"],
+      "roles": [
+        "Team Leader",
+        "Developer"
+      ],
       "goal": "Trust Goal"
     },
     {
       "id": "GGI-A-25",
       "name": "Promote open source development best practices",
       "path": "53_activity_25.md",
-      "roles": ["Team Leader", "Developer"],
+      "roles": [
+        "Team Leader",
+        "Developer"
+      ],
       "goal": "Culture Goal"
     },
     {
       "id": "GGI-A-26",
       "name": "Contribute to open source projects",
       "path": "53_activity_26.md",
-      "roles": ["Team Leader", "Developer"],
+      "roles": [
+        "Team Leader",
+        "Developer"
+      ],
       "goal": "Culture Goal"
     },
     {
       "id": "GGI-A-27",
       "name": "Belong to the open source community",
       "path": "53_activity_27.md",
-      "roles": ["Team Leader", "Decision Maker"],
+      "roles": [
+        "Team Leader",
+        "Decision Maker"
+      ],
       "goal": "Culture Goal"
     },
     {
       "id": "GGI-A-28",
       "name": "HR perspective",
       "path": "53_activity_28.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Culture Goal"
     },
     {
       "id": "GGI-A-39",
       "name": "Upstream first",
       "path": "53_activity_39.md",
-      "roles": ["Team Leader", "Developer"],
+      "roles": [
+        "Team Leader",
+        "Developer"
+      ],
       "goal": "Culture Goal"
     },
     {
       "id": "GGI-A-29",
       "name": "Engage with open source projects",
       "path": "54_activity_29.md",
-      "roles": ["Decision Maker", "Developer"],
+      "roles": [
+        "Decision Maker",
+        "Developer"
+      ],
       "goal": "Engagement Goal"
     },
     {
       "id": "GGI-A-30",
       "name": "Support open source communities",
       "path": "54_activity_30.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Engagement Goal"
     },
     {
       "id": "GGI-A-31",
       "name": "Publicly assert use of open source",
       "path": "54_activity_31.md",
-      "roles": ["Decision Maker", "Team Leader"],
+      "roles": [
+        "Decision Maker",
+        "Team Leader"
+      ],
       "goal": "Engagement Goal"
     },
     {
       "id": "GGI-A-33",
       "name": "Engage with open source vendors",
       "path": "54_activity_33.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Engagement Goal"
     },
     {
       "id": "GGI-A-43",
       "name": "Open source procurement policy",
       "path": "54_activity_43.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Engagement Goal"
     },
     {
       "id": "GGI-A-16",
       "name": "Setup a strategy for corporate open source governance",
       "path": "55_activity_16.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Strategy Goal"
     },
     {
       "id": "GGI-A-34",
       "name": "C-Level awareness",
       "path": "55_activity_34.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Strategy Goal"
     },
     {
       "id": "GGI-A-35",
       "name": "Open source and digital sovereignty",
       "path": "55_activity_35.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Strategy Goal"
     },
     {
       "id": "GGI-A-36",
       "name": "Open source enabling innovation",
       "path": "55_activity_36.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Strategy Goal"
     },
     {
       "id": "GGI-A-37",
       "name": "Open source enabling digital transformation",
       "path": "55_activity_37.md",
-      "roles": ["Decision Maker"],
+      "roles": [
+        "Decision Maker"
+      ],
       "goal": "Strategy Goal"
     }
-  ]
+  ],
+  "source": {
+    "git-remote": "https://gitlab.ow2.org",
+    "git-project": "ggi/ggi",
+    "git-reference": "dev",
+    "git-commit-id": "7a3bb2f3d484a3509fed2ca90f65cc16b5f65dbe"
+  }
 }

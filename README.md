@@ -1,16 +1,64 @@
 
 
-## Usage
+# Welcome
 
-1. Create a new, empty project in a GitLab instance. // OR clone the my-ggi-board repository / project.
-2. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`.
-3. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url`, `gitlab_project`, `gitlab_token`.
-4. Run the deploy script: `python3 scripts/ggi_deploy.py --activities --board`.
+This the home is your own Good Governance Initiative.
 
+Once set up (see below), you can find the published website at [GGI_PAGES_URL].
+
+
+## Setup
+
+1. Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
+
+To do so, clone the my-ggi-board repository locally, add the new project's reference to the remotes, and push it to the new remote:
+```
+git clone https://gitlab.ow2.org/ggi/my-ggi-board
+git remote add my-ggi git@gitlab.com:bbaldassari/my-ggi.git
+git push my-ggi
+```
+
+Example:
+```
+$ git remote -v
+my-ggi	git@gitlab.com:bbaldassari/my-ggi.git (fetch)
+my-ggi	git@gitlab.com:bbaldassari/my-ggi.git (push)
+origin	https://gitlab.ow2.org/ggi/my-ggi-board (fetch)
+origin	https://gitlab.ow2.org/ggi/my-ggi-board (push)
+$ git push my-ggi
+Énumération des objets: 186, fait.
+Décompte des objets: 100% (186/186), fait.
+Compression par delta en utilisant jusqu'à 8 fils d'exécution
+Compression des objets: 100% (144/144), fait.
+Écriture des objets: 100% (186/186), 160.42 Kio | 26.74 Mio/s, fait.
+Total 186 (delta 17), réutilisés 182 (delta 17), réutilisés du pack 0
+remote: Resolving deltas: 100% (17/17), done.
+To gitlab.com:bbaldassari/my-ggi.git
+ * [new branch]      main -> main
+$
+```
+
+2. Create a new, empty project in a GitLab instance.
+
+3. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. 
+
+4. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url`, `gitlab_project`, `gitlab_token`.
+
+5. Run the deploy script: `python3 scripts/ggi_deploy.py --activities --board`. That will:
+  - Create labels, activities, board.
+  - Setup the static website configuration.
+  - Replace the URL in the README.
+
+6. Commit your changes.
+
+7. Push to the local gitlab instance on the `main` branch. That will:
+  - Create a pipeline and gitlab page thanks to the `.gitlab_ci.yml` file.
+  - Execute the ggi_update_website script, updating the website's content.
+  - Publish the gitlab page.
 
 ## Notes
 
-* Python prerequisites: `python-gitlab`.
+* Prerequisites for ptyhon are registered in `requirements.txt`. You are encouraged to create a virtual environment to execute the scripts, althought it is not required.
 * GitLab CE doesn't allow to create Boards through the API.
 
 

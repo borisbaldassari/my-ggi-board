@@ -1,4 +1,5 @@
-######################################################################
+#!/usr/bin/python3
+# ######################################################################
 # Copyright (c) 2022 Boris Baldassari and others
 #
 # This program and the accompanying materials are made
@@ -26,9 +27,12 @@
 
 import gitlab
 import json
-import urllib.request 
+import requests 
 import tarfile
 import argparse
+import tldextract
+import urllib.parse, glob, os
+from fileinput import FileInput
 
 # Define some variables.
 
@@ -75,8 +79,18 @@ with open(file_conf, 'r', encoding='utf-8') as f:
 
 # Download activities content from the main gitlab project.
 url_activities = conf['activities_url']
-print(f"\n# Downloading file from {url_activities}.")
-urllib.request.urlretrieve(url_activities, tmp_gz_file)
+if conf['proxy_url'] != '':
+    proxy = {conf['proxy_url']}
+    print(f"\n# Downloading file from {url_activities} with proxy {proxy}.")
+    resp = requests.get(url_activities, proxies=proxy)
+else:
+    print(f"\n# Downloading file from {url_activities}.")
+    resp = requests.get(url_activities)
+
+# And store content as a gz file.
+with open(tmp_gz_file, 'wb') as fd:
+    for chunk in resp.iter_content(chunk_size=128):
+        fd.write(chunk)
 
 activities = []
 print("\n# Building activities.")
@@ -122,7 +136,16 @@ if (args.opt_activities):
             project.labels.create(
                 {'name': label, 'color': metadata['roles'][label]}
               )
-        
+
+    # Create labels for activity tracking
+    for label in conf['progress_labels'].keys():
+        if label not in existing_labels:
+            name = conf['progress_labels'][label]
+            print(f"  - Creating label: {name}.")
+            project.labels.create(
+                {'name': name, 'color': '#ed9121'}
+              )
+
     # Create goal labels if needed
     for goal in metadata['goals']:
         if goal['name'] not in existing_labels:
@@ -135,7 +158,8 @@ if (args.opt_activities):
     print("\n# Create activities.")
     for activity in activities:
       print(f"  - Creating issue [{activity['name']}]..")
-      labels = [activity['goal']] + activity['roles']
+      labels = [activity['goal']] + activity['roles'] \
+          + [conf['progress_labels']['not_started']]
       print(f"    with labels {labels}")
       description = "".join( [i for i in activity['content']] )
       ret = project.issues.create({'title': activity['name'],
@@ -172,25 +196,34 @@ print("Done.")
 # Setup website
 #
 
-import urllib.parse, glob, os
-from fileinput import FileInput
 
-print("# Replacing keywords in static website.")
-# List of
-ggi_activities_url = urllib.parse.urljoin(
-    conf['gitlab_url'],
-    os.path.join(conf['gitlab_project'], '/-/issues'))
-print(os.path.join(conf['gitlab_project'], '/-/issues'))
-keywords = {'[GGI-ACTIVITIES_URL]': ggi_activities_url}
-print(keywords)
+print("\n# Replacing keywords in static website.")
+
+# List of strings to be replaced.
+pieces = tldextract.extract(conf['gitlab_url'])
+ggi_url = urllib.parse.urljoin(
+    conf['gitlab_url'], conf['gitlab_project'])
+ggi_pages_url = 'https://' + conf['gitlab_project'].split('/')[0] + "." + pieces.domain + ".io/" + conf['gitlab_project'].split('/')[-1]
+ggi_activities_url = os.path.join(ggi_url, '-/issues')
+keywords = {
+    '[GGI_URL]': ggi_url,
+    '[GGI_PAGES_URL]': ggi_pages_url,
+    '[GGI_ACTIVITIES_URL]': ggi_activities_url
+}
+
+[ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
+
 
 # Replace keywords in md files.
 def update_keywords(file_in, keywords):
+    occurrences = []
     for keyword in keywords:
-        print(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
         for line in FileInput(file_in, inplace=1, backup='.bak'):
-            line = line.replace(keyword, keywords[keyword])
-            print(line, end = '')
+            if keyword in line:
+                occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
+                line = line.replace(keyword, keywords[keyword])
+            print(line, end='')
+    [ print(o) for o in occurrences ]
             
 #    with open(file_in, 'w') as f:
 #        for keyword, value in enumerate(keywords):
@@ -200,7 +233,11 @@ def update_keywords(file_in, keywords):
 #        f.write(s)
 
 update_keywords('web/config.toml', keywords)
+update_keywords('README.md', keywords)
 files = glob.glob("web/content/*.md")
 files_ = [ f for f in files if os.path.isfile(f) ]
 for file in files_:
     update_keywords(file, keywords)
+    
+print("Done.")
+
