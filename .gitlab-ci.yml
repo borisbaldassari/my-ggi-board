@@ -4,6 +4,7 @@
 
 variables:
   GIT_SUBMODULE_STRATEGY: none
+  GGI_ACCESS_TOKEN: $GGI_ACCESS_TOKEN
 
 update_website:
   stage: build

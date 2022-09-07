@@ -71,8 +71,13 @@ with open(file_meta, 'r', encoding='utf-8') as f:
 print(f"# Reading deployment options from {file_conf}.")
 with open(file_conf, 'r', encoding='utf-8') as f:
     conf = json.load(f)
-    
 
+if os.environ['GGI_ACCESS_TOKEN']:
+    print("- Using access_token from env var.")
+else:
+    print(" Cannot find env var GGI_ACCESS_TOKEN. Please set it and re-run me.")
+    exit(1)
+    
 #
 # Build activities
 #
@@ -115,7 +120,7 @@ with open(file_json_out, 'w', encoding='utf-8') as f:
 
 if (args.opt_activities) or (args.opt_board):
     print(f"\n# Connection to GitLab at {conf['gitlab_url']}.")
-    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=conf['gitlab_token'])
+    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=os.environ['GGI_ACCESS_TOKEN'])
     project = gl.projects.get(conf['gitlab_project'])
 
 
