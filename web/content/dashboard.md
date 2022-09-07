@@ -15,7 +15,7 @@ data = {
   ],
   datasets: [{
     label: 'My activities',
-    data: [GGI_DATA_1],
+    data: {{% content "includes/ggi_data_all_activities.inc" %}},
     backgroundColor: [
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',

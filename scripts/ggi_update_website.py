@@ -190,6 +190,11 @@ with open('web/content/includes/past_activities.inc', 'w') as f:
     f.write('\n'.join(my_issues))
 with open('web/content/includes/past_activities_long.inc', 'w') as f:
     f.write('\n'.join(my_issues_long))
+    
+# Generate data points for the dashboard
+ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
+with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
+    f.write(ggi_data_all_activities)
 
 #
 # Replace 
@@ -206,9 +211,7 @@ def update_keywords(file_in, keywords):
             print(line, end='')
     [ print(o) for o in occurrences ]
             
-keywords = {
-    '[GGI_DATA_1]': f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]',
-}
+keywords = {}
 
 print("\n# Replacing strings.")
 files = glob.glob("web/content/*.md")

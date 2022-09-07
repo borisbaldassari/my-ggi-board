@@ -13,7 +13,7 @@ update_website:
     - python -m	pip install -r requirements.txt
     - python scripts/ggi_update_website.py
   cache:
-    key: "$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID"
+    key: "$CI_COMMIT_SHORT_SHA"
     paths:
       - ./web
 
@@ -26,7 +26,7 @@ pages:
     - cd web && hugo && cd -
     - mv -v web/public .
   cache:
-    key: "$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID"
+    key: "$CI_COMMIT_SHORT_SHA"
     paths:
       - ./web
   artifacts:
