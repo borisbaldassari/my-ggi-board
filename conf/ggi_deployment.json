@@ -2,7 +2,6 @@
     "gitlab_url": "https://gitlab.ow2.org",
     "gitlab_project": "ggi/my-ggi-board-test",
     "proxy_url": "",
-    "activities_url": "https://gitlab.ow2.org/ggi/ggi/-/archive/main/ggi-main.tar.bz2?path=handbook/content",
     "progress_labels": {
 	"not_selected": "Not Selected",
 	"not_started": "Not Started",

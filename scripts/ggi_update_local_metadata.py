@@ -22,20 +22,25 @@
 #   -r, --refefence   Target branch or tag
 #
 
-import gitlab
-import json
 import argparse
-import base64
+import copy
+import datetime
+import json
 import os
+import requests 
+import tarfile
+import tempfile
 
-local_metadata_file_path = os.getcwd() + '/../conf/ggi_activities_metadata.json'
+local_conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
+local_activities_file_path = local_conf_dir + '/ggi_activities_full.json'
 
-# Default source:
-# https://gitlab.ow2.org/ggi/ggi/-/blob/dev/handbook/content/ggi_activities_metadata.json
 remote_git_url='https://gitlab.ow2.org'
 remote_git_project='ggi/ggi'
-remote_git_reference='dev'
-remote_git_metadata_file='handbook/content/ggi_activities_metadata.json'
+remote_git_reference='main'
+
+tmp_gz_dir = tempfile.TemporaryDirectory()
+tmp_gz_filename=tmp_gz_dir.name+'/ggi_content.tar.bz2'
+tmp_gz_filename='/tmp/ggi_content.tar.bz2'
 
 #
 # Parse arguments from command line.
@@ -49,26 +54,57 @@ parser.add_argument('-r', '--reference',
     help='Specify target branch or tag')
 args = parser.parse_args()
 
-# Connect to GitLab
-print(f"# Connection to GitLab\nGit remote={remote_git_url}\n")
-gl = gitlab.Gitlab(url=remote_git_url, per_page=50)
-gl_project = gl.projects.get(remote_git_project)
+# Build download URL
+# https://gitlab.ow2.org/ggi/ggi/-/archive/main/ggi-main.tar.bz2?path=handbook/content
+remote_git_contents_url = \
+    remote_git_url + '/' + \
+    remote_git_project + '/-/archive/' + \
+    args.target_git_ref + '/ggi-' + \
+    args.target_git_ref + '.tar.bz2?path=handbook/content'
 
-# Download remote file
-print(f"# Download Metadata file\nGit ref={args.target_git_ref}\n")
-metadata = gl_project.files.get(file_path=remote_git_metadata_file, ref=args.target_git_ref)
+print(f"\n# Download Activities from remote repository")
+print(f"# URL: {remote_git_contents_url}")
+resp = requests.get(remote_git_contents_url)
+if (resp.status_code != 200):
+    print("Status code: " + resp.status_code)
 
-# Add source info
-metadata_dict = json.loads(base64.b64decode(metadata.content))
-metadata_dict.update({"source": {}})
-metadata_source = metadata_dict.get("source")
+# And store content as a gz file in a temporary folder
+with open(tmp_gz_filename, 'wb') as fd:
+    for chunk in resp.iter_content(chunk_size=128):
+        fd.write(chunk)
+
+activities = []
+print("\n# Build activities")
+tf = tarfile.open(tmp_gz_filename, 'r:bz2')
+tf_main_folder=tf.next()
+tmp_gz_dir.cleanup() # Delete temporary folder and file
+
+# Load Metadata file
+activities_content = json.load(tf.extractfile(
+          tf_main_folder.name
+          + '/handbook/content/' 
+          + 'ggi_activities_metadata.json'))
+# Add actual Activities description
+for activity in activities_content['activities']:
+    print(f"  - Building activity [{activity['id']}]..")
+    content = tf.extractfile(
+          tf_main_folder.name
+          + '/handbook/content/' 
+          + activity['path']
+      ).readlines()
+    activity['content'] = "".join( [ i.decode() for i in content ] )
+    activities.append(activity)
+
+# Add activities reference metadata
+activities_content.update({"source": {}})
+metadata_source = activities_content.get("source")
 metadata_source.update({"git-remote" : remote_git_url})
 metadata_source.update({"git-project" : remote_git_project})
-metadata_source.update({"git-reference" : metadata.ref})
-metadata_source.update({"git-commit-id" : metadata.commit_id})
-print(f"# Added source information:\n" + json.dumps(metadata_source, indent=True) + "\n")
+metadata_source.update({"git-reference" : args.target_git_ref})
+metadata_source.update({"download-timestamp" : datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+print(f"# Additional source information:\n" + json.dumps(metadata_source, indent=True) + "\n")
 
 # Save file locally
-print(f"# Save file in filesystem\nFilepath={local_metadata_file_path}\n")
-with open(local_metadata_file_path, 'w') as metadata_file:
-    json.dump(metadata_dict, metadata_file, indent=2)
+print(f"# Save file in locally: {local_activities_file_path}")
+with open(local_activities_file_path, 'w') as out_file:
+    json.dump(activities_content, out_file, indent=2)
