@@ -161,7 +161,7 @@ for id, title, url, desc in zip(
         issues_in_progress['url'],
         issues_in_progress['desc']):
     print(f" {id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) ({id}).")
+    my_issues.append(f"* [{title}]({url}) (GGI-A-{id}).")
     my_issues_long.append(f"## {title}\n")
     my_issues_long.append(f"Link to activitiy in board: {url} \n")
     my_issues_long.append(f"{desc}\n\n")
@@ -181,9 +181,9 @@ for id, title, url, desc in zip(
         issues_done['url'],
         issues_done['desc']):
     print(f" {id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) {id}.")
+    my_issues.append(f"* [{title}]({url}) (GGI-A-{id}).")
     my_issues_long.append(f"## {title}\n")
-    my_issues_long.append(f"Link to activitiy in board: {url} \n")
+    my_issues_long.append(f"Link to activity in board: {url} \n")
     my_issues_long.append(f"{desc}\n\n")
 
 with open('web/content/includes/past_activities.inc', 'w') as f:
