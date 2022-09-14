@@ -1,11 +1,10 @@
 {
     "gitlab_url": "https://gitlab.ow2.org",
     "gitlab_project": "ggi/my-ggi-board-test",
-    "proxy_url": "",
     "progress_labels": {
-	"not_selected": "Not Selected",
-	"not_started": "Not Started",
-	"in_progress": "In Progress",
-	"done": "Done"
+	    "not_selected": "Not Selected",
+	    "not_started": "Not Started",
+	    "in_progress": "In Progress",
+    	"done": "Done"
     }
 }
