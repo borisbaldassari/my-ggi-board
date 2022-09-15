@@ -9,13 +9,17 @@ Once set up (see below), you can find the published website at [GGI_PAGES_URL].
 
 ## Setup
 
-1. Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
+1. Create an empty project on your target GitLab instance.
+![image.png](./image.png)
+`<img src="image.png" width="25%" height="25%">`
+
+2. Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
 
 To do so, clone the my-ggi-board repository locally, add the new project's reference to the remotes, and push it to the new remote:
 ```
-git clone https://gitlab.ow2.org/ggi/my-ggi-board
-git remote add my-ggi git@gitlab.com:bbaldassari/my-ggi.git
-git push my-ggi
+$ git clone https://gitlab.ow2.org/ggi/my-ggi-board
+$ git remote add my-ggi git@gitlab.com:bbaldassari/my-ggi.git
+$ git push my-ggi
 ```
 
 Example:
@@ -25,6 +29,7 @@ my-ggi	git@gitlab.com:bbaldassari/my-ggi.git (fetch)
 my-ggi	git@gitlab.com:bbaldassari/my-ggi.git (push)
 origin	https://gitlab.ow2.org/ggi/my-ggi-board (fetch)
 origin	https://gitlab.ow2.org/ggi/my-ggi-board (push)
+$
 $ git push my-ggi
 Énumération des objets: 186, fait.
 Décompte des objets: 100% (186/186), fait.
@@ -38,14 +43,15 @@ To gitlab.com:bbaldassari/my-ggi.git
 $
 ```
 
-2. Create a new, empty project in a GitLab instance.
-
 3. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. Remember it, you will never see it see it again.
   - In case the instance admin has disabled the _project_ access token, you can use an _account_ access token, although we recommend creating a dedicated account for security purposes in that case. Go to Preferences > Access Tokens and create the token from there.
+![image-1.png](./image-1.png)
 
 4. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url` and `gitlab_project`
 
-5. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_ACCESS_TOKEN` and set the access token as the value. Make it `Protected` and `Masked`.
+5. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` and `Masked`.
+![image-2.png](./image-2.png)
+![image-3.png](./image-3.png)
 
 5. Run the deploy script: `python3 scripts/ggi_deploy.py --activities --board`. That will:
   - Create labels, activities, board.
