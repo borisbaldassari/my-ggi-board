@@ -67,7 +67,7 @@ with open(conf_file, 'r', encoding='utf-8') as f:
 # Connect to GitLab
 #
 if not os.environ['GGI_GITLAB_TOKEN']:
-    print("Expecting GitLan private token in env variable 'GGI_GITLAB_TOKEN'")
+    print("Expecting GitLab private token in env variable 'GGI_GITLAB_TOKEN'")
     exit(1)
 
 if (args.opt_activities) or (args.opt_board):
@@ -175,12 +175,6 @@ def update_keywords(file_in, keywords):
             print(line, end='')
     [ print(o) for o in occurrences ]
             
-#    with open(file_in, 'w') as f:
-#        for keyword, value in enumerate(keywords):
-#            print('- Changing "{keyword}" to "{value}" in {file_in}'.format(**locals()))
-#            content = f.read()
-#            content = content.replace(keyword, value)
-#        f.write(s)
 
 update_keywords('web/config.toml', keywords)
 update_keywords('README.md', keywords)
