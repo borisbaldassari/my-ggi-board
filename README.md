@@ -10,8 +10,7 @@ Once set up (see below), you can find the published website at [GGI_PAGES_URL].
 ## Setup
 
 1. Create an empty project on your target GitLab instance.
-`![image.png](./image.png)`
-<img src="image.png" width="25%" height="25%">
+<img src="image.png" width="50%" height="50%">
 
 2. Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
 
@@ -45,13 +44,14 @@ $
 
 3. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. Remember it, you will never see it see it again.
   - In case the instance admin has disabled the _project_ access token, you can use an _account_ access token, although we recommend creating a dedicated account for security purposes in that case. Go to Preferences > Access Tokens and create the token from there.
-![image-1.png](./image-1.png)
+
+<img src="image-1.png" width="50%" height="50%">
 
 4. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url` and `gitlab_project`
 
 5. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` and `Masked`.
-![image-2.png](./image-2.png)
-![image-3.png](./image-3.png)
+<img src="image-2.png" width="50%" height="50%">
+<img src="image-3.png" width="50%" height="50%">
 
 5. Run the deploy script: `python3 scripts/ggi_deploy.py --activities --board`. That will:
   - Create labels, activities, board.
