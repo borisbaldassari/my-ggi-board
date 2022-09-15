@@ -10,8 +10,8 @@ Once set up (see below), you can find the published website at [GGI_PAGES_URL].
 ## Setup
 
 1. Create an empty project on your target GitLab instance.
-![image.png](./image.png)
-`<img src="image.png" width="25%" height="25%">`
+`![image.png](./image.png)`
+<img src="image.png" width="25%" height="25%">
 
 2. Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
 
