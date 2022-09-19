@@ -36,6 +36,8 @@ file_json_out = 'ggi_activities_full.json'
 # Define regexps
 # Identify tasks in description:
 re_tasks = re.compile(r"^\s*- \[(.)\] (.+)$")
+# Identify tasks in description:
+re_activity_id = re.compile(r"^Activity ID: \[(GGI-A-\d\d)\]\(.+\).$")
 
 #
 # Parse arguments from command line.
@@ -73,7 +75,7 @@ else:
     exit(1)
 
 issues = []
-issues_cols = ['issue_id', 'state', 'title', 'labels', 'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
+issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels', 'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
 tasks = []
 hist = []
 hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
@@ -93,18 +95,21 @@ else:
 
     count = 1
     for i in gl_issues:
-        print(f"- {i.iid} - {i.title} - {i.web_url} - {i.updated_at}.")
         desc = i.description
         paragraphs = desc.split('\n\n')
         short_desc = paragraphs[3]
         lines = desc.split('\n')
+        a_id = 'Unknown'
         for l in lines:
             tasks_match = re_tasks.match(l)
             if tasks_match:
                 tasks.append([i.iid, tasks_match.group(0), tasks_match.group(1)])
+            activity_id_match = re_activity_id.match(l)
+            if activity_id_match:
+                a_id = activity_id_match.group(1)
         tasks_total = i.task_completion_status['count']
         tasks_done = i.task_completion_status['completed_count']
-        issues.append([i.iid, i.state, i.title, ','.join(i.labels),
+        issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
                        i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
     
         # Retrieve information about labels.
@@ -117,6 +122,9 @@ else:
                     n.id, n_type, n.user['username'], 
                     n_action, i.web_url]
             hist.append(line)
+
+        print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
+        
         # Remove these lines when dev/debug is over
         if count == 50:
             break
@@ -133,11 +141,12 @@ issues_in_progress = []
 issues_done = []
 issues_not_started = []
 for issue in issues.itertuples(index=False):
-    if conf['progress_labels']['not_started'] in issue[3].split(','):
+    print(f"DBG {issue}")
+    if conf['progress_labels']['not_started'] in issue[4].split(','):
         issues_not_started.append(issue)
-    if conf['progress_labels']['in_progress'] in issue[3].split(','):
+    if conf['progress_labels']['in_progress'] in issue[4].split(','):
         issues_in_progress.append(issue)
-    if conf['progress_labels']['done'] in issue[3].split(','):
+    if conf['progress_labels']['done'] in issue[4].split(','):
         issues_done.append(issue)
 
 issues_not_started = pd.DataFrame(issues_not_started,
@@ -147,22 +156,24 @@ issues_in_progress = pd.DataFrame(issues_in_progress,
 issues_done = pd.DataFrame(issues_done,
                            columns=issues_cols)
 
-# Print all rows to CSV file
+# Print all issues, tasks and events to CSV file
 print("\n# Writing issues and history to files.") 
 issues.to_csv('web/content/includes/issues.csv', index=False)
 hist.to_csv('web/content/includes/labels_hist.csv', index=False)
+tasks.to_csv('web/content/includes/tasks.csv', index=False)
 
 # Generate list of current activities
 print("\n# Writing current issues.") 
 my_issues = []
 my_issues_long = []
-for id, title, url, desc in zip(
+for local_id, activity_id, title, url, desc in zip(
         issues_in_progress['issue_id'],
+        issues_in_progress['activity_id'],
         issues_in_progress['title'],
         issues_in_progress['url'],
         issues_in_progress['desc']):
-    print(f" {id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) (GGI-A-{id}).")
+    print(f" {local_id}, {activity_id}, {title}, {url}")
+    my_issues.append(f"* [{title}]({url}) ({activity_id}).")
     my_issues_long.append(f"## {title}\n")
     my_issues_long.append(f"Link to activity in board: {url} \n")
     my_issues_long.append(f"{desc}\n\n")
@@ -176,13 +187,14 @@ with open('web/content/includes/current_activities_long.inc', 'w') as f:
 print("\n# Writing past issues.") 
 my_issues = []
 my_issues_long = []
-for id, title, url, desc in zip(
+for local_id, activity_id, title, url, desc in zip(
         issues_done['issue_id'],
+        issues_in_progress['activity_id'],
         issues_done['title'],
         issues_done['url'],
         issues_done['desc']):
-    print(f" {id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) (GGI-A-{id}).")
+    print(f" {local_id}, {activity_id}, {title}, {url}")
+    my_issues.append(f"* [{title}]({url}) ({activity_id}).")
     my_issues_long.append(f"## {title}\n")
     my_issues_long.append(f"Link to activity in board: {url} \n")
     my_issues_long.append(f"{desc}\n\n")
@@ -218,7 +230,7 @@ def update_keywords(file_in, keywords):
     [ print(o) for o in occurrences ]
 
 current_date = str(date.today())
-keywords = {'GGI_CURRENT_DATE': current_date}
+keywords = {'[GGI_CURRENT_DATE]': current_date}
 
 print("\n# Replacing strings.")
 files = glob.glob("web/content/*.md")
