@@ -24,8 +24,9 @@ import pandas as pd
 import re
 import glob, os
 from fileinput import FileInput
+from datetime import date
 
-print(f"DEBUG {os.environ['GGI_ACCESS_TOKEN']}")
+
 # Define some variables.
 
 file_conf = 'conf/ggi_deployment.json'
@@ -163,7 +164,7 @@ for id, title, url, desc in zip(
     print(f" {id}, {title}, {url}")
     my_issues.append(f"* [{title}]({url}) (GGI-A-{id}).")
     my_issues_long.append(f"## {title}\n")
-    my_issues_long.append(f"Link to activitiy in board: {url} \n")
+    my_issues_long.append(f"Link to activity in board: {url} \n")
     my_issues_long.append(f"{desc}\n\n")
 
 with open('web/content/includes/current_activities.inc', 'w') as f:
@@ -215,8 +216,9 @@ def update_keywords(file_in, keywords):
                 line = line.replace(keyword, keywords[keyword])
             print(line, end='')
     [ print(o) for o in occurrences ]
-            
-keywords = {}
+
+current_date = str(date.today())
+keywords = {'GGI_CURRENT_DATE': current_date}
 
 print("\n# Replacing strings.")
 files = glob.glob("web/content/*.md")

@@ -154,7 +154,7 @@ pieces = tldextract.extract(conf['gitlab_url'])
 ggi_url = urllib.parse.urljoin(
     conf['gitlab_url'], conf['gitlab_project'])
 ggi_pages_url = 'https://' + conf['gitlab_project'].split('/')[0] + "." + pieces.domain + ".io/" + conf['gitlab_project'].split('/')[-1]
-ggi_activities_url = os.path.join(ggi_url, '-/issues')
+ggi_activities_url = os.path.join(ggi_url, '-/boards')
 keywords = {
     '[GGI_URL]': ggi_url,
     '[GGI_PAGES_URL]': ggi_pages_url,
