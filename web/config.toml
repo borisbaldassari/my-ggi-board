@@ -36,7 +36,7 @@ paginate = 6
   # Show your social information with icon on index bio with `_index.md` content.
   [params.socialOptions]
     dev-to = ""
-    email = "contact@myggi.com"
+    email = ""
     facebook = ""
     github = ""
     instagram = ""
@@ -51,7 +51,7 @@ paginate = 6
 
 [menu]
 [[menu.header]]
-  name = "Activities"
+  name = "My Board"
   url = "[GGI_ACTIVITIES_URL]"
 [[menu.header]]
   name = "Dashboard"

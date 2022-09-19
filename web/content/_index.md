@@ -5,25 +5,21 @@ layout: default
 
 # Welcome 
 
-This is the website of your own good governance Initiative. Congrats!
+{{% content "includes/initialisation.inc" %}}
 
-
-## Next steps
-
-Do the following steps to finish the deployment of your own GGI.
-
-* Start selecting activities from the list.
-* Communicate this URL to your team.
-* Check out at [your own dashboard](dashboard)!
-* See the list of [current activities](current_activities).
-* See the list of [completed activities](past_activities).
+This is the website of your own good governance Initiative. 
 
 
 ## Current activities
+
+See the detailed list of [current activities](current_activities).
 
 {{% content "includes/current_activities.inc" %}}
 
 
 ## Completed activities
 
+See the detailed list of [completed activities](past_activities).
+
 {{% content "includes/past_activities.inc" %}}
+
