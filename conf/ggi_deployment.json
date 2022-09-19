@@ -1,6 +1,6 @@
 {
-    "gitlab_url": "https://gitlab.ow2.org",
-    "gitlab_project": "ggi/my-ggi-board-test",
+    "gitlab_url": "https://gitlab.com",
+    "gitlab_project": "NicolasToussaint/my-ggi-board",
     "progress_labels": {
         "not_selected": "Not Selected",
         "not_started": "Not Started",
