@@ -1,5 +1,6 @@
 ---
 title: Your Good Governance initiative
+date: [GGI_CURRENT_DATE]
 layout: default
 ---
 
@@ -12,7 +13,7 @@ This is the website of your own good governance Initiative.
 
 ## Current activities
 
-These are your current
+These are your current activities:
 
 {{% content "includes/current_activities.inc" %}}
 
