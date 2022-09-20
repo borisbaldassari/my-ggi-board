@@ -177,6 +177,7 @@ def update_keywords(file_in, keywords):
             
 
 update_keywords('web/config.toml', keywords)
+update_keywords('web/content/includes/initialisation.inc', keywords)
 update_keywords('README.md', keywords)
 files = glob.glob("web/content/*.md")
 files_ = [ f for f in files if os.path.isfile(f) ]
