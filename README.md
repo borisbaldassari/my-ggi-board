@@ -25,7 +25,7 @@ git remote add my-ggi git@gitlab.com:bbaldassari/my-ggi.git
 4. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url` and `gitlab_project`.
 Export the access token as an environment variable: `export GGI_GITLAB_TOKEN=xxxxxxx`.
 
-5. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_ACCESS_TOKEN` and set the access token as the value. Make it `Protected` and `Masked`.
+5. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` and `Masked`.
 
 6. Create a virtual env and install requirements.
 ```
