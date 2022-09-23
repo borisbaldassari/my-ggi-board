@@ -2,35 +2,68 @@
 
 # Welcome
 
-This the home is your own Good Governance Initiative.
+This is the home of your own Good Governance Initiative tracking board.
 
 Once set up (see below), you can find the published website at [GGI_PAGES_URL].
 
+The goal is
+- to fork the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) in your own GitLab space.
+- fill the configuration file - including a GitLab token
+- then run a script that will automatically create
+  - appropriate labels
+  - GitLab Issues that will stand for the GGI activities
+  - an Issues Board for a clear overview of you current activities
+  - a static website to share progress and current work
 
 ## Setup
 
-1. Create an empty project on your target GitLab instance.
-<img src="image.png" width="50%" height="50%">
+### Fork the repository
+Multiple options here: you may want, for example, to use the Import feature proposed by GitLab, or fork manually.
 
-2. Create a new, empty project in a GitLab instance.
+**GitLab Import Project**
+In your own GitLab space:
+- Create a new project
+- Choose: _Import project_
+- Choose: _Repository by URL_
+- Enter `https://gitlab.ow2.org/ggi/my-ggi-board.git`
 
-2. Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
+<img src="resources/setup_import-project.png" width="50%" height="50%">
+
+**Manually Fork**
+- Create an empty project on your target GitLab instance.
+<img src="resources/setup_create-project.png" width="50%" height="50%">
+
+- Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
 
 To do so, clone the my-ggi-board repository locally, and add the new project's reference to the remotes:
 ```
-git clone https://gitlab.ow2.org/ggi/my-ggi-board
-git remote add my-ggi git@gitlab.com:bbaldassari/my-ggi.git
+$ git clone https://gitlab.ow2.org/ggi/my-ggi-board.git
+$ git remote add my-ggi git@gitlab.com:<your-gitlab-space>/my-ggi.git
+$ git push my-ggi
 ```
 
-3. Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. Remember it, you will never see it again.
-  - In case the instance admin has disabled the _project_ access token, you can use an _account_ access token, although we recommend creating a dedicated account for security purposes in that case. Go to Preferences > Access Tokens and create the token from there.
+### Create your GitLab token
+Two possibilities to create your [GitLab token](https://docs.gitlab.com/ee/security/token_overview.html), depending on your GitLab environment: use a [Project access tokens](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#project-access-tokens) of a [Personal access tokens](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)
 
-4. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url` and `gitlab_project`.
-Export the access token as an environment variable: `export GGI_GITLAB_TOKEN=xxxxxxx`.
+**Project access tokens**
+Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. Remember it, you will never see it again.
+<img src="resources/setup_project-token.png" width="50%" height="50%">
 
-5. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` and `Masked`.
+**Personal access tokens**
 
-6. Create a virtual env and install requirements.
+In case the instance admin has disabled the _project_ access token, you can use an _personal_ access token, although we recommend creating a dedicated account for security purposes in that case. Go to Preferences > Access Tokens and create the token from there.
+
+<img src="resources/setup_personal-token.png" width="50%" height="50%">
+
+### Setup the environment
+1. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url` (such as `https://gitlab.com`) and `gitlab_project` (such as `my-ggi-board`)
+1. Commit and publish that file to your reporisory
+1. Export the access token as an environment variable: `export GGI_GITLAB_TOKEN=xxxxxxx`.
+1. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` (cannot be used in non-protected branches) and `Masked` (will not be shown in Jobs logs.)
+<img src="resources/setup_create-variable-1.png" width="50%" height="50%">
+<img src="resources/setup_create-variable-2.png" width="50%" height="50%">
+
+1. Create a virtual env and install requirements.
 ```
 python -m venv env
 source env/bin/activate
@@ -55,18 +88,6 @@ pip install -r requirements.txt
 * GitLab CE doesn't allow to create Boards through the API.
 
 
-## Structure
-
-```
-conf/
-├── ggi_activities_metadata.json
-└── ggi_deployment.json
-scripts/
-└── ggi_deploy.py
-README.md
-```
-
-
 ## Testing
 
-The ggi_test_scenario.py script takes as argument a GitLab instance URL and a project ID, executes the creation scripts and then checks that everything is in its right place.
+The `ggi_test_scenario.py` script takes as argument a GitLab instance URL and a project ID, executes the creation scripts and then checks that everything is in its right place.
