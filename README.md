@@ -60,8 +60,7 @@ In case the instance admin has disabled the _project_ access token, you can use 
 1. Commit and publish that file to your reporisory
 1. Export the access token as an environment variable: `export GGI_GITLAB_TOKEN=xxxxxxx`.
 1. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` (cannot be used in non-protected branches) and `Masked` (will not be shown in Jobs logs.)
-  - <img src="resources/setup_create-variable-1.png" width="50%" height="50%">
-  - <img src="resources/setup_create-variable-2.png" width="50%" height="50%">
+<img src="resources/setup_create-variable-1.png" width="50%" height="50%"> <img src="resources/setup_create-variable-2.png" width="50%" height="50%">
 1. Create a virtual env and install requirements.
 ```
 python3 -m venv env
