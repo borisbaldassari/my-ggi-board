@@ -64,7 +64,7 @@ In case the instance admin has disabled the _project_ access token, you can use 
   - <img src="resources/setup_create-variable-2.png" width="50%" height="50%">
 1. Create a virtual env and install requirements.
 ```
-python -m venv env
+python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
 ```
