@@ -1,5 +1,6 @@
 ---
 title: Current activities
+date: [GGI_CURRENT_DATE]
 layout: default
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: My Dashboard
+date: [GGI_CURRENT_DATE]
 layout: default
 ---
 
@@ -10,7 +11,7 @@ layout: default
 data = {
   labels: [
     'Not Started',
-    'Working',
+    'In Progress',
     'Done'
   ],
   datasets: [{
