@@ -1,39 +1,64 @@
-issue_id,state,title,labels,updated_at,url,desc,tasks_total,tasks_done
-50,opened,Open source enabling digital transformation,"Decision Maker,In Progress,Strategy Goal",2022-08-23T16:45:15.535Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/50,"> ""Digital Transformation is the adoption of digital technology to transform services or businesses, through replacing non-digital or manual processes with digital processes or replacing older digital technology with newer digital technology."" (Wikipedia)",0,0
-49,opened,Open source enabling innovation,"Decision Maker,In Progress,Strategy Goal",2022-08-28T10:50:58.126Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/49,"> Innovation is the practical implementation of ideas that result in the introduction of new goods or services or improvement in offering goods or services.
+issue_id,activity_id,state,title,labels,updated_at,url,desc,tasks_total,tasks_done
+197,GGI-A-37,opened,Open source enabling digital transformation,"Decision Maker,In Progress,Strategy Goal",2022-09-25T21:13:04.713Z,https://gitlab.com/bbaldassari/my-ggi/-/issues/197,"
+> ""Digital Transformation is the adoption of digital technology to transform services or businesses, through replacing non-digital or manual processes with digital processes or replacing older digital technology with newer digital technology."" (Wikipedia)
+
+When the most advanced organisations in Digital Transformation jointly drive change through their Business, IT and Finance to anchor digital in the way, they reconsider:
+- Business model: value chain with ecosystems, as a service, SaaS.
+- Finance: opex/capex, people, outsourcing.
+- IT: innovation, legacy/asset modernization.
+
+Open source is at the heart of digital transformation:
+- Technologies, Agile practices, product management.
+- People: collaboration, open communication, development/decision cycle.
+- Business models: try & buy, open innovation.
+
+In terms of competitiveness, the most visible processes are probably the processes that directly impact the customer experience.  And we have to recognize that the big players, as well as start-up companies, by delivering totally unprecedented customer experience, drastically changed customer expectations. 
+
+Customer experience as well as all the other processes within a company entirely depend on IT.  Every company has to transform its IT, this is what the digital transformation is about.  Companies that have not done it yet, have now to achieve their digital transformation as fast as possible, otherwise the risk is that they could be wiped out of the market.  Digital Transformation is a condition for survival.  Since the stakes are so high, a company cannot entirely leave the digital transformation to a supplier.  Every company has to get hands on with its IT, which means that every company has to get hands on with open source software because there is no IT without open source software.
+
+Expected benefits of the digital transformation include: 
+* Simplify, automate core processes, make them real-time.
+* Enable fast responses to competitive changes.
+* Take advantage of Artificial intelligence and big data.### Opportunity Assessment
+
+Digital transformation could be managed by:
+* Segments of the IT: Production IT, Business Support IT (CRM, billing, procurement…), Support IT (HR, Finance, accounting...), Big Data.
+* Type of technology or process supporting the IT: Infrastructure (cloud), Artificial Intelligence, Processes (Make-or-Buy, DevSecOps, SaaS).
+
+Injecting open source in a particular segment or technology of your IT reveals that you want to get hands on in this segment or technology, because you assessed that this particular segment or technology of your IT is important for the competitiveness of your company.
+It is important to assess the position of your company compared not only with your competitors, but also with other industries, and key players in terms of customer experience and market solutions.### Progress Assessment
+
+1. Level 1: Situation assessment
+* I have identified:
+  - the segments of IT that are important for the competitiveness of my company, and 
+  - the open source technologies required to develop applications in these segments.   
+And I have thus decided:
+  - on which segments I want to manage in-house the development of projects, and
+  - on which open source technologies I need to build in-house expertise.
+
+2. Level 2: Engagement
+* On some selected open source technologies used within the company, several developers have been trained and are recognized as valuable contributors by the open source community.
+In some selected segments, projects based upon open source technologies have been launched.
+
+3. Level 3: Generalisation
+* For all projects, an open source alternative is systematically being investigated during the inception stage of the project.  To make it easier for the project team to study such open source alternative, a central budget, and a central team of architects, hosted in the IT Department, is dedicated to providing assistance to the projects.  
+
+**KPIs**:
+* KPI 1. Ratio for which an open source alternative was investigated: (Number of projects / Total number of projects).
+* KPI 2. Ratio for which the open source alternative was chosen: (Number of projects / Total number of projects).
+
+",0,0
+196,GGI-A-36,opened,Open source enabling innovation,"Decision Maker,In Progress,Strategy Goal",2022-09-25T21:14:14.209Z,https://gitlab.com/bbaldassari/my-ggi/-/issues/196,"
+> Innovation is the practical implementation of ideas that result in the introduction of new goods or services or improvement in offering goods or services.
 >
-> &mdash; <cite>Schumpeter, Joseph A.</cite>",3,0
-48,opened,Open source and digital sovereignty,"Decision Maker,Not started,Strategy Goal",2022-08-23T10:06:49.008Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/48,Digital sovereignty can be defined as the,3,0
-47,opened,C-Level awareness,"Decision Maker,Not started,Strategy Goal",2022-08-23T10:06:48.690Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/47,"The open source initiative of the organisation will yield its strategic benefits only if it is enforced at its highest levels by integrating the open source DNA into the company's strategy and internal working. Such commitment cannot happen if higher-level executives and top management are not themselves a part of it. The training and open source mindset must also be extended to those who shape the policies, decisions and overall strategy, both inside and outside the company.",5,0
-46,opened,Setup a strategy for corporate open source governance,"Decision Maker,Not started,Strategy Goal",2022-08-23T10:06:48.202Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/46,Defining a high-level strategy for open source governance within the company ensures the consistency and visibility of approaches towards both in-house usage and external contributions and involvement. It makes the company's communication more effective by offering a clear and established vision and leadership.,2,0
-45,opened,Open source procurement policy,"Decision Maker,Engagement Goal,Not started",2022-08-23T10:06:47.868Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/45,"This activity is about implementing a process to select, acquire, purchase open source software and services. It is also about considering the actual cost of open source software and provisioning for it. OSS may be ""free"" at first sight, but it is not without internal and external costs such as integration, training, maintenance and support. ",4,0
-44,opened,Engage with open source vendors,"Decision Maker,Engagement Goal,Not started",2022-08-23T10:06:47.577Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/44,"Secure contracts with open source vendors that provide software critical to you. Companies and entities that produce open source software need to thrive to provide maintenance and development of new features. Their specific expertise is required on the project, and the community of users relies on their continued business and contributions.",3,0
-43,opened,Publicly assert use of open source,"Decision Maker,Engagement Goal,Not started,Team Leader",2022-08-23T10:06:47.163Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/43,"This Activity is about acknowledging the use of OSS in an information system, in applications and in new products.
-* Providing success stories.
-* Presenting at events.
-* Funding participation to events.",4,0
-42,opened,Support open source communities,"Decision Maker,Engagement Goal,In Progress",2022-08-28T10:49:14.808Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/42,This activity is about engaging with institutional representatives of the open source world. ,6,0
-41,opened,Engage with open source projects,"Decision Maker,Developer,Engagement Goal,In Progress",2022-08-28T10:49:39.328Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/41,"This activity is about committing significant contributions to some OSS projects that are important to you. Contributions are scaled up and committed at the organisation level (not personal level as in #26). They can take several forms, from direct funding to resources allocation (e.g. people, servers, infrastructure, communication, etc.), as long as they benefit the project or ecosystem sustainably and efficiently. ",8,0
-40,opened,Upstream first,"Culture Goal,Developer,Not started,Team Leader",2022-08-23T10:06:46.060Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/40,This activity is concerned with developing awareness with regard to the benefits of contributing back and enforcing the upstream first principle.,2,0
-39,opened,HR perspective,"Culture Goal,Decision Maker,Not started",2022-08-23T10:06:45.516Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/39,"Switching to open source culture has deep HR impacts: 
-* **New processes and contracts**: Contracts have to be adapted to allow and promote external contributions. This includes IP and licensing issues for work done within the company, but also the ability for the employee or contractor to have their own projects. 
-* **Different types of people**: People working with open source often have different incentives and mindsets than with pure proprietary, corporate people. Processes and mindsets need to adapt to this community reputation-oriented paradigm, in order to attract new types of talent and retain them along.
-* **Career development**: need to offer a career path that nurtures and values employees for their technical and soft skills as well as the competencies expected by your organisation (collaboration to drive community efforts, communication to act as spokesperson for your company, etc.). By all means, HR has a key role in enabling open source as a cultural goal.",5,0
-38,opened,Belong to the open source community,"Culture Goal,Decision Maker,Not started,Team Leader",2022-08-23T10:06:45.123Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/38,"This activity is about developing among developers a feeling of belonging to the greater open source community. As with every community, people and entities have to participate and contribute back to the whole. It reinforces the links between practitioners and brings sustainability and activity to the ecosystem. On a more technical side, it allows choosing the priorities and roadmap of projects, improves the level of general knowledge and technical awareness. ",4,0
-37,opened,Contribute to open source projects,"Culture Goal,Developer,In Progress,Team Leader",2022-08-28T10:49:51.393Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/37,"Contributing to open source projects that are freely used is one of the key principles of good governance. The point is to avoid being a simple passive consumer and give back to the projects. When people add a feature or fix a bug for their own purpose, they should make it generic enough to contribute to the project. Developers must be allowed time for contributions. ",3,0
-36,opened,Promote open source development best practices,"Culture Goal,Developer,Done,Team Leader",2022-08-28T10:50:00.825Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/36,"This activity is about defining, actively promoting and implementing open source best practices within the development teams.",4,0
-35,opened,Run code reviews,"Developer,Done,Team Leader,Trust Goal",2022-08-28T10:50:14.829Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/35,"Code review is a routine task involving manual and/or automated review of an application's source code before releasing a product or delivering a project to the customer. In the case of open-source software, code review is more than just about catching errors opportunistically; it is an integrated approach to collaborative development carried out at the team level. ",4,0
-34,opened,Manage key indicators,"Decision Maker,Not started,Team Leader,Trust Goal",2022-08-23T10:06:43.784Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/34,This activity collects and monitors a set of indicators that inform day-to-day managerial decisions and strategic options concerning professionally managed open source software.,3,0
-33,opened,Manage software dependencies,"Developer,Not started,Team Leader,Trust Goal",2022-08-23T10:06:43.385Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/33,"A *dependency identification* program looks for the dependencies actually used within the codebase. As a result, the organisation must establish and maintain a list of known dependencies for its code base and watch the evolution of the identified providers. ",4,0
-32,opened,Manage software vulnerabilities,"Not started,Team Leader,Trust Goal",2022-08-23T10:06:43.025Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/32,"One's code is as secure as its least secure part. Recent cases (e.g. heartbleed[^heartbleed], equifax[^equifax]) have demonstrated the importance of checking vulnerabilities in parts of the code that are not directly developed by the entity. Consequences of exposures range from data leaks (with tremendous reputational impact) to ransomware attacks and business-threatening unavailability of services.",4,0
-31,opened,Manage legal compliance,"Decision Maker,Not started,Trust Goal",2022-08-23T10:06:42.659Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/31,Organisations need to implement a legal compliance process to secure their usage and participation in open source projects. ,10,0
-30,opened,Manage open source skills and resources,"Not started,Team Leader,Usage Goal",2022-08-23T10:06:42.306Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/30,"This activity is focused on **software development** skills and resources. It includes the technologies and specific development skills of developers, as well as the overall development processes, methods and tools. ",5,0
-29,opened,Open source enterprise software,"Decision Maker,Not started,Usage Goal",2022-08-23T10:06:41.934Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/29,"This activity is about proactively selecting OSS solutions, either vendor or community-supported, in business-oriented areas. It may also cover defining preference policies for the selection of open source business application software.",4,0
-28,opened,Open source supervision,"Not started,Team Leader,Usage Goal",2022-08-23T10:06:41.585Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/28,"This activity is about controlling the use of open source and ensuring open source software is proactively managed. This concerns several perspectives, be it to use OSS tools and business solutions, or to include OSS as components in own developments or modify a version of a software adapting it to its own needs, etc. It is also about identifying areas where open source has become a (sometimes covert) de facto solution and assessing its suitability. ",6,0
-27,opened,Open source competency growth,"In Progress,Team Leader,Usage Goal",2022-08-28T10:50:33.065Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/27,"This activity is about planning and initiating technical abilities and early experience with OSS once an inventory has been conducted (#17). It is also the opportunity to start establishing a basic, lightweight skills development roadmap.
-- Identify what the required skills and training are.
-- Set up a pilot project to kick start the approach, learn from doing, establish a first achievement milestone.
-- Capitalise on lessons learned and build a body of knowledge.
-- Start identifying and documenting the next steps for broader adoption. 
-- Elaborate a strategy over the next few months or a year to engage management and financial support.",4,0
-26,opened,Inventory of open source skills and resources,"Developer,Done,Team Leader,Usage Goal",2022-08-28T10:50:28.189Z,https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/26,"At any stage, from a management perspective, it is useful to have a mapping, an inventory of open source resources, assets, usage and their status, as well as potential needs and available solutions. It also includes assessing the required effort and skills to fill the gap. ",5,0
+> &mdash; <cite>Schumpeter, Joseph A.</cite>
+
+Open source can be a key factor for innovation through diversity, collaboration and a fluent exchange of ideas. People from different backgrounds and domains may have different perspectives and provide new, improved or even disruptive answers to known problems. One can enable innovation by listening to different views and actively promoting open collaboration on projects and topics.
+
+Similarly, participating in the elaboration and implementation of open standards is a great promoter of good practices and ideas to improve the company's daily work. It also allows the entity to drive and influence innovation to where and what it needs, and enhances its global visibility and reputation.
+
+Through innovation, open source makes it possible not only to transform the goods or services that your company markets, but also to create or modify the whole ecosystem in which your company wants to thrive.  
+
+As an example, by releasing Android as open source, Google is inviting hundreds of thousands of companies to build up their own services based upon this open source technology. Google is thus creating a whole ecosystem from which all participants could benefit. Of course, very few companies are powerful enough to create an ecosystem by their own decision. But there are many examples of alliances between companies to create such an ecosystem.  
+
+",3,1

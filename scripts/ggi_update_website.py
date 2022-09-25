@@ -25,7 +25,7 @@ import re
 import glob, os
 from fileinput import FileInput
 from datetime import date
-
+from collections import OrderedDict
 
 # Define some variables.
 
@@ -35,9 +35,12 @@ file_json_out = 'ggi_activities_full.json'
 
 # Define regexps
 # Identify tasks in description:
-re_tasks = re.compile(r"^\s*- \[(.)\] (.+)$")
+re_tasks = re.compile(r"^\s*- \[(?P<is_completed>.)\] (?P<task>.+)$")
 # Identify tasks in description:
 re_activity_id = re.compile(r"^Activity ID: \[(GGI-A-\d\d)\]\(.+\).$")
+# Identify sections for workflow parsing.
+re_section = re.compile(r"^### (?P<section>.*?)\s*$")
+re_subsection = re.compile(r"^#### (?P<subsection>.*?)\s*$")
 
 #
 # Parse arguments from command line.
@@ -55,6 +58,48 @@ args = parser.parse_args()
 
 if args.opt_issues_csv:
     issues_csv_file = args.opt_issues_csv 
+
+
+def extract_workflow(activity_desc):
+    paragraphs = activity_desc.split('\n')
+    content_t = 'Introduction'
+    content = OrderedDict()
+    content = {content_t: []}
+    a_id = ""
+    for p in paragraphs:
+        activity_id_match = re_activity_id.match(p)
+        if activity_id_match:
+            a_id = activity_id_match.group(1)
+            continue
+        match_section = re.search(re_section, p)
+        if match_section:
+            content_t = match_section.group('section')
+            content[content_t] = []
+        else:
+            content[content_t].append(p)
+    subsection = 'Default'
+    workflow = {subsection: []}
+    # Parse the scorecard section.
+    if 'Scorecard' in content:
+        tasks = []
+        for p in content['Scorecard']:
+            match_subsection = re.search(re_subsection, p)
+            if match_subsection:
+                subsection = match_subsection.group('subsection')
+                workflow[subsection] = []
+            elif p != '':
+                workflow[subsection].append(p)
+                # Now identify tasks
+                match_tasks = re.search(re_tasks, p)
+                if match_tasks:
+                    is_completed = match_tasks.group('is_completed')
+                    is_completed = True if is_completed == 'x' else False
+                    task = match_tasks.group('task')
+                    tasks.append({'is_completed': is_completed, 'task': task})
+#    print(f"DBG {workflow}")
+    return a_id, content['Description'], workflow, tasks
+
+
 
 #
 # Read metadata for activities and deployment options.
@@ -94,21 +139,20 @@ else:
     gl_issues = project.issues.list(state='opened', all=True)
 
     count = 1
+    workflow = {}
+    tasks = []
     for i in gl_issues:
         desc = i.description
         paragraphs = desc.split('\n\n')
-        short_desc = paragraphs[3]
         lines = desc.split('\n')
-        a_id = 'Unknown'
-        for l in lines:
-            tasks_match = re_tasks.match(l)
-            if tasks_match:
-                tasks.append([i.iid, tasks_match.group(0), tasks_match.group(1)])
-            activity_id_match = re_activity_id.match(l)
-            if activity_id_match:
-                a_id = activity_id_match.group(1)
-        tasks_total = i.task_completion_status['count']
-        tasks_done = i.task_completion_status['completed_count']
+        a_id, description, workflow, a_tasks = extract_workflow(desc)
+        for t in a_tasks:
+            tasks.append([a_id,
+                          'completed' if t['is_completed'] else 'open',
+                          t['task']])
+        short_desc = '\n'.join(description)
+        tasks_total = len(tasks)
+        tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
         issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
                        i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
     
@@ -126,7 +170,7 @@ else:
         print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
         
         # Remove these lines when dev/debug is over
-        if count == 50:
+        if count == 2:
             break
         else:
             count += 1
@@ -141,7 +185,6 @@ issues_in_progress = []
 issues_done = []
 issues_not_started = []
 for issue in issues.itertuples(index=False):
-    print(f"DBG {issue}")
     if conf['progress_labels']['not_started'] in issue[4].split(','):
         issues_not_started.append(issue)
     if conf['progress_labels']['in_progress'] in issue[4].split(','):

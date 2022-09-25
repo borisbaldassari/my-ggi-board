@@ -27,15 +27,23 @@
 
 import gitlab
 import json
+import re
 import argparse
 import tldextract
 import urllib.parse, glob, os
 from fileinput import FileInput
+from collections import OrderedDict
+
 
 # Define some variables.
 conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
 activities_file = conf_dir + '/ggi_activities_full.json'
 conf_file = conf_dir + '/ggi_deployment.json'
+init_scorecard_file = conf_dir + '/workflow_init.inc'
+
+# Define some regexps
+re_section = re.compile(r"^### (?P<section>.*?)\s*$")
+
 
 #
 # Parse arguments from command line.
@@ -63,6 +71,44 @@ print(f"# Reading deployment options from {conf_file}.")
 with open(conf_file, 'r', encoding='utf-8') as f:
     conf = json.load(f)
 
+# Read the custom scorecard init file.
+print(f"# Reading scorecard init file from {init_scorecard_file}.")
+init_scorecard = []
+with open(init_scorecard_file, 'r', encoding='utf-8') as f:
+    init_scorecard = f.readlines()
+
+#
+# Utility functions
+#
+
+def create_label(existing_labels, new_label, label_args):
+    if new_label in existing_labels:
+        print(f" Ignore label: {new_label}")
+    else:
+        print(f" Create label: {new_label}")
+        project.labels.create(label_args)
+
+def extract_sections(activity):
+    paragraphs = activity['content'].split('\n\n')
+    content_t = 'Introduction'
+    content = OrderedDict()
+    content = {content_t: []}
+    for p in paragraphs:
+        match_section = re.search(re_section, p)
+        if (match_section):
+            content_t = match_section.group('section')
+            content[content_t] = []
+        else:
+            content[content_t].append(p)
+    content_text = content['Introduction'][1] + '\n\n'
+    content_text += ''.join(init_scorecard) + '\n\n'
+    del content['Introduction']
+    for key in content.keys():
+        content_text += f"### {key}\n\n"
+        content_text += '\n\n'.join(content[key])
+    return content_text
+
+
 #
 # Connect to GitLab
 #
@@ -75,12 +121,6 @@ if (args.opt_activities) or (args.opt_board):
     gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
     project = gl.projects.get(conf['gitlab_project'])
 
-def create_label(existing_labels, new_label, label_args):
-    if new_label in existing_labels:
-        print(f" Ignore label: {new_label}")
-    else:
-        print(f" Create label: {new_label}")
-        project.labels.create(label_args)
 
 #
 # Create labels & activities
@@ -104,8 +144,15 @@ if (args.opt_activities):
     # Create goal labels if needed
     print("\n Goal labels")
     for goal in metadata['goals']:
-        create_label(existing_labels, goal['name'], {'name': goal['name'], 'color': goal['colour']})
+        create_label(existing_labels, goal['name'],
+                     {'name': goal['name'], 'color': goal['colour']})
 
+    # Read the custom scorecard init file.
+    print(f"# Reading scorecard init file from {init_scorecard_file}.")
+    init_scorecard = []
+    with open(init_scorecard_file, 'r', encoding='utf-8') as f:
+        init_scorecard = f.readlines()
+    
     # Create issues with their associated labels.
     print("\n# Create activities.")
     for activity in metadata['activities']:
@@ -114,10 +161,9 @@ if (args.opt_activities):
         [activity['goal']] + \
         activity['roles'] + \
         [conf['progress_labels']['not_started']]
-      print(f"    with labels  {labels}")
-      description = "".join( [i for i in activity['content']] )
+      print(f"    with labels {labels}")
       ret = project.issues.create({'title': activity['name'],
-                                   'description': description, 
+                                   'description': extract_sections(activity), 
                                    'labels': labels})
 
 #
