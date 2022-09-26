@@ -257,4 +257,6 @@ for file in files_:
 if 'CI_PROJECT_URL' in os.environ:
     print(f"\nWebsite available at the following URL:\n{os.environ['CI_PROJECT_URL']}\n")
 
+# Here: if possible, also update current project description with Website URL (Issue #17)
+
 print("Done.")
