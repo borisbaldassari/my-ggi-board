@@ -28,10 +28,19 @@ Multiple options here: you may want, for example, to use the Import feature prop
 
 To do so, clone the my-ggi-board repository locally, and add the new project's reference to the remotes:
 ```
-$ git clone https://gitlab.ow2.org/ggi/my-ggi-board.git
+$ git clone --origin ow2-upstream https://gitlab.ow2.org/ggi/my-ggi-board.git
 $ cd my-ggi-board
-$ git remote add my-ggi git@gitlab.com:<your-gitlab-space>/my-ggi-board.git
-$ git push my-ggi
+$ git remote add origin https://gitlab.com/<your-gitlab-space>/my-ggi-board.git
+$ git push --set-upstream origin main
+```
+
+Your remotes should look like this:
+```
+$ git remote -v
+origin  https://gitlab.com/<your-gitlab-space>/my-ggi-board.git (fetch)
+origin  https://gitlab.com/<your-gitlab-space>/my-ggi-board.git (push)
+ow2-upstream    https://gitlab.ow2.org/ggi/my-ggi-board.git (fetch)
+ow2-upstream    https://gitlab.ow2.org/ggi/my-ggi-board.git (push)
 ```
 
 **GitLab Import Project**  
