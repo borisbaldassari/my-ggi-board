@@ -24,6 +24,7 @@ import glob, os
 from fileinput import FileInput
 from datetime import date
 import tldextract
+import urllib.parse
 
 
 # Define some variables.
