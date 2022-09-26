@@ -23,6 +23,7 @@ import re
 import glob, os
 from fileinput import FileInput
 from datetime import date
+import tldextract
 
 
 # Define some variables.
