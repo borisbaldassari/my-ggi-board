@@ -1,4 +1,4 @@
-baseURL = '[GGI_PAGES_URL]'
+baseURL = 'https://NicolasToussaint.gitlab.io/my-ggi-board'
 languageCode = 'en-us'
 title = 'My Good Governance Initiative'
 
@@ -52,7 +52,7 @@ paginate = 6
 [menu]
 [[menu.header]]
   name = "My Board"
-  url = "[GGI_ACTIVITIES_URL]"
+  url = "https://gitlab.com/NicolasToussaint/my-ggi-board/-/boards"
 [[menu.header]]
   name = "Dashboard"
   url = "dashboard"
