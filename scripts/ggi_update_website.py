@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # ######################################################################
-# Copyright (c) 2022 Boris Baldassari and others
+# Copyright (c) 2022 Boris Baldassari, Nico Toussaint and others
 #
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
@@ -17,8 +17,6 @@
 
 import gitlab
 import json
-#import requests 
-import tarfile
 import argparse
 import pandas as pd
 import re
@@ -68,8 +66,26 @@ print(f"# Reading deployment options from {file_conf}.")
 with open(file_conf, 'r', encoding='utf-8') as f:
     conf = json.load(f)
 
-if os.environ['GGI_GITLAB_TOKEN']:
-    print("- Using ggi_gitlab_token from env var.")
+# Determine GitLab server URL and Project name
+# From Environment variable if available
+# From configuration file otherwise
+
+if 'CI_SERVER_URL' in os.environ:
+    GGI_GITLAB_URL = os.environ['CI_SERVER_URL']
+    print("Use GitLab URL from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_URL=conf['gitlab_url']
+
+if 'CI_PROJECT_PATH' in os.environ:
+    GGI_GITLAB_PROJECT=os.environ['CI_PROJECT_PATH']
+    print("Use GitLab Project from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_PROJECT=conf['gitlab_project']
+
+if 'GGI_GITLAB_TOKEN' in os.environ:
+    print("Using ggi_gitlab_token from env var.")
 else:
     print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
@@ -86,9 +102,9 @@ if args.opt_issues_csv:
     for index, row in issues.iterrows():
         print(f"- {row[0]} {row[2]}.")
 else:
-    print(f"\n# Connection to GitLab at {conf['gitlab_url']} - {conf['gitlab_project']}.")
-    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
-    project = gl.projects.get(conf['gitlab_project'])
+    print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
+    gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
+    project = gl.projects.get(GGI_GITLAB_PROJECT)
 
     print("# Fetching issues..")
     gl_issues = project.issues.list(state='opened', all=True)
@@ -237,5 +253,8 @@ files = glob.glob("web/content/*.md")
 files_ = [ f for f in files if os.path.isfile(f) ]
 for file in files_:
     update_keywords(file, keywords)
-    
+
+if 'CI_PROJECT_URL' in os.environ:
+    print(f"\nWebsite available at the following URL:\n{os.environ['CI_PROJECT_URL']}\n")
+
 print("Done.")
