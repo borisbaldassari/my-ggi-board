@@ -234,6 +234,50 @@ if issues_not_started.shape[0] < 25:
 # Replace 
 #
 
+#
+# Setup website
+#
+# - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - 
+# Copy and paste from preparation step currently taking place in deploy script
+print("\n# Replacing keywords in static website.")
+
+# List of strings to be replaced.
+pieces = tldextract.extract(conf['gitlab_url'])
+ggi_url = urllib.parse.urljoin(
+    conf['gitlab_url'], conf['gitlab_project'])
+ggi_pages_url = 'https://' + conf['gitlab_project'].split('/')[0] + "." + pieces.domain + ".io/" + conf['gitlab_project'].split('/')[-1]
+ggi_activities_url = os.path.join(ggi_url, '-/boards')
+keywords = {
+    '[GGI_URL]': ggi_url,
+    '[GGI_PAGES_URL]': ggi_pages_url,
+    '[GGI_ACTIVITIES_URL]': ggi_activities_url
+}
+
+[ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
+
+
+# Replace keywords in md files.
+def update_keywords(file_in, keywords):
+    occurrences = []
+    for keyword in keywords:
+        for line in FileInput(file_in, inplace=1, backup='.bak'):
+            if keyword in line:
+                occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
+                line = line.replace(keyword, keywords[keyword])
+            print(line, end='')
+    [ print(o) for o in occurrences ]
+            
+
+update_keywords('web/config.toml', keywords)
+update_keywords('web/content/includes/initialisation.inc', keywords)
+update_keywords('README.md', keywords)
+files = glob.glob("web/content/*.md")
+files_ = [ f for f in files if os.path.isfile(f) ]
+for file in files_:
+    update_keywords(file, keywords)
+# - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - 
+
+
 # Replace keywords in md files.
 def update_keywords(file_in, keywords):
     occurrences = []
@@ -254,8 +298,8 @@ files_ = [ f for f in files if os.path.isfile(f) ]
 for file in files_:
     update_keywords(file, keywords)
 
-if 'CI_PROJECT_URL' in os.environ:
-    print(f"\nWebsite available at the following URL:\n{os.environ['CI_PROJECT_URL']}\n")
+if 'CI_PAGES_URL' in os.environ:
+    print(f"\nWebsite available at the following URL:\n{os.environ['CI_PAGES_URL']}\n")
 
 # Here: if possible, also update current project description with Website URL (Issue #17)
 
