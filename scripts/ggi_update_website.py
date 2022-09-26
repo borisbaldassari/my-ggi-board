@@ -244,10 +244,10 @@ if issues_not_started.shape[0] < 25:
 print("\n# Replacing keywords in static website.")
 
 # List of strings to be replaced.
-pieces = tldextract.extract(conf['gitlab_url'])
+pieces = tldextract.extract(GGI_GITLAB_URL)
 ggi_url = urllib.parse.urljoin(
-    conf['gitlab_url'], conf['gitlab_project'])
-ggi_pages_url = 'https://' + conf['gitlab_project'].split('/')[0] + "." + pieces.domain + ".io/" + conf['gitlab_project'].split('/')[-1]
+    GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
+ggi_pages_url = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
 ggi_activities_url = os.path.join(ggi_url, '-/boards')
 keywords = {
     '[GGI_URL]': ggi_url,
