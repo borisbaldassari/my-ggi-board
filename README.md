@@ -1,5 +1,4 @@
 
-
 # Welcome
 
 This is the home of your own Good Governance Initiative tracking board.
@@ -44,7 +43,7 @@ ow2-upstream    https://gitlab.ow2.org/ggi/my-ggi-board.git (push)
 ```
 
 **GitLab Import Project**  
-Probably simpler, but be aware that all branches and tags from the upstream repository will be duplicated to you own repo.
+Probably simpler, but be aware that all branches and tags from the upstream repository will be duplicated into you own repo.
 
 In your own GitLab space:
 - Create a new project
