@@ -205,7 +205,7 @@ my_issues = []
 my_issues_long = []
 for local_id, activity_id, title, url, desc in zip(
         issues_done['issue_id'],
-        issues_in_progress['activity_id'],
+        issues_done['activity_id'],
         issues_done['title'],
         issues_done['url'],
         issues_done['desc']):
