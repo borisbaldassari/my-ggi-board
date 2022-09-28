@@ -17,18 +17,20 @@
 #
 # The script expects your GitLab private key in the environment variable: GGI_GITLAB_TOKEN
 
-# usage: ggi_deploy [-h] [-a] [-b]
+# usage: ggi_deploy [-h] [-a] [-b] [-d]
 # 
 # optional arguments:
-#   -h, --help        show this help message and exit
-#   -a, --activities  Create activities
-#   -b, --board       Create board
+#   -h, --help                  Show this help message and exit
+#   -a, --activities            Create activities
+#   -b, --board                 Create board
+#   -d, --project-description   Update Project Description with pointers to the Board and Dashboard
 # 
 
 import gitlab
 import json
 import argparse
 import os
+import urllib.parse
     
 # Define some variables.
 conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
@@ -48,6 +50,10 @@ parser.add_argument('-b', '--board',
     dest='opt_board', 
     action='store_true', 
     help='Create board')
+parser.add_argument('-d', '--project-description', 
+    dest='opt_projdesc', 
+    action='store_true', 
+    help='Update Project description')
 args = parser.parse_args()
 
 #
@@ -80,7 +86,7 @@ else:
     GGI_GITLAB_PROJECT=conf['gitlab_project']
 
 if 'GGI_GITLAB_TOKEN' in os.environ:
-    print("Using ggi_gitlab_token from env var.")
+    print("Use ggi_gitlab_token from environment variable")
 else:
     print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
@@ -89,10 +95,28 @@ else:
 # Connect to GitLab
 #
 
-if (args.opt_activities) or (args.opt_board):
+if (args.opt_activities) or (args.opt_board) or (args.opt_projdesc):
     print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}")
     gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
     project = gl.projects.get(GGI_GITLAB_PROJECT)
+
+# Update current project description with Website URL
+if (args.opt_projdesc):
+    if 'CI_PAGES_URL' in os.environ:
+        ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
+        ggi_pages_url = os.environ['CI_PAGES_URL']
+        desc = (
+            'Your own Good Governance Initiative project.\n\n'
+            'Here you will find '
+            f'[**your dashboard**]({ggi_pages_url})\n'
+            f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment.\n\n'
+            'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
+        )
+        print(f"\nUpdate Project description with:\n<<<\n{desc}\n>>>\n")
+
+        project.description = desc
+        project.save()
+
 
 def create_label(existing_labels, new_label, label_args):
     if new_label in existing_labels:
