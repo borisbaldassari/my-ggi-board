@@ -107,6 +107,22 @@ else:
     print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
     gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
     project = gl.projects.get(GGI_GITLAB_PROJECT)
+    
+    # Here: if possible, also update current project description with Website URL (Issue #17)
+
+    pieces = tldextract.extract(GGI_GITLAB_URL)
+    ggi_pages_url = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
+    ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
+    desc = (
+        'Your own Good Governance Initiative project.\n\n'
+        'Here you will find the list of activities describing \n'
+        f'the local GGI deployment at {ggi_activities_url}, and '
+        f'your generated dashboard at {ggi_pages_url}.\n\n'
+        'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
+    )
+
+    project.description = desc
+    project.save()
 
     print("# Fetching issues..")
     gl_issues = project.issues.list(state='opened', all=True)
@@ -159,7 +175,6 @@ issues_in_progress = []
 issues_done = []
 issues_not_started = []
 for issue in issues.itertuples(index=False):
-    print(f"DBG {issue}")
     if conf['progress_labels']['not_started'] in issue[4].split(','):
         issues_not_started.append(issue)
     if conf['progress_labels']['in_progress'] in issue[4].split(','):
@@ -303,6 +318,5 @@ for file in files_:
 if 'CI_PAGES_URL' in os.environ:
     print(f"\nWebsite available at the following URL:\n{os.environ['CI_PAGES_URL']}\n")
 
-# Here: if possible, also update current project description with Website URL (Issue #17)
 
 print("Done.")
