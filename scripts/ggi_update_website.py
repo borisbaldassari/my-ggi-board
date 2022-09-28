@@ -128,13 +128,6 @@ else:
 GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
 GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
 
-issues = []
-issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
-               'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
-tasks = []
-hist = []
-hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
-
 print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
 gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
 project = gl.projects.get(GGI_GITLAB_PROJECT)
@@ -154,6 +147,15 @@ project.save()
 print("# Fetching issues..")
 gl_issues = project.issues.list(state='opened', all=True)
 
+
+# Define columns for recorded dataframes.
+issues = []
+issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
+               'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
+tasks = []
+hist = []
+hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
+
 count = 1
 workflow = {}
 tasks = []
@@ -167,7 +169,7 @@ for i in gl_issues:
                       'completed' if t['is_completed'] else 'open',
                       t['task']])
     short_desc = '\n'.join(description)
-    tasks_total = len(tasks)
+    tasks_total = len(a_tasks)
     tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
     issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
                    i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
@@ -217,7 +219,9 @@ issues_done = pd.DataFrame(issues_done,
 
 # Print all issues, tasks and events to CSV file
 print("\n# Writing issues and history to files.") 
-issues.to_csv('web/content/includes/issues.csv', index=False)
+issues.to_csv('web/content/includes/issues.csv',
+              columns=['issue_id', 'activity_id', 'state', 'title', 'labels',
+               'updated_at', 'url', 'tasks_total', 'tasks_done'], index=False)
 hist.to_csv('web/content/includes/labels_hist.csv', index=False)
 tasks.to_csv('web/content/includes/tasks.csv', index=False)
 
@@ -225,16 +229,20 @@ tasks.to_csv('web/content/includes/tasks.csv', index=False)
 print("\n# Writing current issues.") 
 my_issues = []
 my_issues_long = []
-for local_id, activity_id, title, url, desc in zip(
+for local_id, activity_id, title, url, desc, tasks_done, tasks_total in zip(
         issues_in_progress['issue_id'],
         issues_in_progress['activity_id'],
         issues_in_progress['title'],
         issues_in_progress['url'],
-        issues_in_progress['desc']):
+        issues_in_progress['desc'],
+        issues_in_progress['tasks_done'],
+        issues_in_progress['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) ({activity_id}).")
-    my_issues_long.append(f"## {title}\n")
-    my_issues_long.append(f"Link to activity in board: {url} \n")
+    my_issues.append(f"* [{title}]({url}) ({activity_id}). \\")
+    my_issues.append(f"* {tasks_done} tasks done / {tasks_done} tasks total. \\")
+    my_issues_long.append(f"## {title}\n\n")
+    my_issues_long.append(f"* Activity ID: {activity_id} \n")
+    my_issues_long.append(f"* Link to activity in board: {url} \n\n")
     my_issues_long.append(f"{desc}\n\n")
 
 with open('web/content/includes/current_activities.inc', 'w') as f:
@@ -246,16 +254,20 @@ with open('web/content/includes/current_activities_long.inc', 'w') as f:
 print("\n# Writing past issues.") 
 my_issues = []
 my_issues_long = []
-for local_id, activity_id, title, url, desc in zip(
+for local_id, activity_id, title, url, desc, tasks_done, tasks_total in zip(
         issues_done['issue_id'],
         issues_done['activity_id'],
         issues_done['title'],
         issues_done['url'],
-        issues_done['desc']):
+        issues_done['desc'],
+        issues_in_progress['tasks_done'],
+        issues_in_progress['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
     my_issues.append(f"* [{title}]({url}) ({activity_id}).")
-    my_issues_long.append(f"## {title}\n")
-    my_issues_long.append(f"Link to activity in board: {url} \n")
+    my_issues.append(f"* {tasks_done} tasks done / {tasks_done} tasks total. \\")
+    my_issues_long.append(f"## {title}\n\n")
+    my_issues_long.append(f"* Activity ID: {activity_id} \n")
+    my_issues_long.append(f"* Link to activity in board: {url} \n")
     my_issues_long.append(f"{desc}\n\n")
 
 with open('web/content/includes/past_activities.inc', 'w') as f:

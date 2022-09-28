@@ -132,11 +132,14 @@ def extract_sections(activity):
             content[content_t] = []
         else:
             content[content_t].append(p)
+    # Add Activity ID
     content_text = content['Introduction'][1] + '\n\n'
-    content_text += ''.join(init_scorecard) + '\n\n'
+    # Add Scorecard
+    content_text += ''.join(init_scorecard)
     del content['Introduction']
+    # Add description content.
     for key in content.keys():
-        content_text += f"### {key}\n\n"
+        content_text += f"\n\n### {key}\n\n"
         content_text += '\n\n'.join(content[key])
     return content_text
 
