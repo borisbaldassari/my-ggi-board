@@ -28,14 +28,13 @@
 import gitlab
 import json
 import argparse
-import tldextract
-import urllib.parse, glob, os
-from fileinput import FileInput
-
+import os
+    
 # Define some variables.
 conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
 activities_file = conf_dir + '/ggi_activities_full.json'
 conf_file = conf_dir + '/ggi_deployment.json'
+ggi_board_name='GGI Activities/Goals'
 
 #
 # Parse arguments from command line.
@@ -51,29 +50,49 @@ parser.add_argument('-b', '--board',
     help='Create board')
 args = parser.parse_args()
 
-
 #
 # Read metadata for activities and deployment options.
 #
-print(f"\n# Reading metadata from {activities_file}.")
+print(f"\n# Reading metadata from {activities_file}")
 with open(activities_file, 'r', encoding='utf-8') as f:
     metadata = json.load(f)
   
-print(f"# Reading deployment options from {conf_file}.")
+print(f"# Reading deployment options from {conf_file}")
 with open(conf_file, 'r', encoding='utf-8') as f:
     conf = json.load(f)
+
+# Determine GitLab server URL and Project name
+# From Environment variable if available
+# From configuration file otherwise
+
+if 'CI_SERVER_URL' in os.environ:
+    GGI_GITLAB_URL = os.environ['CI_SERVER_URL']
+    print("Use GitLab URL from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_URL=conf['gitlab_url']
+
+if 'CI_PROJECT_PATH' in os.environ:
+    GGI_GITLAB_PROJECT=os.environ['CI_PROJECT_PATH']
+    print("Use GitLab Project from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_PROJECT=conf['gitlab_project']
+
+if 'GGI_GITLAB_TOKEN' in os.environ:
+    print("Using ggi_gitlab_token from env var.")
+else:
+    print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
+    exit(1)
 
 #
 # Connect to GitLab
 #
-if not os.environ['GGI_GITLAB_TOKEN']:
-    print("Expecting GitLab private token in env variable 'GGI_GITLAB_TOKEN'")
-    exit(1)
 
 if (args.opt_activities) or (args.opt_board):
-    print(f"\n# Connection to GitLab at {conf['gitlab_url']}.")
-    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
-    project = gl.projects.get(conf['gitlab_project'])
+    print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}")
+    gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
+    project = gl.projects.get(GGI_GITLAB_PROJECT)
 
 def create_label(existing_labels, new_label, label_args):
     if new_label in existing_labels:
@@ -124,8 +143,8 @@ if (args.opt_activities):
 # Create Goals board
 #
 if (args.opt_board):
-    print('\n# Creating Goals board.')
-    board = project.boards.create({'name': 'GGI Activities/Goals'})
+    print(f"\n# Creating Goals board: {ggi_board_name}")
+    board = project.boards.create({'name': ggi_board_name})
 
     print('\n# Creating Goals board lists.')
     # First build an ordered list of goals
@@ -138,50 +157,7 @@ if (args.opt_board):
     
     # Then create the lists in gitlab
     for goal_label in goal_lists: 
-        print(f"  - Creating list for {goal_label.name} - {goal_label.id}.")
+        print(f"  - Creating list for {goal_label.name}")
         b_list = board.lists.create({'label_id': goal_label.id})
-    
-print("Done.")
-
-
-#
-# Setup website
-#
-print("\n# Replacing keywords in static website.")
-
-# List of strings to be replaced.
-pieces = tldextract.extract(conf['gitlab_url'])
-ggi_url = urllib.parse.urljoin(
-    conf['gitlab_url'], conf['gitlab_project'])
-ggi_pages_url = 'https://' + conf['gitlab_project'].split('/')[0] + "." + pieces.domain + ".io/" + conf['gitlab_project'].split('/')[-1]
-ggi_activities_url = os.path.join(ggi_url, '-/boards')
-keywords = {
-    '[GGI_URL]': ggi_url,
-    '[GGI_PAGES_URL]': ggi_pages_url,
-    '[GGI_ACTIVITIES_URL]': ggi_activities_url
-}
-
-[ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
-
-
-# Replace keywords in md files.
-def update_keywords(file_in, keywords):
-    occurrences = []
-    for keyword in keywords:
-        for line in FileInput(file_in, inplace=1, backup='.bak'):
-            if keyword in line:
-                occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
-                line = line.replace(keyword, keywords[keyword])
-            print(line, end='')
-    [ print(o) for o in occurrences ]
-            
-
-update_keywords('web/config.toml', keywords)
-update_keywords('web/content/includes/initialisation.inc', keywords)
-update_keywords('README.md', keywords)
-files = glob.glob("web/content/*.md")
-files_ = [ f for f in files if os.path.isfile(f) ]
-for file in files_:
-    update_keywords(file, keywords)
     
 print("Done.")
