@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # ######################################################################
-# Copyright (c) 2022 Boris Baldassari and others
+# Copyright (c) 2022 Boris Baldassari, Nico Toussaint and others
 #
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
@@ -17,8 +17,6 @@
 
 import gitlab
 import json
-#import requests 
-import tarfile
 import argparse
 import pandas as pd
 import re
@@ -26,6 +24,8 @@ import glob, os
 from fileinput import FileInput
 from datetime import date
 from collections import OrderedDict
+import tldextract
+import urllib.parse
 
 # Define some variables.
 
@@ -113,8 +113,26 @@ print(f"# Reading deployment options from {file_conf}.")
 with open(file_conf, 'r', encoding='utf-8') as f:
     conf = json.load(f)
 
-if os.environ['GGI_GITLAB_TOKEN']:
-    print("- Using ggi_gitlab_token from env var.")
+# Determine GitLab server URL and Project name
+# From Environment variable if available
+# From configuration file otherwise
+
+if 'CI_SERVER_URL' in os.environ:
+    GGI_GITLAB_URL = os.environ['CI_SERVER_URL']
+    print("Use GitLab URL from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_URL=conf['gitlab_url']
+
+if 'CI_PROJECT_PATH' in os.environ:
+    GGI_GITLAB_PROJECT=os.environ['CI_PROJECT_PATH']
+    print("Use GitLab Project from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_PROJECT=conf['gitlab_project']
+
+if 'GGI_GITLAB_TOKEN' in os.environ:
+    print("Using ggi_gitlab_token from env var.")
 else:
     print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
@@ -131,9 +149,25 @@ if args.opt_issues_csv:
     for index, row in issues.iterrows():
         print(f"- {row[0]} {row[2]}.")
 else:
-    print(f"\n# Connection to GitLab at {conf['gitlab_url']} - {conf['gitlab_project']}.")
-    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
-    project = gl.projects.get(conf['gitlab_project'])
+    print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
+    gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
+    project = gl.projects.get(GGI_GITLAB_PROJECT)
+    
+    # Here: if possible, also update current project description with Website URL (Issue #17)
+
+    pieces = tldextract.extract(GGI_GITLAB_URL)
+    ggi_pages_url = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
+    ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
+    desc = (
+        'Your own Good Governance Initiative project.\n\n'
+        'Here you will find the list of activities describing \n'
+        f'the local GGI deployment at {ggi_activities_url}, and '
+        f'your generated dashboard at {ggi_pages_url}.\n\n'
+        'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
+    )
+
+    project.description = desc
+    project.save()
 
     print("# Fetching issues..")
     gl_issues = project.issues.list(state='opened', all=True)
@@ -261,6 +295,50 @@ if issues_not_started.shape[0] < 25:
 # Replace 
 #
 
+#
+# Setup website
+#
+# - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - 
+# Copy and paste from preparation step currently taking place in deploy script
+print("\n# Replacing keywords in static website.")
+
+# List of strings to be replaced.
+pieces = tldextract.extract(GGI_GITLAB_URL)
+ggi_url = urllib.parse.urljoin(
+    GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
+ggi_pages_url = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
+ggi_activities_url = os.path.join(ggi_url, '-/boards')
+keywords = {
+    '[GGI_URL]': ggi_url,
+    '[GGI_PAGES_URL]': ggi_pages_url,
+    '[GGI_ACTIVITIES_URL]': ggi_activities_url
+}
+
+[ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
+
+
+# Replace keywords in md files.
+def update_keywords(file_in, keywords):
+    occurrences = []
+    for keyword in keywords:
+        for line in FileInput(file_in, inplace=1, backup='.bak'):
+            if keyword in line:
+                occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
+                line = line.replace(keyword, keywords[keyword])
+            print(line, end='')
+    [ print(o) for o in occurrences ]
+            
+
+update_keywords('web/config.toml', keywords)
+update_keywords('web/content/includes/initialisation.inc', keywords)
+update_keywords('README.md', keywords)
+files = glob.glob("web/content/*.md")
+files_ = [ f for f in files if os.path.isfile(f) ]
+for file in files_:
+    update_keywords(file, keywords)
+# - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - 
+
+
 # Replace keywords in md files.
 def update_keywords(file_in, keywords):
     occurrences = []
@@ -280,5 +358,9 @@ files = glob.glob("web/content/*.md")
 files_ = [ f for f in files if os.path.isfile(f) ]
 for file in files_:
     update_keywords(file, keywords)
-    
+
+if 'CI_PAGES_URL' in os.environ:
+    print(f"\nWebsite available at the following URL:\n{os.environ['CI_PAGES_URL']}\n")
+
+
 print("Done.")
