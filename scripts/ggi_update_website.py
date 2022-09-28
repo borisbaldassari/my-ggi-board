@@ -17,7 +17,6 @@
 
 import gitlab
 import json
-import argparse
 import pandas as pd
 import re
 import glob, os
@@ -42,22 +41,6 @@ re_activity_id = re.compile(r"^Activity ID: \[(GGI-A-\d\d)\]\(.+\).$")
 re_section = re.compile(r"^### (?P<section>.*?)\s*$")
 re_subsection = re.compile(r"^#### (?P<subsection>.*?)\s*$")
 
-#
-# Parse arguments from command line.
-#
-
-parser = argparse.ArgumentParser(prog='ggi_update_website')
-#parser.add_argument('-a', '--activities', 
-#    dest='opt_activities', 
-#    action='store_true', 
-#    help='Create activities')
-parser.add_argument('-i', '--issues', 
-    dest='opt_issues_csv', 
-    help='Read issues from csv file.')
-args = parser.parse_args()
-
-if args.opt_issues_csv:
-    issues_csv_file = args.opt_issues_csv 
 
 
 def extract_workflow(activity_desc):
@@ -105,10 +88,6 @@ def extract_workflow(activity_desc):
 # Read metadata for activities and deployment options.
 #
 
-#print(f"\n# Reading metadata from {file_meta}.")
-#with open(file_meta, 'r', encoding='utf-8') as f:
-#    metadata = json.load(f)
-  
 print(f"# Reading deployment options from {file_conf}.")
 with open(file_conf, 'r', encoding='utf-8') as f:
     conf = json.load(f)
@@ -119,96 +98,99 @@ with open(file_conf, 'r', encoding='utf-8') as f:
 
 if 'CI_SERVER_URL' in os.environ:
     GGI_GITLAB_URL = os.environ['CI_SERVER_URL']
-    print("Use GitLab URL from environment variable")
+    print("- Use GitLab URL from environment variable")
 else:
-    print("Use GitLab URL from configuration file")
-    GGI_GITLAB_URL=conf['gitlab_url']
+    print("- Use GitLab URL from configuration file")
+    GGI_GITLAB_URL = conf['gitlab_url']
 
 if 'CI_PROJECT_PATH' in os.environ:
-    GGI_GITLAB_PROJECT=os.environ['CI_PROJECT_PATH']
-    print("Use GitLab Project from environment variable")
+    GGI_GITLAB_PROJECT = os.environ['CI_PROJECT_PATH']
+    print("- Use GitLab Project from environment variable")
 else:
-    print("Use GitLab URL from configuration file")
-    GGI_GITLAB_PROJECT=conf['gitlab_project']
+    print("- Use GitLab URL from configuration file")
+    GGI_GITLAB_PROJECT = conf['gitlab_project']
 
 if 'GGI_GITLAB_TOKEN' in os.environ:
-    print("Using ggi_gitlab_token from env var.")
+    print("- Using ggi_gitlab_token from env var.")
 else:
-    print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
+    print("- Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
 
+if 'CI_PAGES_URL' in os.environ:
+    GGI_PAGES_URL = os.environ['CI_PAGES_URL']
+    print("- Using GGI_PAGES_URL from environment variable.")
+else:
+    print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
+    pieces = tldextract.extract(GGI_GITLAB_URL)
+    GGI_PAGES_URL = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + \
+        "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
+
+GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
+GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
+
 issues = []
-issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels', 'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
+issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
+               'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
 tasks = []
 hist = []
 hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
-if args.opt_issues_csv:
-    print(f"# Reading issues from {issues_csv_file}.")
-    with open(issues_csv_file, 'r') as f:
-        issues = pd.read_csv(issues_csv_file)
-    for index, row in issues.iterrows():
-        print(f"- {row[0]} {row[2]}.")
-else:
-    print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
-    gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
-    project = gl.projects.get(GGI_GITLAB_PROJECT)
+
+print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
+gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
+project = gl.projects.get(GGI_GITLAB_PROJECT)
     
-    # Here: if possible, also update current project description with Website URL (Issue #17)
+# Update current project description with Website URL (Issue #17)
+desc = (
+    'Your own Good Governance Initiative project.\n\n'
+    'Here you will find the list of activities describing \n'
+    f'the local GGI deployment at {GGI_ACTIVITIES_URL}, and '
+    f'your generated dashboard at {GGI_PAGES_URL}.\n\n'
+    'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
+)
 
-    pieces = tldextract.extract(GGI_GITLAB_URL)
-    ggi_pages_url = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
-    ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
-    desc = (
-        'Your own Good Governance Initiative project.\n\n'
-        'Here you will find the list of activities describing \n'
-        f'the local GGI deployment at {ggi_activities_url}, and '
-        f'your generated dashboard at {ggi_pages_url}.\n\n'
-        'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
-    )
+project.description = desc
+project.save()
 
-    project.description = desc
-    project.save()
+print("# Fetching issues..")
+gl_issues = project.issues.list(state='opened', all=True)
 
-    print("# Fetching issues..")
-    gl_issues = project.issues.list(state='opened', all=True)
-
-    count = 1
-    workflow = {}
-    tasks = []
-    for i in gl_issues:
-        desc = i.description
-        paragraphs = desc.split('\n\n')
-        lines = desc.split('\n')
-        a_id, description, workflow, a_tasks = extract_workflow(desc)
-        for t in a_tasks:
-            tasks.append([a_id,
-                          'completed' if t['is_completed'] else 'open',
-                          t['task']])
-        short_desc = '\n'.join(description)
-        tasks_total = len(tasks)
-        tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
-        issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
-                       i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
+count = 1
+workflow = {}
+tasks = []
+for i in gl_issues:
+    desc = i.description
+    paragraphs = desc.split('\n\n')
+    lines = desc.split('\n')
+    a_id, description, workflow, a_tasks = extract_workflow(desc)
+    for t in a_tasks:
+        tasks.append([a_id,
+                      'completed' if t['is_completed'] else 'open',
+                      t['task']])
+    short_desc = '\n'.join(description)
+    tasks_total = len(tasks)
+    tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
+    issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
+                   i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
     
-        # Retrieve information about labels.
-        for n in i.resourcelabelevents.list():
-            event = i.resourcelabelevents.get(n.id)
-            n_type = 'label'
-            label = n.label['name'] if n.label else ''
-            n_action = f"{n.action} {label}"
-            line = [n.created_at, i.iid,
-                    n.id, n_type, n.user['username'], 
-                    n_action, i.web_url]
-            hist.append(line)
+    # Retrieve information about labels.
+    for n in i.resourcelabelevents.list():
+        event = i.resourcelabelevents.get(n.id)
+        n_type = 'label'
+        label = n.label['name'] if n.label else ''
+        n_action = f"{n.action} {label}"
+        line = [n.created_at, i.iid,
+                n.id, n_type, n.user['username'], 
+                n_action, i.web_url]
+        hist.append(line)
 
-        print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
+    print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
         
-        # Remove these lines when dev/debug is over
-        if count == 2:
-            break
-        else:
-            count += 1
-            
+    # Remove these lines when dev/debug is over
+    if count == 30:
+        break
+    else:
+        count += 1
+
 # Convert lists to dataframes
 issues = pd.DataFrame(issues, columns=issues_cols)
 tasks = pd.DataFrame(tasks, columns=['issue_id', 'state', 'task'])
@@ -266,7 +248,7 @@ my_issues = []
 my_issues_long = []
 for local_id, activity_id, title, url, desc in zip(
         issues_done['issue_id'],
-        issues_in_progress['activity_id'],
+        issues_done['activity_id'],
         issues_done['title'],
         issues_done['url'],
         issues_done['desc']):
@@ -292,28 +274,22 @@ if issues_not_started.shape[0] < 25:
         f.write('')
 
 #
-# Replace 
+# Setup website
 #
 
 #
-# Setup website
+# Replace 
 #
-# - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - 
-# Copy and paste from preparation step currently taking place in deploy script
 print("\n# Replacing keywords in static website.")
 
 # List of strings to be replaced.
-pieces = tldextract.extract(GGI_GITLAB_URL)
-ggi_url = urllib.parse.urljoin(
-    GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
-ggi_pages_url = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
-ggi_activities_url = os.path.join(ggi_url, '-/boards')
+print("\n# List of keywords and values:")
 keywords = {
-    '[GGI_URL]': ggi_url,
-    '[GGI_PAGES_URL]': ggi_pages_url,
-    '[GGI_ACTIVITIES_URL]': ggi_activities_url
+    '[GGI_URL]': GGI_URL,
+    '[GGI_PAGES_URL]': GGI_PAGES_URL,
+    '[GGI_ACTIVITIES_URL]': GGI_ACTIVITIES_URL,
+    '[GGI_CURRENT_DATE]': str(date.today())
 }
-
 [ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
 
 
@@ -329,38 +305,13 @@ def update_keywords(file_in, keywords):
     [ print(o) for o in occurrences ]
             
 
+print("\n# Replacing keywords in files.")
 update_keywords('web/config.toml', keywords)
 update_keywords('web/content/includes/initialisation.inc', keywords)
-update_keywords('README.md', keywords)
+#update_keywords('README.md', keywords)
 files = glob.glob("web/content/*.md")
 files_ = [ f for f in files if os.path.isfile(f) ]
 for file in files_:
     update_keywords(file, keywords)
-# - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - # - 
-
-
-# Replace keywords in md files.
-def update_keywords(file_in, keywords):
-    occurrences = []
-    for keyword in keywords:
-        for line in FileInput(file_in, inplace=1, backup='.bak'):
-            if keyword in line:
-                occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
-                line = line.replace(keyword, keywords[keyword])
-            print(line, end='')
-    [ print(o) for o in occurrences ]
-
-current_date = str(date.today())
-keywords = {'[GGI_CURRENT_DATE]': current_date}
-
-print("\n# Replacing strings.")
-files = glob.glob("web/content/*.md")
-files_ = [ f for f in files if os.path.isfile(f) ]
-for file in files_:
-    update_keywords(file, keywords)
-
-if 'CI_PAGES_URL' in os.environ:
-    print(f"\nWebsite available at the following URL:\n{os.environ['CI_PAGES_URL']}\n")
-
 
 print("Done.")
