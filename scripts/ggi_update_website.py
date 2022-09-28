@@ -142,7 +142,7 @@ for i in gl_issues:
     print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
         
     # Remove these lines when dev/debug is over
-    if count == 10:
+    if count == 50:
         break
     else:
         count += 1
@@ -157,7 +157,6 @@ issues_in_progress = []
 issues_done = []
 issues_not_started = []
 for issue in issues.itertuples(index=False):
-#    print(f"DBG issue {issue}")
     if conf['progress_labels']['not_started'] in issue[4].split(','):
         issues_not_started.append(issue)
     if conf['progress_labels']['in_progress'] in issue[4].split(','):
