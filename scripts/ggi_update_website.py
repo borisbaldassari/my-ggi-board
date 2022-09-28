@@ -80,8 +80,8 @@ def extract_workflow(activity_desc):
     subsection = 'Default'
     workflow = {subsection: []}
     # Parse the scorecard section.
+    tasks = []
     if 'Scorecard' in content:
-        tasks = []
         for p in content['Scorecard']:
             match_subsection = re.search(re_subsection, p)
             if match_subsection:
