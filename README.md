@@ -18,7 +18,7 @@ The set up steps are:
 ### Fork the repository
 Multiple options here: you may want, for example, to use the Import feature proposed by GitLab, or fork manually.
 
-#### Manual Fork
+**Fork option #1: Manual Fork  
 - Create an empty project on your target GitLab instance.
 <img src="resources/setup_create-project.png" width="50%" height="50%">
 
@@ -33,8 +33,7 @@ $ git push my-ggi
 ```
 **After you have pushed**, the pipeline will be triggered and will fail: this is expected, as the `GGI_GITLAB_TOKEN` variable has not been defined yet, see below.
 
-#### Import Project
-This does not require cloning the GGI repository locally, but be aware that all branches will be duplicated to you own repo.
+**Fork option #2: Import Project  
 
 In your own GitLab space:
 - Create a new project
@@ -69,7 +68,3 @@ You can also schedule the pipeline to be triggered regularly, every night for ex
 
 * Prerequisites for Python are registered in `requirements.txt`. You are encouraged to create a virtual environment to execute the scripts, althought it is not required.
 * GitLab CE doesn't allow to create Boards through the API.
-
-## Testing
-
-The `ggi_test_scenario.py` script takes as argument a GitLab instance URL and a project ID, executes the creation scripts and then checks that everything is in its right place.
