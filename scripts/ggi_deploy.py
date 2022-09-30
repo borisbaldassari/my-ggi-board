@@ -17,25 +17,26 @@
 #
 # The script expects your GitLab private key in the environment variable: GGI_GITLAB_TOKEN
 
-# usage: ggi_deploy [-h] [-a] [-b]
+# usage: ggi_deploy [-h] [-a] [-b] [-d]
 # 
 # optional arguments:
-#   -h, --help        show this help message and exit
-#   -a, --activities  Create activities
-#   -b, --board       Create board
+#   -h, --help                  Show this help message and exit
+#   -a, --activities            Create activities
+#   -b, --board                 Create board
+#   -d, --project-description   Update Project Description with pointers to the Board and Dashboard
 # 
 
 import gitlab
 import json
 import argparse
-import tldextract
-import urllib.parse, glob, os
-from fileinput import FileInput
-
+import os
+import urllib.parse
+    
 # Define some variables.
 conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
 activities_file = conf_dir + '/ggi_activities_full.json'
 conf_file = conf_dir + '/ggi_deployment.json'
+ggi_board_name='GGI Activities/Goals'
 
 #
 # Parse arguments from command line.
@@ -49,37 +50,77 @@ parser.add_argument('-b', '--board',
     dest='opt_board', 
     action='store_true', 
     help='Create board')
+parser.add_argument('-d', '--project-description', 
+    dest='opt_projdesc', 
+    action='store_true', 
+    help='Update Project description')
 args = parser.parse_args()
-
 
 #
 # Read metadata for activities and deployment options.
 #
-print(f"\n# Reading metadata from {activities_file}.")
+print(f"\n# Reading metadata from {activities_file}")
 with open(activities_file, 'r', encoding='utf-8') as f:
     metadata = json.load(f)
   
-print(f"# Reading deployment options from {conf_file}.")
+print(f"# Reading deployment options from {conf_file}")
 with open(conf_file, 'r', encoding='utf-8') as f:
     conf = json.load(f)
+
+# Determine GitLab server URL and Project name
+# From Environment variable if available
+# From configuration file otherwise
+
+if 'CI_SERVER_URL' in os.environ:
+    GGI_GITLAB_URL = os.environ['CI_SERVER_URL']
+    print("Use GitLab URL from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_URL=conf['gitlab_url']
+
+if 'CI_PROJECT_PATH' in os.environ:
+    GGI_GITLAB_PROJECT=os.environ['CI_PROJECT_PATH']
+    print("Use GitLab Project from environment variable")
+else:
+    print("Use GitLab URL from configuration file")
+    GGI_GITLAB_PROJECT=conf['gitlab_project']
+
+if 'GGI_GITLAB_TOKEN' in os.environ:
+    print("Use ggi_gitlab_token from environment variable")
+else:
+    print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
+    exit(1)
 
 #
 # Connect to GitLab
 #
-if not os.environ['GGI_GITLAB_TOKEN']:
-    print("Expecting GitLab private token in env variable 'GGI_GITLAB_TOKEN'")
-    exit(1)
+print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}")
+gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
+project = gl.projects.get(GGI_GITLAB_PROJECT)
 
-if (args.opt_activities) or (args.opt_board):
-    print(f"\n# Connection to GitLab at {conf['gitlab_url']}.")
-    gl = gitlab.Gitlab(url=conf['gitlab_url'], per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
-    project = gl.projects.get(conf['gitlab_project'])
+# Update current project description with Website URL
+if (args.opt_projdesc):
+    if 'CI_PAGES_URL' in os.environ:
+        ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
+        ggi_pages_url = os.environ['CI_PAGES_URL']
+        desc = (
+            'Your own Good Governance Initiative project.\n\n'
+            'Here you will find '
+            f'[**your dashboard**]({ggi_pages_url})\n'
+            f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment.\n\n'
+            'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
+        )
+        print(f"\nUpdate Project description with:\n<<<\n{desc}\n>>>\n")
+
+        project.description = desc
+        project.save()
+
 
 def create_label(existing_labels, new_label, label_args):
     if new_label in existing_labels:
-        print(f" Ignore label: {new_label}")
+        print(f" - Ignore label: {new_label}")
     else:
-        print(f" Create label: {new_label}")
+        print(f" - Create label: {new_label}")
         project.labels.create(label_args)
 
 #
@@ -89,7 +130,6 @@ if (args.opt_activities):
 
     print("\n# Manage labels")
     existing_labels = [i.name for i in project.labels.list()]
-    print(f"  - Existing labels: {existing_labels}.")
 
     # Create role labels if needed
     print("\n Roles labels")
@@ -108,80 +148,51 @@ if (args.opt_activities):
 
     # Create issues with their associated labels.
     print("\n# Create activities.")
-    for activity in metadata['activities']:
-      print(f"  - Create issue [{activity['name']}]")
-      labels = \
-        [activity['goal']] + \
-        activity['roles'] + \
-        [conf['progress_labels']['not_started']]
-      print(f"    with labels  {labels}")
-      description = "".join( [i for i in activity['content']] )
-      ret = project.issues.create({'title': activity['name'],
-                                   'description': description, 
-                                   'labels': labels})
+    # First test the existence of Activities Issues:
+    #   if at least one Issue is found bearing one Goal label,
+    #   consider that all Issues exist and do not add any.
+    issues_test = project.issues.list(labels=[metadata['goals'][0]['name']])
+    if (len(issues_test) > 0):
+        print(" Ignore, Issues already exist")
+    else:
+        for activity in metadata['activities']:
+            labels = \
+                [activity['goal']] + \
+                activity['roles'] + \
+                [conf['progress_labels']['not_started']]
+            print(f"  - Issue: {activity['name']:<60} Labels: {labels}")
+            description = "".join( [i for i in activity['content']] )
+            project.issues.create({'title': activity['name'],
+                                    'description': description, 
+                                    'labels': labels})
 
 #
 # Create Goals board
 #
 if (args.opt_board):
-    print('\n# Creating Goals board.')
-    board = project.boards.create({'name': 'GGI Activities/Goals'})
-
-    print('\n# Creating Goals board lists.')
-    # First build an ordered list of goals
-    goal_lists = []
-    for g in metadata['goals']:
-        for l in project.labels.list():
-            if l.name == g['name']:
-                goal_lists.append(l)
-                break
-    
-    # Then create the lists in gitlab
-    for goal_label in goal_lists: 
-        print(f"  - Creating list for {goal_label.name} - {goal_label.id}.")
-        b_list = board.lists.create({'label_id': goal_label.id})
-    
-print("Done.")
-
-
-#
-# Setup website
-#
-print("\n# Replacing keywords in static website.")
-
-# List of strings to be replaced.
-pieces = tldextract.extract(conf['gitlab_url'])
-ggi_url = urllib.parse.urljoin(
-    conf['gitlab_url'], conf['gitlab_project'])
-ggi_pages_url = 'https://' + conf['gitlab_project'].split('/')[0] + "." + pieces.domain + ".io/" + conf['gitlab_project'].split('/')[-1]
-ggi_activities_url = os.path.join(ggi_url, '-/boards')
-keywords = {
-    '[GGI_URL]': ggi_url,
-    '[GGI_PAGES_URL]': ggi_pages_url,
-    '[GGI_ACTIVITIES_URL]': ggi_activities_url
-}
-
-[ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
-
-
-# Replace keywords in md files.
-def update_keywords(file_in, keywords):
-    occurrences = []
-    for keyword in keywords:
-        for line in FileInput(file_in, inplace=1, backup='.bak'):
-            if keyword in line:
-                occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
-                line = line.replace(keyword, keywords[keyword])
-            print(line, end='')
-    [ print(o) for o in occurrences ]
-            
-
-update_keywords('web/config.toml', keywords)
-update_keywords('web/content/includes/initialisation.inc', keywords)
-update_keywords('README.md', keywords)
-files = glob.glob("web/content/*.md")
-files_ = [ f for f in files if os.path.isfile(f) ]
-for file in files_:
-    update_keywords(file, keywords)
+    print(f"\n# Create Goals board: {ggi_board_name}")
+    boards_list=project.boards.list()
+    board_exists=False
+    for b in boards_list:
+        if b.name == ggi_board_name:
+            board_exists=True
+            break
+    if board_exists:
+        print(" Ignore, Board already exists")
+    else:
+        board = project.boards.create({'name': ggi_board_name})
+        print('\n# Create Goals board lists.')
+        # First build an ordered list of goals
+        goal_lists = []
+        for g in metadata['goals']:
+            for l in project.labels.list():
+                if l.name == g['name']:
+                    goal_lists.append(l)
+                    break
+        
+        # Then create the lists in gitlab
+        for goal_label in goal_lists:
+            print(f"  - Create list for {goal_label.name}")
+            b_list = board.lists.create({'label_id': goal_label.id})
     
 print("Done.")
