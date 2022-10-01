@@ -205,23 +205,9 @@ tasks = pd.DataFrame(tasks, columns=tasks_cols)
 hist = pd.DataFrame(hist, columns=hist_cols)
 
 # Identify activities depending on their progress
-issues_in_progress = []
-issues_done = []
-issues_not_started = []
-for issue in issues.itertuples(index=False):
-    if conf['progress_labels']['not_started'] in issue[4].split(','):
-        issues_not_started.append(issue)
-    if conf['progress_labels']['in_progress'] in issue[4].split(','):
-        issues_in_progress.append(issue)
-    if conf['progress_labels']['done'] in issue[4].split(','):
-        issues_done.append(issue)
-
-issues_not_started = pd.DataFrame(issues_not_started,
-                                  columns=issues_cols)
-issues_in_progress = pd.DataFrame(issues_in_progress,
-                                  columns=issues_cols)
-issues_done = pd.DataFrame(issues_done,
-                           columns=issues_cols)
+issues_not_started = issues.loc[issues['labels'].str.contains(conf['progress_labels']['not_started']),]
+issues_in_progress = issues.loc[issues['labels'].str.contains(conf['progress_labels']['in_progress']),]
+issues_done = issues.loc[issues['labels'].str.contains(conf['progress_labels']['done']),]
 
 # Print all issues, tasks and events to CSV file
 print("\n# Writing issues and history to files.") 
@@ -294,7 +280,6 @@ for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total i
     else:
         my_issues.append(f'  <br /><br />')
     my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
-#    my_issues_long.append(f"* Link to activity in board: [{url}]({url}) \n")
     my_workflow = ""
     for subsection in workflow:
         my_workflow += f'**{subsection}**\n\n'
@@ -312,10 +297,43 @@ ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.
 with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
     f.write(ggi_data_all_activities)
 
+# Generate data points for the dashboard - goals - done
+done_stats = [
+    issues_done['labels'].str.contains('Usage').sum(),
+    issues_done['labels'].str.contains('Trust').sum(),
+    issues_done['labels'].str.contains('Culture').sum(),
+    issues_done['labels'].str.contains('Engagement').sum(),
+    issues_done['labels'].str.contains('Strategy').sum()
+]
+with open('web/content/includes/ggi_data_goals_done.inc', 'w') as f:
+    f.write(str(done_stats))
+
+# Generate data points for the dashboard - goals - in_progress
+in_progress_stats = [
+    issues_in_progress['labels'].str.contains('Usage').sum(),
+    issues_in_progress['labels'].str.contains('Trust').sum(),
+    issues_in_progress['labels'].str.contains('Culture').sum(),
+    issues_in_progress['labels'].str.contains('Engagement').sum(),
+    issues_in_progress['labels'].str.contains('Strategy').sum()
+]
+with open('web/content/includes/ggi_data_goals_in_progress.inc', 'w') as f:
+    f.write(str(in_progress_stats))
+
+# Generate data points for the dashboard - goals - not_started
+not_started_stats = [
+    issues_not_started['labels'].str.contains('Usage').sum(),
+    issues_not_started['labels'].str.contains('Trust').sum(),
+    issues_not_started['labels'].str.contains('Culture').sum(),
+    issues_not_started['labels'].str.contains('Engagement').sum(),
+    issues_not_started['labels'].str.contains('Strategy').sum()
+]
+with open('web/content/includes/ggi_data_goals_not_started.inc', 'w') as f:
+    f.write(str(not_started_stats))
+
 # Generate activities basic statistics 
 activities_stats = f'* {issues_not_started.shape[0]} activities <span class="w3-tag w3-light-grey">not_started</span>\n'
-activities_stats += f'* [{issues_in_progress.shape[0]} current activities](current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
-activities_stats += f'* [{issues_done.shape[0]} completed activities](past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
+activities_stats += f'* [{issues_in_progress.shape[0]} activities](current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
+activities_stats += f'* [{issues_done.shape[0]} activities](past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
 with open('web/content/includes/activities_stats.inc', 'w') as f:
     f.write(activities_stats)
 
