@@ -10,9 +10,14 @@ layout: default
 
 This is the website of your own good governance Initiative.
 
+There are currently:
 
-## Current activities
+{{% content "includes/activities_stats.inc" %}}
 
+
+## Current activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
+
+Current activities are defined as having the label <span class="w3-tag w3-light-grey">in_progress</span>. <br />
 These are your current activities:
 
 {{% content "includes/current_activities.inc" %}}
@@ -20,10 +25,10 @@ These are your current activities:
 See the detailed list of [current activities](current_activities).
 
 
-## Completed activities
+## Completed activities <a href='past_activities' class='w3-text-grey' style="float:right">[ details ]</a>
 
-The following activities have already been completed and are
- considered done.
+Completed activities are defined as having the label <span class="w3-tag w3-light-grey">done</span>. <br />
+These are your completed activities:
 
 {{% content "includes/past_activities.inc" %}}
 

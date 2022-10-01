@@ -79,7 +79,11 @@ def extract_workflow(activity_desc):
                     is_completed = True if is_completed == 'x' else False
                     task = match_tasks.group('task')
                     tasks.append({'is_completed': is_completed, 'task': task})
-#    print(f"DBG {workflow}")
+    # Remove first element (useless html stuff)
+    del workflow['Default']
+    # Remove last two elements (useless html stuff too)
+    del workflow[list(workflow)[-1]][-1]
+    del workflow[list(workflow)[-1]][-1]
     return a_id, content['Description'], workflow, tasks
 
 
@@ -151,8 +155,10 @@ gl_issues = project.issues.list(state='opened', all=True)
 # Define columns for recorded dataframes.
 issues = []
 issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
-               'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
+               'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
 tasks = []
+tasks_cols = ['issue_id', 'state', 'task']
+
 hist = []
 hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
 
@@ -172,7 +178,7 @@ for i in gl_issues:
     tasks_total = len(a_tasks)
     tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
     issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
-                   i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
+                   i.updated_at, i.web_url, short_desc, workflow, tasks_total, tasks_done])
     
     # Retrieve information about labels.
     for n in i.resourcelabelevents.list():
@@ -195,7 +201,7 @@ for i in gl_issues:
 
 # Convert lists to dataframes
 issues = pd.DataFrame(issues, columns=issues_cols)
-tasks = pd.DataFrame(tasks, columns=['issue_id', 'state', 'task'])
+tasks = pd.DataFrame(tasks, columns=tasks_cols)
 hist = pd.DataFrame(hist, columns=hist_cols)
 
 # Identify activities depending on their progress
@@ -211,7 +217,7 @@ for issue in issues.itertuples(index=False):
         issues_done.append(issue)
 
 issues_not_started = pd.DataFrame(issues_not_started,
-                           columns=issues_cols)
+                                  columns=issues_cols)
 issues_in_progress = pd.DataFrame(issues_in_progress,
                                   columns=issues_cols)
 issues_done = pd.DataFrame(issues_done,
@@ -229,46 +235,72 @@ tasks.to_csv('web/content/includes/tasks.csv', index=False)
 print("\n# Writing current issues.") 
 my_issues = []
 my_issues_long = []
-for local_id, activity_id, title, url, desc, tasks_done, tasks_total in zip(
+for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total in zip(
         issues_in_progress['issue_id'],
         issues_in_progress['activity_id'],
         issues_in_progress['title'],
         issues_in_progress['url'],
         issues_in_progress['desc'],
+        issues_in_progress['workflow'],
         issues_in_progress['tasks_done'],
         issues_in_progress['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) ({activity_id}). \\")
-    my_issues.append(f"* {tasks_done} tasks done / {tasks_done} tasks total. \\")
-    my_issues_long.append(f"## {title}\n\n")
-    my_issues_long.append(f"* Activity ID: {activity_id} \n")
-    my_issues_long.append(f"* Link to activity in board: {url} \n\n")
-    my_issues_long.append(f"{desc}\n\n")
+    p = int(tasks_done) * 100 // int(tasks_total) if tasks_total > 0 else 0
+    my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
+    my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    if tasks_total > 0:
+        p = int(tasks_done) * 100 // int(tasks_total)
+        my_issues.append(f'  <div class="w3-light-grey w3-round">')
+        my_issues.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+        my_issues.append(f'  </div><br />')
+    else:
+        my_issues.append(f'  <br /><br />')
+    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+#    my_issues_long.append(f"* Link to activity in board: [{url}]({url}) \n")
+    my_workflow = ""
+    for subsection in workflow:
+        my_workflow += f'**{subsection}**\n\n'
+        my_workflow += '\n'.join(workflow[subsection])
+        my_workflow += '\n\n'
+    my_issues_long.append(f"{my_workflow}")
 
 with open('web/content/includes/current_activities.inc', 'w') as f:
     f.write('\n'.join(my_issues))
 with open('web/content/includes/current_activities_long.inc', 'w') as f:
     f.write('\n'.join(my_issues_long))
-
+    
+    
 # Generate list of past activities
 print("\n# Writing past issues.") 
 my_issues = []
 my_issues_long = []
-for local_id, activity_id, title, url, desc, tasks_done, tasks_total in zip(
+for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total in zip(
         issues_done['issue_id'],
         issues_done['activity_id'],
         issues_done['title'],
         issues_done['url'],
         issues_done['desc'],
-        issues_in_progress['tasks_done'],
-        issues_in_progress['tasks_total']):
+        issues_done['workflow'],
+        issues_done['tasks_done'],
+        issues_done['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) ({activity_id}).")
-    my_issues.append(f"* {tasks_done} tasks done / {tasks_done} tasks total. \\")
-    my_issues_long.append(f"## {title}\n\n")
-    my_issues_long.append(f"* Activity ID: {activity_id} \n")
-    my_issues_long.append(f"* Link to activity in board: {url} \n")
-    my_issues_long.append(f"{desc}\n\n")
+    my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
+    my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    if tasks_total > 0:
+        p = int(tasks_done) * 100 // int(tasks_total)
+        my_issues.append(f'  <div class="w3-light-grey w3-round">')
+        my_issues.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+        my_issues.append(f'  </div><br />')
+    else:
+        my_issues.append(f'  <br /><br />')
+    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+#    my_issues_long.append(f"* Link to activity in board: [{url}]({url}) \n")
+    my_workflow = ""
+    for subsection in workflow:
+        my_workflow += f'**{subsection}**\n\n'
+        my_workflow += '\n'.join(workflow[subsection])
+        my_workflow += '\n\n'
+    my_issues_long.append(f"{my_workflow}")
 
 with open('web/content/includes/past_activities.inc', 'w') as f:
     f.write('\n'.join(my_issues))
@@ -279,6 +311,13 @@ with open('web/content/includes/past_activities_long.inc', 'w') as f:
 ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
 with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
     f.write(ggi_data_all_activities)
+
+# Generate activities basic statistics 
+activities_stats = f'* {issues_not_started.shape[0]} activities <span class="w3-tag w3-light-grey">not_started</span>\n'
+activities_stats += f'* [{issues_in_progress.shape[0]} current activities](current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
+activities_stats += f'* [{issues_done.shape[0]} completed activities](past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
+with open('web/content/includes/activities_stats.inc', 'w') as f:
+    f.write(activities_stats)
 
 # Empty (or not) the initialisation banner text in index.
 if issues_not_started.shape[0] < 25:
