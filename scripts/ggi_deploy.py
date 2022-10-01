@@ -147,11 +147,9 @@ def extract_sections(activity):
 #
 # Connect to GitLab
 #
-
-if (args.opt_activities) or (args.opt_board) or (args.opt_projdesc):
-    print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}")
-    gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
-    project = gl.projects.get(GGI_GITLAB_PROJECT)
+print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}")
+gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
+project = gl.projects.get(GGI_GITLAB_PROJECT)
 
 # Update current project description with Website URL
 if (args.opt_projdesc):
@@ -171,6 +169,12 @@ if (args.opt_projdesc):
         project.save()
 
 
+def create_label(existing_labels, new_label, label_args):
+    if new_label in existing_labels:
+        print(f" - Ignore label: {new_label}")
+    else:
+        print(f" - Create label: {new_label}")
+        project.labels.create(label_args)
 
 #
 # Create labels & activities
@@ -179,7 +183,6 @@ if (args.opt_activities):
 
     print("\n# Manage labels")
     existing_labels = [i.name for i in project.labels.list()]
-    print(f"  - Existing labels: {existing_labels}.")
 
     # Create role labels if needed
     print("\n Roles labels")
@@ -205,14 +208,20 @@ if (args.opt_activities):
     
     # Create issues with their associated labels.
     print("\n# Create activities.")
-    for activity in metadata['activities']:
-      print(f"  - Create issue [{activity['name']}]")
-      labels = \
-        [activity['goal']] + \
-        activity['roles'] + \
-        [conf['progress_labels']['not_started']]
-      print(f"    with labels {labels}")
-      ret = project.issues.create({'title': activity['name'],
+    # First test the existence of Activities Issues:
+    #   if at least one Issue is found bearing one Goal label,
+    #   consider that all Issues exist and do not add any.
+    issues_test = project.issues.list(labels=[metadata['goals'][0]['name']])
+    if (len(issues_test) > 0):
+        print(" Ignore, Issues already exist")
+    else:
+        for activity in metadata['activities']:
+            labels = \
+                [activity['goal']] + \
+                activity['roles'] + \
+                [conf['progress_labels']['not_started']]
+            print(f"  - Issue: {activity['name']:<60} Labels: {labels}")
+            ret = project.issues.create({'title': activity['name'],
                                    'description': extract_sections(activity), 
                                    'labels': labels})
 
@@ -220,21 +229,29 @@ if (args.opt_activities):
 # Create Goals board
 #
 if (args.opt_board):
-    print(f"\n# Creating Goals board: {ggi_board_name}")
-    board = project.boards.create({'name': ggi_board_name})
-
-    print('\n# Creating Goals board lists.')
-    # First build an ordered list of goals
-    goal_lists = []
-    for g in metadata['goals']:
-        for l in project.labels.list():
-            if l.name == g['name']:
-                goal_lists.append(l)
-                break
-    
-    # Then create the lists in gitlab
-    for goal_label in goal_lists: 
-        print(f"  - Creating list for {goal_label.name}")
-        b_list = board.lists.create({'label_id': goal_label.id})
+    print(f"\n# Create Goals board: {ggi_board_name}")
+    boards_list=project.boards.list()
+    board_exists=False
+    for b in boards_list:
+        if b.name == ggi_board_name:
+            board_exists=True
+            break
+    if board_exists:
+        print(" Ignore, Board already exists")
+    else:
+        board = project.boards.create({'name': ggi_board_name})
+        print('\n# Create Goals board lists.')
+        # First build an ordered list of goals
+        goal_lists = []
+        for g in metadata['goals']:
+            for l in project.labels.list():
+                if l.name == g['name']:
+                    goal_lists.append(l)
+                    break
+        
+        # Then create the lists in gitlab
+        for goal_label in goal_lists:
+            print(f"  - Create list for {goal_label.name}")
+            b_list = board.lists.create({'label_id': goal_label.id})
     
 print("Done.")
