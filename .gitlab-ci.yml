@@ -11,7 +11,7 @@ update_website:
   image: python:3.7
   script:
     - python -m	pip install -r requirements.txt
-    - python scripts/ggi_deploy.py -a -b -d
+    - python scripts/ggi_deploy.py -a -b -d -p
     - python scripts/ggi_update_website.py
   cache:
     key: "$CI_COMMIT_SHORT_SHA"
