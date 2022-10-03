@@ -28,14 +28,25 @@
 
 import gitlab
 import json
+import re
 import argparse
+import tldextract
+import urllib.parse, glob, os
+from fileinput import FileInput
+from collections import OrderedDict
 import os
 import urllib.parse
     
+
 # Define some variables.
 conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
 activities_file = conf_dir + '/ggi_activities_full.json'
 conf_file = conf_dir + '/ggi_deployment.json'
+init_scorecard_file = conf_dir + '/workflow_init.inc'
+
+# Define some regexps
+re_section = re.compile(r"^### (?P<section>.*?)\s*$")
+
 ggi_board_name='GGI Activities/Goals'
 
 #
@@ -67,6 +78,12 @@ print(f"# Reading deployment options from {conf_file}")
 with open(conf_file, 'r', encoding='utf-8') as f:
     conf = json.load(f)
 
+# Read the custom scorecard init file.
+print(f"# Reading scorecard init file from {init_scorecard_file}.")
+init_scorecard = []
+with open(init_scorecard_file, 'r', encoding='utf-8') as f:
+    init_scorecard = f.readlines()
+
 # Determine GitLab server URL and Project name
 # From Environment variable if available
 # From configuration file otherwise
@@ -90,6 +107,42 @@ if 'GGI_GITLAB_TOKEN' in os.environ:
 else:
     print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
+
+
+#
+# Utility functions
+#
+
+def create_label(existing_labels, new_label, label_args):
+    if new_label in existing_labels:
+        print(f" Ignore label: {new_label}")
+    else:
+        print(f" Create label: {new_label}")
+        project.labels.create(label_args)
+
+def extract_sections(activity):
+    paragraphs = activity['content'].split('\n\n')
+    content_t = 'Introduction'
+    content = OrderedDict()
+    content = {content_t: []}
+    for p in paragraphs:
+        match_section = re.search(re_section, p)
+        if (match_section):
+            content_t = match_section.group('section')
+            content[content_t] = []
+        else:
+            content[content_t].append(p)
+    # Add Activity ID
+    content_text = content['Introduction'][1] + '\n\n'
+    # Add Scorecard
+    content_text += ''.join(init_scorecard)
+    del content['Introduction']
+    # Add description content.
+    for key in content.keys():
+        content_text += f"\n\n### {key}\n\n"
+        content_text += '\n\n'.join(content[key])
+    return content_text
+
 
 #
 # Connect to GitLab
@@ -144,8 +197,15 @@ if (args.opt_activities):
     # Create goal labels if needed
     print("\n Goal labels")
     for goal in metadata['goals']:
-        create_label(existing_labels, goal['name'], {'name': goal['name'], 'color': goal['colour']})
+        create_label(existing_labels, goal['name'],
+                     {'name': goal['name'], 'color': goal['colour']})
 
+    # Read the custom scorecard init file.
+    print(f"# Reading scorecard init file from {init_scorecard_file}.")
+    init_scorecard = []
+    with open(init_scorecard_file, 'r', encoding='utf-8') as f:
+        init_scorecard = f.readlines()
+    
     # Create issues with their associated labels.
     print("\n# Create activities.")
     # First test the existence of Activities Issues:
@@ -161,10 +221,9 @@ if (args.opt_activities):
                 activity['roles'] + \
                 [conf['progress_labels']['not_started']]
             print(f"  - Issue: {activity['name']:<60} Labels: {labels}")
-            description = "".join( [i for i in activity['content']] )
-            project.issues.create({'title': activity['name'],
-                                    'description': description, 
-                                    'labels': labels})
+            ret = project.issues.create({'title': activity['name'],
+                                   'description': extract_sections(activity), 
+                                   'labels': labels})
 
 #
 # Create Goals board

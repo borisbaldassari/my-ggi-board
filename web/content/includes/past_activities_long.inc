@@ -1,20 +1,77 @@
-## Promote open source development best practices
-
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/36 
-
-This activity is about defining, actively promoting and implementing open source best practices within the development teams.
+## C-Level awareness <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/197' class='w3-text-grey' style='float:right'>[ GGI-A-34 ]</a>
 
 
-## Run code reviews
+**Customized description**
 
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/35 
+Scope of what has to be done.
 
-Code review is a routine task involving manual and/or automated review of an application's source code before releasing a product or delivering a project to the customer. In the case of open-source software, code review is more than just about catching errors opportunistically; it is an integrated approach to collaborative development carried out at the team level. 
+**Opportunity assessment**
+
+Why is this activity relevant?
+
+**Objectives**
+
+What we aim to achieve in this iteration.
+
+**Tools**
+
+Technologies, tools and products used in the Activity.
+
+**Operational Notes**
+
+Approach, method to progress in the Activity
 
 
-## Inventory of open source skills and resources
+## Open source enabling innovation <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/174' class='w3-text-grey' style='float:right'>[ GGI-A-36 ]</a>
 
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/26 
 
-At any stage, from a management perspective, it is useful to have a mapping, an inventory of open source resources, assets, usage and their status, as well as potential needs and available solutions. It also includes assessing the required effort and skills to fill the gap. 
+**Customized description**
+
+Scope of what has to be done.
+
+**Opportunity assessment**
+
+Why is this activity relevant?
+
+**Objectives**
+
+What we aim to achieve in this iteration.
+- [x] objective 1
+- [x] objective 2
+- [x] objective 3
+
+**Tools**
+
+Technologies, tools and products used in the Activity.
+
+**Operational Notes**
+
+Approach, method to progress in the Activity
+
+
+## Open source and digital sovereignty <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/173' class='w3-text-grey' style='float:right'>[ GGI-A-35 ]</a>
+
+
+**Customized description**
+
+Scope of what has to be done.
+
+**Opportunity assessment**
+
+Why is this activity relevant?
+
+**Objectives**
+
+What we aim to achieve in this iteration.
+- [x] objective 1
+- [x] objective 2
+- [x] objective 3
+
+**Tools**
+
+Technologies, tools and products used in the Activity.
+
+**Operational Notes**
+
+Approach, method to progress in the Activity
 

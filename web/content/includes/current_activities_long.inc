@@ -1,48 +1,104 @@
-## Open source enabling digital transformation
-
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/50 
-
-> "Digital Transformation is the adoption of digital technology to transform services or businesses, through replacing non-digital or manual processes with digital processes or replacing older digital technology with newer digital technology." (Wikipedia)
+## Open source and digital sovereignty <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/198' class='w3-text-grey' style='float:right'>[ GGI-A-35 ]</a>
 
 
-## Open source enabling innovation
+**Customized description**
 
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/49 
+Scope of what has to be done.
 
-> Innovation is the practical implementation of ideas that result in the introduction of new goods or services or improvement in offering goods or services.
->
-> &mdash; <cite>Schumpeter, Joseph A.</cite>
+**Opportunity assessment**
 
+Why is this activity relevant?
 
-## Support open source communities
+**Objectives**
 
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/42 
+What we aim to achieve in this iteration.
 
-This activity is about engaging with institutional representatives of the open source world. 
+**Tools**
 
+Technologies, tools and products used in the Activity.
 
-## Engage with open source projects
+**Operational Notes**
 
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/41 
-
-This activity is about committing significant contributions to some OSS projects that are important to you. Contributions are scaled up and committed at the organisation level (not personal level as in #26). They can take several forms, from direct funding to resources allocation (e.g. people, servers, infrastructure, communication, etc.), as long as they benefit the project or ecosystem sustainably and efficiently. 
+Approach, method to progress in the Activity
 
 
-## Contribute to open source projects
-
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/37 
-
-Contributing to open source projects that are freely used is one of the key principles of good governance. The point is to avoid being a simple passive consumer and give back to the projects. When people add a feature or fix a bug for their own purpose, they should make it generic enough to contribute to the project. Developers must be allowed time for contributions. 
+## Support open source communities <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/167' class='w3-text-grey' style='float:right'>[ GGI-A-30 ]</a>
 
 
-## Open source competency growth
+**Customized description**
 
-Link to activitiy in board: https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/27 
+Scope of what has to be done.
 
-This activity is about planning and initiating technical abilities and early experience with OSS once an inventory has been conducted (#17). It is also the opportunity to start establishing a basic, lightweight skills development roadmap.
-- Identify what the required skills and training are.
-- Set up a pilot project to kick start the approach, learn from doing, establish a first achievement milestone.
-- Capitalise on lessons learned and build a body of knowledge.
-- Start identifying and documenting the next steps for broader adoption. 
-- Elaborate a strategy over the next few months or a year to engage management and financial support.
+**Opportunity assessment**
+
+Why is this activity relevant?
+
+**Objectives**
+
+What we aim to achieve in this iteration.
+- [x] objective 1
+- [x] objective 2
+- [ ] objective 3
+
+**Tools**
+
+Technologies, tools and products used in the Activity.
+
+**Operational Notes**
+
+Approach, method to progress in the Activity
+
+
+## HR perspective <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/164' class='w3-text-grey' style='float:right'>[ GGI-A-28 ]</a>
+
+
+**Customized description**
+
+Scope of what has to be done.
+
+**Opportunity assessment**
+
+Why is this activity relevant?
+
+**Objectives**
+
+What we aim to achieve in this iteration.
+- [ ] objective 1
+- [x] objective 2
+- [ ] objective 3
+
+**Tools**
+
+Technologies, tools and products used in the Activity.
+
+**Operational Notes**
+
+Approach, method to progress in the Activity
+
+
+## Belong to the open source community <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/163' class='w3-text-grey' style='float:right'>[ GGI-A-27 ]</a>
+
+
+**Customized description**
+
+Scope of what has to be done.
+
+**Opportunity assessment**
+
+Why is this activity relevant?
+
+**Objectives**
+
+What we aim to achieve in this iteration.
+- [ ] objective 1
+- [x] objective 2
+- [x] objective 3
+
+**Tools**
+
+Technologies, tools and products used in the Activity.
+
+**Operational Notes**
+
+Approach, method to progress in the Activity
 

@@ -22,9 +22,9 @@ import re
 import glob, os
 from fileinput import FileInput
 from datetime import date
+from collections import OrderedDict
 import tldextract
 import urllib.parse
-
 
 # Define some variables.
 
@@ -34,9 +34,58 @@ file_json_out = 'ggi_activities_full.json'
 
 # Define regexps
 # Identify tasks in description:
-re_tasks = re.compile(r"^\s*- \[(.)\] (.+)$")
+re_tasks = re.compile(r"^\s*- \[(?P<is_completed>.)\] (?P<task>.+)$")
 # Identify tasks in description:
 re_activity_id = re.compile(r"^Activity ID: \[(GGI-A-\d\d)\]\(.+\).$")
+# Identify sections for workflow parsing.
+re_section = re.compile(r"^### (?P<section>.*?)\s*$")
+re_subsection = re.compile(r"^#### (?P<subsection>.*?)\s*$")
+
+
+
+def extract_workflow(activity_desc):
+    paragraphs = activity_desc.split('\n')
+    content_t = 'Introduction'
+    content = OrderedDict()
+    content = {content_t: []}
+    a_id = ""
+    for p in paragraphs:
+        activity_id_match = re_activity_id.match(p)
+        if activity_id_match:
+            a_id = activity_id_match.group(1)
+            continue
+        match_section = re.search(re_section, p)
+        if match_section:
+            content_t = match_section.group('section')
+            content[content_t] = []
+        else:
+            content[content_t].append(p)
+    subsection = 'Default'
+    workflow = {subsection: []}
+    # Parse the scorecard section.
+    tasks = []
+    if 'Scorecard' in content:
+        for p in content['Scorecard']:
+            match_subsection = re.search(re_subsection, p)
+            if match_subsection:
+                subsection = match_subsection.group('subsection')
+                workflow[subsection] = []
+            elif p != '':
+                workflow[subsection].append(p)
+                # Now identify tasks
+                match_tasks = re.search(re_tasks, p)
+                if match_tasks:
+                    is_completed = match_tasks.group('is_completed')
+                    is_completed = True if is_completed == 'x' else False
+                    task = match_tasks.group('task')
+                    tasks.append({'is_completed': is_completed, 'task': task})
+    # Remove first element (useless html stuff)
+    del workflow['Default']
+    # Remove last two elements (useless html stuff too)
+    del workflow[list(workflow)[-1]][-1]
+    del workflow[list(workflow)[-1]][-1]
+    return a_id, content['Description'], workflow, tasks
+
 
 
 #
@@ -83,13 +132,6 @@ else:
 GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
 GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
 
-issues = []
-issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
-               'updated_at', 'url', 'desc', 'tasks_total', 'tasks_done']
-tasks = []
-hist = []
-hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
-
 print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
 gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
 project = gl.projects.get(GGI_GITLAB_PROJECT)
@@ -109,24 +151,34 @@ project.save()
 print("# Fetching issues..")
 gl_issues = project.issues.list(state='opened', all=True)
 
+
+# Define columns for recorded dataframes.
+issues = []
+issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
+               'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
+tasks = []
+tasks_cols = ['issue_id', 'state', 'task']
+
+hist = []
+hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
+
 count = 1
+workflow = {}
+tasks = []
 for i in gl_issues:
     desc = i.description
     paragraphs = desc.split('\n\n')
-    short_desc = paragraphs[3]
     lines = desc.split('\n')
-    a_id = 'Unknown'
-    for l in lines:
-        tasks_match = re_tasks.match(l)
-        if tasks_match:
-            tasks.append([i.iid, tasks_match.group(0), tasks_match.group(1)])
-        activity_id_match = re_activity_id.match(l)
-        if activity_id_match:
-            a_id = activity_id_match.group(1)
-    tasks_total = i.task_completion_status['count']
-    tasks_done = i.task_completion_status['completed_count']
+    a_id, description, workflow, a_tasks = extract_workflow(desc)
+    for t in a_tasks:
+        tasks.append([a_id,
+                      'completed' if t['is_completed'] else 'open',
+                      t['task']])
+    short_desc = '\n'.join(description)
+    tasks_total = len(a_tasks)
+    tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
     issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
-                   i.updated_at, i.web_url, short_desc, tasks_total, tasks_done])
+                   i.updated_at, i.web_url, short_desc, workflow, tasks_total, tasks_done])
     
     # Retrieve information about labels.
     for n in i.resourcelabelevents.list():
@@ -142,38 +194,26 @@ for i in gl_issues:
     print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
         
     # Remove these lines when dev/debug is over
-    if count == 50:
+    if count == 30:
         break
     else:
         count += 1
 
 # Convert lists to dataframes
 issues = pd.DataFrame(issues, columns=issues_cols)
-tasks = pd.DataFrame(tasks, columns=['issue_id', 'state', 'task'])
+tasks = pd.DataFrame(tasks, columns=tasks_cols)
 hist = pd.DataFrame(hist, columns=hist_cols)
 
 # Identify activities depending on their progress
-issues_in_progress = []
-issues_done = []
-issues_not_started = []
-for issue in issues.itertuples(index=False):
-    if conf['progress_labels']['not_started'] in issue[4].split(','):
-        issues_not_started.append(issue)
-    if conf['progress_labels']['in_progress'] in issue[4].split(','):
-        issues_in_progress.append(issue)
-    if conf['progress_labels']['done'] in issue[4].split(','):
-        issues_done.append(issue)
-
-issues_not_started = pd.DataFrame(issues_not_started,
-                           columns=issues_cols)
-issues_in_progress = pd.DataFrame(issues_in_progress,
-                                  columns=issues_cols)
-issues_done = pd.DataFrame(issues_done,
-                           columns=issues_cols)
+issues_not_started = issues.loc[issues['labels'].str.contains(conf['progress_labels']['not_started']),]
+issues_in_progress = issues.loc[issues['labels'].str.contains(conf['progress_labels']['in_progress']),]
+issues_done = issues.loc[issues['labels'].str.contains(conf['progress_labels']['done']),]
 
 # Print all issues, tasks and events to CSV file
 print("\n# Writing issues and history to files.") 
-issues.to_csv('web/content/includes/issues.csv', index=False)
+issues.to_csv('web/content/includes/issues.csv',
+              columns=['issue_id', 'activity_id', 'state', 'title', 'labels',
+               'updated_at', 'url', 'tasks_total', 'tasks_done'], index=False)
 hist.to_csv('web/content/includes/labels_hist.csv', index=False)
 tasks.to_csv('web/content/includes/tasks.csv', index=False)
 
@@ -181,38 +221,71 @@ tasks.to_csv('web/content/includes/tasks.csv', index=False)
 print("\n# Writing current issues.") 
 my_issues = []
 my_issues_long = []
-for local_id, activity_id, title, url, desc in zip(
+for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total in zip(
         issues_in_progress['issue_id'],
         issues_in_progress['activity_id'],
         issues_in_progress['title'],
         issues_in_progress['url'],
-        issues_in_progress['desc']):
+        issues_in_progress['desc'],
+        issues_in_progress['workflow'],
+        issues_in_progress['tasks_done'],
+        issues_in_progress['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) ({activity_id}).")
-    my_issues_long.append(f"## {title}\n")
-    my_issues_long.append(f"Link to activity in board: {url} \n")
-    my_issues_long.append(f"{desc}\n\n")
+    p = int(tasks_done) * 100 // int(tasks_total) if tasks_total > 0 else 0
+    my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
+    my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    if tasks_total > 0:
+        p = int(tasks_done) * 100 // int(tasks_total)
+        my_issues.append(f'  <div class="w3-light-grey w3-round">')
+        my_issues.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+        my_issues.append(f'  </div><br />')
+    else:
+        my_issues.append(f'  <br /><br />')
+    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+#    my_issues_long.append(f"* Link to activity in board: [{url}]({url}) \n")
+    my_workflow = ""
+    for subsection in workflow:
+        my_workflow += f'**{subsection}**\n\n'
+        my_workflow += '\n'.join(workflow[subsection])
+        my_workflow += '\n\n'
+    my_issues_long.append(f"{my_workflow}")
 
 with open('web/content/includes/current_activities.inc', 'w') as f:
     f.write('\n'.join(my_issues))
 with open('web/content/includes/current_activities_long.inc', 'w') as f:
     f.write('\n'.join(my_issues_long))
-
+    
+    
 # Generate list of past activities
 print("\n# Writing past issues.") 
 my_issues = []
 my_issues_long = []
-for local_id, activity_id, title, url, desc in zip(
+for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total in zip(
         issues_done['issue_id'],
         issues_done['activity_id'],
         issues_done['title'],
         issues_done['url'],
-        issues_done['desc']):
+        issues_done['desc'],
+        issues_done['workflow'],
+        issues_done['tasks_done'],
+        issues_done['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) ({activity_id}).")
-    my_issues_long.append(f"## {title}\n")
-    my_issues_long.append(f"Link to activity in board: {url} \n")
-    my_issues_long.append(f"{desc}\n\n")
+    my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
+    my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    if tasks_total > 0:
+        p = int(tasks_done) * 100 // int(tasks_total)
+        my_issues.append(f'  <div class="w3-light-grey w3-round">')
+        my_issues.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+        my_issues.append(f'  </div><br />')
+    else:
+        my_issues.append(f'  <br /><br />')
+    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+    my_workflow = ""
+    for subsection in workflow:
+        my_workflow += f'**{subsection}**\n\n'
+        my_workflow += '\n'.join(workflow[subsection])
+        my_workflow += '\n\n'
+    my_issues_long.append(f"{my_workflow}")
 
 with open('web/content/includes/past_activities.inc', 'w') as f:
     f.write('\n'.join(my_issues))
@@ -223,6 +296,46 @@ with open('web/content/includes/past_activities_long.inc', 'w') as f:
 ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
 with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
     f.write(ggi_data_all_activities)
+
+# Generate data points for the dashboard - goals - done
+done_stats = [
+    issues_done['labels'].str.contains('Usage').sum(),
+    issues_done['labels'].str.contains('Trust').sum(),
+    issues_done['labels'].str.contains('Culture').sum(),
+    issues_done['labels'].str.contains('Engagement').sum(),
+    issues_done['labels'].str.contains('Strategy').sum()
+]
+with open('web/content/includes/ggi_data_goals_done.inc', 'w') as f:
+    f.write(str(done_stats))
+
+# Generate data points for the dashboard - goals - in_progress
+in_progress_stats = [
+    issues_in_progress['labels'].str.contains('Usage').sum(),
+    issues_in_progress['labels'].str.contains('Trust').sum(),
+    issues_in_progress['labels'].str.contains('Culture').sum(),
+    issues_in_progress['labels'].str.contains('Engagement').sum(),
+    issues_in_progress['labels'].str.contains('Strategy').sum()
+]
+with open('web/content/includes/ggi_data_goals_in_progress.inc', 'w') as f:
+    f.write(str(in_progress_stats))
+
+# Generate data points for the dashboard - goals - not_started
+not_started_stats = [
+    issues_not_started['labels'].str.contains('Usage').sum(),
+    issues_not_started['labels'].str.contains('Trust').sum(),
+    issues_not_started['labels'].str.contains('Culture').sum(),
+    issues_not_started['labels'].str.contains('Engagement').sum(),
+    issues_not_started['labels'].str.contains('Strategy').sum()
+]
+with open('web/content/includes/ggi_data_goals_not_started.inc', 'w') as f:
+    f.write(str(not_started_stats))
+
+# Generate activities basic statistics 
+activities_stats = f'* {issues_not_started.shape[0]} activities <span class="w3-tag w3-light-grey">not_started</span>\n'
+activities_stats += f'* [{issues_in_progress.shape[0]} activities](current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
+activities_stats += f'* [{issues_done.shape[0]} activities](past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
+with open('web/content/includes/activities_stats.inc', 'w') as f:
+    f.write(activities_stats)
 
 # Empty (or not) the initialisation banner text in index.
 if issues_not_started.shape[0] < 25:

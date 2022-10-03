@@ -1,3 +1,13 @@
-* [Promote open source development best practices](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/36) 36.
-* [Run code reviews](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/35) 35.
-* [Inventory of open source skills and resources](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/26) 26.
+* [C-Level awareness](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/197) (GGI-A-34). <br />
+  Tasks: 0 done / 0 total.
+  <br /><br />
+* [Open source enabling innovation](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/174) (GGI-A-36). <br />
+  Tasks: 3 done / 3 total.
+  <div class="w3-light-grey w3-round">
+    <div class="w3-container w3-blue w3-round" style="width:100%">100%</div>
+  </div><br />
+* [Open source and digital sovereignty](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/173) (GGI-A-35). <br />
+  Tasks: 3 done / 3 total.
+  <div class="w3-light-grey w3-round">
+    <div class="w3-container w3-blue w3-round" style="width:100%">100%</div>
+  </div><br />
