@@ -11,6 +11,8 @@ The set up steps are:
   - GitLab **issues** that stand for the **GGI activities**,
   - an **issues board** for a clear overview of you current activities
   - a static website, the **Dashboard**, to share progress and current work
+  - an updated project description, with links to you own Dashboard
+  - a nightly pipeline schedule to rfresh the dashboard
 
 
 ## Setup
@@ -78,7 +80,13 @@ To  initiate the deployment, and then update the Dashboard, you may execute the 
 
 <img src="resources/setup_run-pipeline.png" width="50%" height="50%">
 
-You can also schedule the pipeline to be triggered regularly, every night for example.
+**Scheduled pipeline**
+
+By default, a pipeline is scheduled every night
+- you can see and update it by clicking on _Schedules_ in the _CI/CD_ menu.
+- it is only created if Zero schedule is configured
+  - so if you remove it, it will reappear at next pipeline execution
+  - to prevent this, you can _deactivate_ the pipeline rather than remove it.
 
 ## Notes
 
