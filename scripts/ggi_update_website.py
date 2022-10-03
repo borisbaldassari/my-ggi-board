@@ -135,22 +135,10 @@ GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
 print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
 gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
 project = gl.projects.get(GGI_GITLAB_PROJECT)
-    
-# Update current project description with Website URL (Issue #17)
-desc = (
-    'Your own Good Governance Initiative project.\n\n'
-    'Here you will find the list of activities describing \n'
-    f'the local GGI deployment at {GGI_ACTIVITIES_URL}, and '
-    f'your generated dashboard at {GGI_PAGES_URL}.\n\n'
-    'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
-)
 
-project.description = desc
-project.save()
 
 print("# Fetching issues..")
 gl_issues = project.issues.list(state='opened', all=True)
-
 
 # Define columns for recorded dataframes.
 issues = []
