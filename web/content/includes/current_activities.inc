@@ -1,4 +1,4 @@
-* [Open source and digital sovereignty](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/198) (GGI-A-35). <br />
+* [Open source enabling digital transformation](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/200) (GGI-A-37). <br />
   Tasks: 0 done / 0 total.
   <br /><br />
 * [Support open source communities](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/167) (GGI-A-30). <br />

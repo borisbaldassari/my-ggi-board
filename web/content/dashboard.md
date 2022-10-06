@@ -9,7 +9,7 @@ layout: default
 <div class="w3-row">
   <div class="w3-half w3-container">
 <p>Activities:</p>
-{{% content "includes/activities_stats.inc" %}}
+{{% content "includes/activities_stats_dashboard.inc" %}}
   </div>
   <div class="w3-half w3-container">
 <canvas id="allActivities" style="width:100%;max-width:700px"></canvas>

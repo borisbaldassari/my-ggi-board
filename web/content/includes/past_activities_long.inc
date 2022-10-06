@@ -75,3 +75,30 @@ Technologies, tools and products used in the Activity.
 
 Approach, method to progress in the Activity
 
+
+## Contribute to open source projects <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/162' class='w3-text-grey' style='float:right'>[ GGI-A-26 ]</a>
+
+
+**Customized description**
+
+Scope of what has to be done.
+
+**Opportunity assessment**
+
+Why is this activity relevant?
+
+**Objectives**
+
+What we aim to achieve in this iteration.
+- [x] objective 1
+- [x] objective 2
+- [x] objective 3
+
+**Tools**
+
+Technologies, tools and products used in the Activity.
+
+**Operational Notes**
+
+Approach, method to progress in the Activity
+

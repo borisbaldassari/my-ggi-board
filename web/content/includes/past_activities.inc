@@ -11,3 +11,8 @@
   <div class="w3-light-grey w3-round">
     <div class="w3-container w3-blue w3-round" style="width:100%">100%</div>
   </div><br />
+* [Contribute to open source projects](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/162) (GGI-A-26). <br />
+  Tasks: 3 done / 3 total.
+  <div class="w3-light-grey w3-round">
+    <div class="w3-container w3-blue w3-round" style="width:100%">100%</div>
+  </div><br />
