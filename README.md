@@ -9,10 +9,10 @@ The set up steps are:
 - run the configured pipeline, that will create:
   - appropriate **labels** for the goals, roles and progress,
   - GitLab **issues** that stand for the **GGI activities**,
-  - an **issues board** for a clear overview of you current activities
-  - a static website, the **Dashboard**, to share progress and current work
-  - an updated project description, with links to you own Dashboard
-  - a nightly pipeline schedule to rfresh the dashboard
+  - an **issues board** for a clear overview of you current activities,
+  - a static website, the **Dashboard**, to share progress and current work,
+  - an updated project description, with links to you own Dashboard,
+  - a nightly pipeline schedule to refresh the dashboard.
 
 
 ## Setup
@@ -86,7 +86,7 @@ By default, a pipeline is scheduled every night
 - you can see and update it by clicking on _Schedules_ in the _CI/CD_ menu.
 - it is only created if Zero schedule is configured
   - so if you remove it, it will reappear at next pipeline execution
-  - to prevent this, you can _deactivate_ the pipeline rather than remove it.
+  - to prevent this, you can _deactivate_ the pipeline rather than removing it.
 
 ## Notes
 
