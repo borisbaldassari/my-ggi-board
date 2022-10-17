@@ -1,5 +1,8 @@
-## Open source and digital sovereignty <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/198' class='w3-text-grey' style='float:right'>[ GGI-A-35 ]</a>
+## Open source enabling digital transformation <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/200' class='w3-text-grey' style='float:right'>[ GGI-A-37 ]</a>
 
+
+  Tasks: 0 done / 0 total.
+  <br /><br />
 
 **Customized description**
 
@@ -24,6 +27,11 @@ Approach, method to progress in the Activity
 
 ## Support open source communities <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/167' class='w3-text-grey' style='float:right'>[ GGI-A-30 ]</a>
 
+
+  Tasks: 2 done / 3 total.
+  <div class="w3-light-grey w3-round">
+    <div class="w3-container w3-blue w3-round" style="width:66%">66%</div>
+  </div><br />
 
 **Customized description**
 
@@ -52,6 +60,11 @@ Approach, method to progress in the Activity
 ## HR perspective <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/164' class='w3-text-grey' style='float:right'>[ GGI-A-28 ]</a>
 
 
+  Tasks: 1 done / 3 total.
+  <div class="w3-light-grey w3-round">
+    <div class="w3-container w3-blue w3-round" style="width:33%">33%</div>
+  </div><br />
+
 **Customized description**
 
 Scope of what has to be done.
@@ -78,6 +91,11 @@ Approach, method to progress in the Activity
 
 ## Belong to the open source community <a href='https://gitlab.ow2.org/ggi/my-ggi-board-test/-/issues/163' class='w3-text-grey' style='float:right'>[ GGI-A-27 ]</a>
 
+
+  Tasks: 2 done / 3 total.
+  <div class="w3-light-grey w3-round">
+    <div class="w3-container w3-blue w3-round" style="width:66%">66%</div>
+  </div><br />
 
 **Customized description**
 

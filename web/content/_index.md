@@ -12,7 +12,7 @@ This is the website of your own good governance Initiative.
 
 There are currently:
 
-{{% content "includes/activities_stats.inc" %}}
+{{% content "includes/activities_stats_home.inc" %}}
 
 
 ## Current activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 

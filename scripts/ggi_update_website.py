@@ -135,22 +135,10 @@ GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
 print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
 gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
 project = gl.projects.get(GGI_GITLAB_PROJECT)
-    
-# Update current project description with Website URL (Issue #17)
-desc = (
-    'Your own Good Governance Initiative project.\n\n'
-    'Here you will find the list of activities describing \n'
-    f'the local GGI deployment at {GGI_ACTIVITIES_URL}, and '
-    f'your generated dashboard at {GGI_PAGES_URL}.\n\n'
-    'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
-)
 
-project.description = desc
-project.save()
 
 print("# Fetching issues..")
 gl_issues = project.issues.list(state='opened', all=True)
-
 
 # Define columns for recorded dataframes.
 issues = []
@@ -231,19 +219,22 @@ for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total i
         issues_in_progress['tasks_done'],
         issues_in_progress['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
-    p = int(tasks_done) * 100 // int(tasks_total) if tasks_total > 0 else 0
     my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
     my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+    my_issues_long.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
     if tasks_total > 0:
         p = int(tasks_done) * 100 // int(tasks_total)
         my_issues.append(f'  <div class="w3-light-grey w3-round">')
         my_issues.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
         my_issues.append(f'  </div><br />')
+        my_issues_long.append(f'  <div class="w3-light-grey w3-round">')
+        my_issues_long.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+        my_issues_long.append(f'  </div><br />')
     else:
         my_issues.append(f'  <br /><br />')
-    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
-#    my_issues_long.append(f"* Link to activity in board: [{url}]({url}) \n")
-    my_workflow = ""
+        my_issues_long.append(f'  <br /><br />')
+    my_workflow = "\n"
     for subsection in workflow:
         my_workflow += f'**{subsection}**\n\n'
         my_workflow += '\n'.join(workflow[subsection])
@@ -330,11 +321,18 @@ not_started_stats = [
 with open('web/content/includes/ggi_data_goals_not_started.inc', 'w') as f:
     f.write(str(not_started_stats))
 
-# Generate activities basic statistics 
+# Generate activities basic statistics, with links to be used from home page.
 activities_stats = f'* {issues_not_started.shape[0]} activities <span class="w3-tag w3-light-grey">not_started</span>\n'
 activities_stats += f'* [{issues_in_progress.shape[0]} activities](current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
 activities_stats += f'* [{issues_done.shape[0]} activities](past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
-with open('web/content/includes/activities_stats.inc', 'w') as f:
+with open('web/content/includes/activities_stats_home.inc', 'w') as f:
+    f.write(activities_stats)
+
+# Generate activities basic statistics, with links to be used from second-level pages.
+activities_stats = f'* {issues_not_started.shape[0]} activities <span class="w3-tag w3-light-grey">not_started</span>\n'
+activities_stats += f'* [{issues_in_progress.shape[0]} activities](../current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
+activities_stats += f'* [{issues_done.shape[0]} activities](../past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
+with open('web/content/includes/activities_stats_dashboard.inc', 'w') as f:
     f.write(activities_stats)
 
 # Empty (or not) the initialisation banner text in index.

@@ -17,22 +17,22 @@
 #
 # The script expects your GitLab private key in the environment variable: GGI_GITLAB_TOKEN
 
-# usage: ggi_deploy [-h] [-a] [-b] [-d]
+# usage: ggi_deploy [-h] [-a] [-b] [-d] [-p]
 # 
 # optional arguments:
 #   -h, --help                  Show this help message and exit
 #   -a, --activities            Create activities
 #   -b, --board                 Create board
 #   -d, --project-description   Update Project Description with pointers to the Board and Dashboard
+#   -p, --schedule-pipeline     Schedule nightly pipeline to update dashboard
 # 
 
 import gitlab
 import json
 import re
 import argparse
-import tldextract
-import urllib.parse, glob, os
-from fileinput import FileInput
+import urllib.parse
+import os
 from collections import OrderedDict
 import os
 import urllib.parse
@@ -65,6 +65,10 @@ parser.add_argument('-d', '--project-description',
     dest='opt_projdesc', 
     action='store_true', 
     help='Update Project description')
+parser.add_argument('-p', '--schedule-pipeline', 
+    dest='opt_schedulepipeline', 
+    action='store_true', 
+    help='Schedule nightly pipeline to update dashboard')
 args = parser.parse_args()
 
 #
@@ -253,5 +257,18 @@ if (args.opt_board):
         for goal_label in goal_lists:
             print(f"  - Create list for {goal_label.name}")
             b_list = board.lists.create({'label_id': goal_label.id})
-    
-print("Done.")
+
+# Create a scheduled pipeline trigger, if none exist yet.
+if (args.opt_schedulepipeline):
+    print(f"\n# Schedule nightly pipeline to refresh the Dashboard")
+    nb_pipelines=len(project.pipelineschedules.list())
+    if (nb_pipelines > 0):
+        print(f" Ignore, already {nb_pipelines} scheduled pipeline(s)")
+    else:
+        sched = project.pipelineschedules.create({
+        'ref': 'main',
+        'description': 'Nightly Update',
+        'cron': '0 3 * * *'})
+        print(f" Pipeline created: '{sched.description}'")
+
+print("\nDone.")
