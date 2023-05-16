@@ -53,9 +53,6 @@ paginate = 6
 [[menu.header]]
   name = "My Board"
   url = "[GGI_ACTIVITIES_URL]"
-[[menu.header]]
-  name = "Dashboard"
-  url = "dashboard"
 [[menu.footer]]
     name = "RSS"
     url = "index.xml"
