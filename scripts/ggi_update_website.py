@@ -129,7 +129,8 @@ else:
     GGI_PAGES_URL = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + \
         "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
 
-GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
+#TODO check if adding / fails under linux (needed in Windows otherwise we get \\-/ in TOML which causes error then
+GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT) + '/'
 GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
 
 print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
@@ -144,6 +145,8 @@ gl_issues = project.issues.list(state='opened', all=True)
 issues = []
 issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
                'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
+activities_cols = ['activity_id','title', 'tasks_done', 'tasks_total']
+
 tasks = []
 tasks_cols = ['issue_id', 'state', 'task']
 
@@ -189,8 +192,10 @@ for i in gl_issues:
 
 # Convert lists to dataframes
 issues = pd.DataFrame(issues, columns=issues_cols)
+activities = pd.DataFrame(issues, columns=activities_cols)
 tasks = pd.DataFrame(tasks, columns=tasks_cols)
 hist = pd.DataFrame(hist, columns=hist_cols)
+
 
 # Identify activities depending on their progress
 issues_not_started = issues.loc[issues['labels'].str.contains(conf['progress_labels']['not_started']),]
@@ -198,7 +203,7 @@ issues_in_progress = issues.loc[issues['labels'].str.contains(conf['progress_lab
 issues_done = issues.loc[issues['labels'].str.contains(conf['progress_labels']['done']),]
 
 # Print all issues, tasks and events to CSV file
-print("\n# Writing issues and history to files.") 
+print("\n# Writing issues and history to files.")
 issues.to_csv('web/content/includes/issues.csv',
               columns=['issue_id', 'activity_id', 'state', 'title', 'labels',
                'updated_at', 'url', 'tasks_total', 'tasks_done'], index=False)
@@ -348,6 +353,13 @@ if issues_not_started.shape[0] < 25:
 # Replace 
 #
 print("\n# Replacing keywords in static website.")
+
+activities_dataset = []
+for index, activity in activities.iterrows():
+    activities_dataset.append([activity.activity_id, activity.title, str(activity.tasks_done) + "/" + str(activity.tasks_total)])
+
+with open('web/content/includes/activities.inc', 'w') as f:
+    f.write(str(activities_dataset))
 
 # List of strings to be replaced.
 print("\n# List of keywords and values:")
