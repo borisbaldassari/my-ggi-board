@@ -214,83 +214,57 @@ hist.to_csv('web/content/includes/labels_hist.csv', index=False)
 tasks.to_csv('web/content/includes/tasks.csv', index=False)
 
 # Generate list of current activities
-print("\n# Writing current issues.") 
-my_issues = []
-my_issues_long = []
+print("\n# Writing issues.") 
 
-for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total in zip(
-        issues_in_progress['issue_id'],
-        issues_in_progress['activity_id'],
-        issues_in_progress['title'],
-        issues_in_progress['url'],
-        issues_in_progress['desc'],
-        issues_in_progress['workflow'],
-        issues_in_progress['tasks_done'],
-        issues_in_progress['tasks_total']):
+for local_id, activity_id, activity_date, title, url, desc, workflow, tasks_done, tasks_total in zip(
+        issues['issue_id'],
+        issues['activity_id'],
+        issues['updated_at'],
+        issues['title'],
+        issues['url'],
+        issues['desc'],
+        issues['workflow'],
+        issues['tasks_done'],
+        issues['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
 
-    my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
-    my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
-    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
-    my_issues_long.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    my_issue = []
+    my_issue_long = []
+
+    my_issue.append('---')
+    my_issue.append(f'title: Activity {activity_id}')
+    my_issue.append(f'date: {activity_date}')
+    my_issue.append('layout: default')
+    my_issue.append('---')
+    
+    my_issue.append(f"* [{title}]({url}) ({activity_id}). <br />")
+    my_issue.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    my_issue_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+    my_issue_long.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
     if tasks_total > 0:
         p = int(tasks_done) * 100 // int(tasks_total)
-        my_issues.append(f'  <div class="w3-light-grey w3-round">')
-        my_issues.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
-        my_issues.append(f'  </div><br />')
-        my_issues_long.append(f'  <div class="w3-light-grey w3-round">')
-        my_issues_long.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
-        my_issues_long.append(f'  </div><br />')
+        my_issue.append(f'  <div class="w3-light-grey w3-round">')
+        my_issue.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+        my_issue.append(f'  </div><br />')
+        my_issue_long.append(f'  <div class="w3-light-grey w3-round">')
+        my_issue_long.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+        my_issue_long.append(f'  </div><br />')
     else:
-        my_issues.append(f'  <br /><br />')
-        my_issues_long.append(f'  <br /><br />')
+        my_issue.append(f'  <br /><br />')
+        my_issue_long.append(f'  <br /><br />')
     my_workflow = "\n"
     for subsection in workflow:
         my_workflow += f'**{subsection}**\n\n'
         my_workflow += '\n'.join(workflow[subsection])
         my_workflow += '\n\n'
-    my_issues_long.append(f"{my_workflow}")
+    my_issue_long.append(f"{my_workflow}")
 
-with open('web/content/includes/current_activities.inc', 'w') as f:
-    f.write('\n'.join(my_issues))
-with open('web/content/includes/current_activities_long.inc', 'w') as f:
-    f.write('\n'.join(my_issues_long))
-    
-# Generate list of past activities
-print("\n# Writing past issues.") 
-my_issues = []
-my_issues_long = []
-for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total in zip(
-        issues_done['issue_id'],
-        issues_done['activity_id'],
-        issues_done['title'],
-        issues_done['url'],
-        issues_done['desc'],
-        issues_done['workflow'],
-        issues_done['tasks_done'],
-        issues_done['tasks_total']):
-    print(f" {local_id}, {activity_id}, {title}, {url}")
-    my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
-    my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
-    if tasks_total > 0:
-        p = int(tasks_done) * 100 // int(tasks_total)
-        my_issues.append(f'  <div class="w3-light-grey w3-round">')
-        my_issues.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
-        my_issues.append(f'  </div><br />')
-    else:
-        my_issues.append(f'  <br /><br />')
-    my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
-    my_workflow = ""
-    for subsection in workflow:
-        my_workflow += f'**{subsection}**\n\n'
-        my_workflow += '\n'.join(workflow[subsection])
-        my_workflow += '\n\n'
-    my_issues_long.append(f"{my_workflow}")
-
-with open('web/content/includes/past_activities.inc', 'w') as f:
-    f.write('\n'.join(my_issues))
-with open('web/content/includes/past_activities_long.inc', 'w') as f:
-    f.write('\n'.join(my_issues_long))
+    filename = f'web/content/activities/activity_{activity_id}.md'
+    filename_long = f'web/content/activities/activity_{activity_id}_long.md'
+    with open(filename, 'w') as f:
+        f.write('\n'.join(my_issue))
+    with open(filename_long, 'w') as f:
+        f.write('\n'.join(my_issue_long))
     
 # Generate data points for the dashboard
 ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
