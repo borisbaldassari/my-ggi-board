@@ -87,14 +87,23 @@ new Chart("myGoals", {
 </script>
 
 
-## Current activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
+## Activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
 
-Current activities are defined as having the label <span class="w3-tag w3-light-grey">in_progress</span>. <br />
-These are your current activities:
+<script>
+var dataSet = {{% jscontent "includes/activities.inc" %}}
 
-{{% content "includes/current_activities.inc" %}}
-
-See the detailed list of [current activities](current_activities).
+$(document).ready(function () {
+    $('#activities').DataTable({
+        data: dataSet,
+        columns: [
+            { title: 'ID' },
+            { title: 'Activity' },
+            { title: 'Completion' }
+        ],
+    });
+});
+</script>
+<table id="activities" class="display" width="100%"></table>
 
 
 ## Completed activities <a href='past_activities' class='w3-text-grey' style="float:right">[ details ]</a>
@@ -105,6 +114,7 @@ These are your completed activities:
 {{% content "includes/past_activities.inc" %}}
 
 See the detailed list of [completed activities](past_activities).
+
 
 ## Resources
 
