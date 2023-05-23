@@ -229,42 +229,32 @@ for local_id, activity_id, activity_date, title, url, desc, workflow, tasks_done
     print(f" {local_id}, {activity_id}, {title}, {url}")
 
     my_issue = []
-    my_issue_long = []
 
     my_issue.append('---')
-    my_issue.append(f'title: Activity {activity_id}')
+    my_issue.append(f'title: {title}')
     my_issue.append(f'date: {activity_date}')
     my_issue.append('layout: default')
     my_issue.append('---')
     
-    my_issue.append(f"* [{title}]({url}) ({activity_id}). <br />")
-    my_issue.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
-    my_issue_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
-    my_issue_long.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
+    my_issue.append(f"Link to Issue: <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+    my_issue.append(f"Tasks: {tasks_done} done / {tasks_total} total.")
     if tasks_total > 0:
         p = int(tasks_done) * 100 // int(tasks_total)
         my_issue.append(f'  <div class="w3-light-grey w3-round">')
         my_issue.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
         my_issue.append(f'  </div><br />')
-        my_issue_long.append(f'  <div class="w3-light-grey w3-round">')
-        my_issue_long.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
-        my_issue_long.append(f'  </div><br />')
     else:
         my_issue.append(f'  <br /><br />')
-        my_issue_long.append(f'  <br /><br />')
     my_workflow = "\n"
     for subsection in workflow:
         my_workflow += f'**{subsection}**\n\n'
         my_workflow += '\n'.join(workflow[subsection])
         my_workflow += '\n\n'
-    my_issue_long.append(f"{my_workflow}")
+    my_issue.append(f"{my_workflow}")
 
     filename = f'web/content/activities/activity_{activity_id}.md'
-    filename_long = f'web/content/activities/activity_{activity_id}_long.md'
     with open(filename, 'w') as f:
         f.write('\n'.join(my_issue))
-    with open(filename_long, 'w') as f:
-        f.write('\n'.join(my_issue_long))
     
 # Generate data points for the dashboard
 ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
