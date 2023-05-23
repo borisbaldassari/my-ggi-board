@@ -41,8 +41,6 @@ re_activity_id = re.compile(r"^Activity ID: \[(GGI-A-\d\d)\]\(.+\).$")
 re_section = re.compile(r"^### (?P<section>.*?)\s*$")
 re_subsection = re.compile(r"^#### (?P<subsection>.*?)\s*$")
 
-
-
 def extract_workflow(activity_desc):
     paragraphs = activity_desc.split('\n')
     content_t = 'Introduction'
@@ -85,8 +83,6 @@ def extract_workflow(activity_desc):
     del workflow[list(workflow)[-1]][-1]
     del workflow[list(workflow)[-1]][-1]
     return a_id, content['Description'], workflow, tasks
-
-
 
 #
 # Read metadata for activities and deployment options.
@@ -137,7 +133,6 @@ print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
 gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
 project = gl.projects.get(GGI_GITLAB_PROJECT)
 
-
 print("# Fetching issues..")
 gl_issues = project.issues.list(state='opened', all=True)
 
@@ -145,7 +140,6 @@ gl_issues = project.issues.list(state='opened', all=True)
 issues = []
 issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
                'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
-activities_cols = ['activity_id','title', 'tasks_done', 'tasks_total']
 
 tasks = []
 tasks_cols = ['issue_id', 'state', 'task']
@@ -156,6 +150,8 @@ hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
 count = 1
 workflow = {}
 tasks = []
+activities_dataset = []
+
 for i in gl_issues:
     desc = i.description
     paragraphs = desc.split('\n\n')
@@ -170,7 +166,16 @@ for i in gl_issues:
     tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
     issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
                    i.updated_at, i.web_url, short_desc, workflow, tasks_total, tasks_done])
-    
+
+    # Used for the activities table dataset
+    status = "Not started"
+    if tasks_done > 0:
+        status = "In progress"
+        if tasks_done == tasks_total:
+            status = "Completed"
+
+    activities_dataset.append([a_id, status, i.title, tasks_done, tasks_total])
+
     # Retrieve information about labels.
     for n in i.resourcelabelevents.list():
         event = i.resourcelabelevents.get(n.id)
@@ -192,10 +197,8 @@ for i in gl_issues:
 
 # Convert lists to dataframes
 issues = pd.DataFrame(issues, columns=issues_cols)
-activities = pd.DataFrame(issues, columns=activities_cols)
 tasks = pd.DataFrame(tasks, columns=tasks_cols)
 hist = pd.DataFrame(hist, columns=hist_cols)
-
 
 # Identify activities depending on their progress
 issues_not_started = issues.loc[issues['labels'].str.contains(conf['progress_labels']['not_started']),]
@@ -214,6 +217,7 @@ tasks.to_csv('web/content/includes/tasks.csv', index=False)
 print("\n# Writing current issues.") 
 my_issues = []
 my_issues_long = []
+
 for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total in zip(
         issues_in_progress['issue_id'],
         issues_in_progress['activity_id'],
@@ -224,6 +228,7 @@ for local_id, activity_id, title, url, desc, workflow, tasks_done, tasks_total i
         issues_in_progress['tasks_done'],
         issues_in_progress['tasks_total']):
     print(f" {local_id}, {activity_id}, {title}, {url}")
+
     my_issues.append(f"* [{title}]({url}) ({activity_id}). <br />")
     my_issues.append(f"  Tasks: {tasks_done} done / {tasks_total} total.")
     my_issues_long.append(f"## {title} <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
@@ -250,7 +255,6 @@ with open('web/content/includes/current_activities.inc', 'w') as f:
     f.write('\n'.join(my_issues))
 with open('web/content/includes/current_activities_long.inc', 'w') as f:
     f.write('\n'.join(my_issues_long))
-    
     
 # Generate list of past activities
 print("\n# Writing past issues.") 
@@ -340,6 +344,9 @@ activities_stats += f'* [{issues_done.shape[0]} activities](../past_activities) 
 with open('web/content/includes/activities_stats_dashboard.inc', 'w') as f:
     f.write(activities_stats)
 
+with open('web/content/includes/activities.js.inc', 'w') as f:
+    f.write(str(activities_dataset))
+
 # Empty (or not) the initialisation banner text in index.
 if issues_not_started.shape[0] < 25:
     with open('web/content/includes/initialisation.inc', 'w') as f:
@@ -354,13 +361,6 @@ if issues_not_started.shape[0] < 25:
 #
 print("\n# Replacing keywords in static website.")
 
-activities_dataset = []
-for index, activity in activities.iterrows():
-    activities_dataset.append([activity.activity_id, activity.title, str(activity.tasks_done) + "/" + str(activity.tasks_total)])
-
-with open('web/content/includes/activities.inc', 'w') as f:
-    f.write(str(activities_dataset))
-
 # List of strings to be replaced.
 print("\n# List of keywords and values:")
 keywords = {
@@ -370,7 +370,6 @@ keywords = {
     '[GGI_CURRENT_DATE]': str(date.today())
 }
 [ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
-
 
 # Replace keywords in md files.
 def update_keywords(file_in, keywords):
@@ -383,7 +382,6 @@ def update_keywords(file_in, keywords):
             print(line, end='')
     [ print(o) for o in occurrences ]
             
-
 print("\n# Replacing keywords in files.")
 update_keywords('web/config.toml', keywords)
 update_keywords('web/content/includes/initialisation.inc', keywords)

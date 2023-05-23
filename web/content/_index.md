@@ -90,31 +90,49 @@ new Chart("myGoals", {
 ## Activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
 
 <script>
-var dataSet = {{% jscontent "includes/activities.inc" %}}
+var dataSet = {{% jscontent "includes/activities.js.inc" %}}
 
 $(document).ready(function () {
     $('#activities').DataTable({
         data: dataSet,
+        order: [[1, 'asc']],
         columns: [
             { title: 'ID' },
-            { title: 'Activity' },
-            { title: 'Completion' }
+            { title: 'Status' },
+            { title: 'Title' },
+            { title: 'Tasks',
+                render: function (data, type, row, meta) {
+                    return type === 'display' ?
+                        row[3] + '/' + row[4] : "";
+                },
+            },
+            { 
+                title: 'Completion',
+                render: function (data, type, row, meta) {
+                    let completion = "0%";
+                    let done = row[3];
+                    let total = row[4];
+                    if (total > 0){
+                        completion = Math.round(done/total*100);
+                    }
+                    if (type === 'display'){
+                        if (completion > 0){
+                            return '<div class="w3-light-grey w3-round"><div class="w3-container w3-blue w3-round" style="width:' + completion + '%">' + completion + '%</div></div><br/>';
+                        }
+                        else{
+                            return '<div class="w3-light-grey w3-round">0%</div><br/>';
+                        }
+                    }
+                    else{
+                        return data;
+                    }
+                },
+            }
         ],
     });
 });
 </script>
 <table id="activities" class="display" width="100%"></table>
-
-
-## Completed activities <a href='past_activities' class='w3-text-grey' style="float:right">[ details ]</a>
-
-Completed activities are defined as having the label <span class="w3-tag w3-light-grey">done</span>. <br />
-These are your completed activities:
-
-{{% content "includes/past_activities.inc" %}}
-
-See the detailed list of [completed activities](past_activities).
-
 
 ## Resources
 
