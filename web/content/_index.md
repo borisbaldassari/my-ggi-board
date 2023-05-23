@@ -6,6 +6,10 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
+This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]).
+
+Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
+
 ## General progress
 
 <div class="w3-row">
