@@ -5,13 +5,12 @@ title = 'My Good Governance Initiative'
 theme = "hugo-tania"
 paginate = 6
 
-
 [params]
   # Emoji will show before the blog title on site navbar.
   titleEmoji  = ""
 
   # Logo will show before the blog title on site navbar.
-  titleLogo = "favicon.png"
+  titleLogo = "favicon.ico"
 
   # Enable float footnotes.
   # Default to true
