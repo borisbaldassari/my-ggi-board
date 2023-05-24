@@ -10,6 +10,9 @@ This dashboard tracks information from your own [GGI board instance](https://git
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
 
+
+{{% columns %}}
+
 ## General progress
 
 <div class="w3-row">
@@ -44,6 +47,8 @@ new Chart("allActivities", {
 </script>
   </div>
 </div> 
+
+<--->
 
 ## Goals
 
@@ -89,6 +94,8 @@ new Chart("myGoals", {
 );
 
 </script>
+
+{{% /columns %}}
 
 ## Activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
 
