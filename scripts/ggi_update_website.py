@@ -295,9 +295,10 @@ with open('web/content/includes/ggi_data_goals_not_started.inc', 'w') as f:
     f.write(str(not_started_stats))
 
 # Generate activities basic statistics, with links to be used from home page.
-activities_stats = f'* {issues_not_started.shape[0]} activities <span class="w3-tag w3-light-grey">not_started</span>\n'
-activities_stats += f'* [{issues_in_progress.shape[0]} activities](current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
-activities_stats += f'* [{issues_done.shape[0]} activities](past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
+activities_stats = f'* {issues.shape[0]} activities overall.\n'
+activities_stats += f'* {issues_not_started.shape[0]} <span class="w3-tag w3-light-grey">not_started</span>\n'
+activities_stats += f'* {issues_in_progress.shape[0]} <span class="w3-tag w3-light-grey">in_progress</span>\n'
+activities_stats += f'* {issues_done.shape[0]} <span class="w3-tag w3-light-grey">done</span>\n'
 with open('web/content/includes/activities_stats_home.inc', 'w') as f:
     f.write(activities_stats)
 
