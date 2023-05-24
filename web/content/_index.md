@@ -6,7 +6,7 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]).
+This dashboard tracks information from your own [GGI board instance](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/boards).
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
 
@@ -18,7 +18,7 @@ Please refer to the [official documentation](https://ospo.zone/ggi) or download 
 {{% content "includes/activities_stats_dashboard.inc" %}}
   </div>
   <div class="w3-half w3-container">
-<canvas id="allActivities" style="width:100%;max-width:400px"></canvas>
+<canvas id="allActivities" style="width:50%;height:50%"></canvas>
 <script>
 data = {
   labels: [
@@ -47,7 +47,7 @@ new Chart("allActivities", {
 
 ## Goals
 
-<canvas id="myGoals" style="width:100%;max-width:700px"></canvas>
+<canvas id="myGoals" style="width:50%;height:50%"></canvas>
 <script>
 labels = ['Usage', 'Trust', 'Culture', 'Engagement', 'Strategy'];
 data = {
@@ -90,7 +90,6 @@ new Chart("myGoals", {
 
 </script>
 
-
 ## Activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
 
 <script>
@@ -100,10 +99,37 @@ $(document).ready(function () {
     $('#activities').DataTable({
         data: dataSet,
         order: [[1, 'asc']],
+        pageLength: 25,
+        lengthMenu: [
+            [10, 25, 50, -1],
+            [10, 25, 50, 'All'],
+        ],
         columns: [
-            { title: 'ID' },
+            { title: 'ID',
+                render: function (data, type, row, meta) {
+                    if (type === 'display'){
+                        activity_id = row[0].toLowerCase();
+                        link = "activities/activity_" +activity_id;
+                        return '<a href="' + link + '">' + data + '</a>';
+                    }
+                    else{
+                        return data;
+                    }
+                }
+            },
             { title: 'Status' },
-            { title: 'Title' },
+            { title: 'Title',
+                render: function (data, type, row, meta) {
+                    if (type === 'display'){
+                        activity_id = row[0].toLowerCase();
+                        link = "activities/activity_" +activity_id;
+                        return '<a href="' + link + '">' + data + '</a>';
+                    }
+                    else{
+                        return data;
+                    }
+                }
+            },
             { title: 'Tasks',
                 render: function (data, type, row, meta) {
                     return type === 'display' ?
@@ -121,10 +147,10 @@ $(document).ready(function () {
                     }
                     if (type === 'display'){
                         if (completion > 0){
-                            return '<div class="w3-light-grey w3-round"><div class="w3-container w3-blue w3-round" style="width:' + completion + '%">' + completion + '%</div></div><br/>';
+                            return '<div class="w3-light-grey w3-round"><div class="w3-container w3-blue w3-round" style="width:' + completion + '%">' + completion + '%</div></div>';
                         }
                         else{
-                            return '<div class="w3-light-grey w3-round">0%</div><br/>';
+                            return '<div class="w3-light-grey w3-round">0%</div>';
                         }
                     }
                     else{
