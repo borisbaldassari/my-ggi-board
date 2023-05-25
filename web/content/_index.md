@@ -97,7 +97,7 @@ new Chart("myGoals", {
 
 {{% /columns %}}
 
-## Activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
+## Activities <a href='activities' class='w3-text-grey' style="float:right">[ details ]</a> 
 
 <script>
 var dataSet = {{% jscontent "includes/activities.js.inc" %}}
