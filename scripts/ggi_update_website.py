@@ -252,7 +252,7 @@ for local_id, activity_id, activity_date, title, url, desc, workflow, tasks_done
         my_workflow += '\n\n'
     my_issue.append(f"{my_workflow}")
 
-    filename = f'web/content/activities/activity_{activity_id}.md'
+    filename = f'web/content/scorecards/activity_{activity_id}.md'
     with open(filename, 'w') as f:
         f.write('\n'.join(my_issue))
     
@@ -300,13 +300,6 @@ activities_stats += f'* {issues_not_started.shape[0]} <span class="w3-tag w3-lig
 activities_stats += f'* {issues_in_progress.shape[0]} <span class="w3-tag w3-light-grey">in_progress</span>\n'
 activities_stats += f'* {issues_done.shape[0]} <span class="w3-tag w3-light-grey">done</span>\n'
 with open('web/content/includes/activities_stats_home.inc', 'w') as f:
-    f.write(activities_stats)
-
-# Generate activities basic statistics, with links to be used from second-level pages.
-activities_stats = f'* {issues_not_started.shape[0]} activities <span class="w3-tag w3-light-grey">not_started</span>\n'
-activities_stats += f'* [{issues_in_progress.shape[0]} activities](../current_activities) <span class="w3-tag w3-light-grey">in_progress</span>\n'
-activities_stats += f'* [{issues_done.shape[0]} activities](../past_activities) <span class="w3-tag w3-light-grey">done</span>\n'
-with open('web/content/includes/activities_stats_dashboard.inc', 'w') as f:
     f.write(activities_stats)
 
 with open('web/content/includes/activities.js.inc', 'w') as f:
