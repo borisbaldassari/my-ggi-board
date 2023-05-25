@@ -6,7 +6,7 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]).
+This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]). See the [Activity timeline of the project]([GGI_ACTIVITIES_URL]/activity) in GitLab.
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
 
@@ -129,7 +129,7 @@ $(document).ready(function () {
                 render: function (data, type, row, meta) {
                     if (type === 'display'){
                         activity_id = row[0].toLowerCase();
-                        link = "scorecareds/activity_" +activity_id;
+                        link = "scorecards/activity_" +activity_id;
                         return '<a href="' + link + '">' + data + '</a>';
                     }
                     else{
