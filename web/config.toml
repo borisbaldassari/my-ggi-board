@@ -50,7 +50,7 @@ paginate = 30
 
 [menu]
 [[menu.header]]
-  name = "My Board"
+  name = "My GitLab Board"
   url = "[GGI_ACTIVITIES_URL]"
 [[menu.footer]]
     name = "RSS"
