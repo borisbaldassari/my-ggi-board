@@ -6,7 +6,7 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/boards).
+This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]).
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
 
@@ -97,7 +97,7 @@ new Chart("myGoals", {
 
 {{% /columns %}}
 
-## Activities <a href='activities' class='w3-text-grey' style="float:right">[ details ]</a> 
+## Activities <a href='scorecards/' class='w3-text-grey' style="float:right">[ details ]</a> 
 
 <script>
 var dataSet = {{% jscontent "includes/activities.js.inc" %}}
@@ -116,7 +116,7 @@ $(document).ready(function () {
                 render: function (data, type, row, meta) {
                     if (type === 'display'){
                         activity_id = row[0].toLowerCase();
-                        link = "activities/activity_" +activity_id;
+                        link = "scorecards/activity_" +activity_id;
                         return '<a href="' + link + '">' + data + '</a>';
                     }
                     else{
@@ -129,7 +129,7 @@ $(document).ready(function () {
                 render: function (data, type, row, meta) {
                     if (type === 'display'){
                         activity_id = row[0].toLowerCase();
-                        link = "activities/activity_" +activity_id;
+                        link = "scorecareds/activity_" +activity_id;
                         return '<a href="' + link + '">' + data + '</a>';
                     }
                     else{
