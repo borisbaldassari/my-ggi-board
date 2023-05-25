@@ -6,10 +6,9 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]). See the [Activity timeline of the project]([GGI_ACTIVITIES_URL]/activity) in GitLab.
+This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]). See the [Activity timeline of the project]([GGI_URL]/activity) in GitLab.
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
-
 
 {{% columns %}}
 
@@ -17,7 +16,6 @@ Please refer to the [official documentation](https://ospo.zone/ggi) or download 
 
 <div class="w3-row">
   <div class="w3-half w3-container">
-<p>Activities:</p>
 {{% content "includes/activities_stats_dashboard.inc" %}}
   </div>
   <div class="w3-half w3-container">
