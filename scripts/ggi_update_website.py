@@ -299,7 +299,7 @@ activities_stats = f'* {issues.shape[0]} activities overall.\n'
 activities_stats += f'* {issues_not_started.shape[0]} <span class="w3-tag w3-light-grey">not_started</span>\n'
 activities_stats += f'* {issues_in_progress.shape[0]} <span class="w3-tag w3-light-grey">in_progress</span>\n'
 activities_stats += f'* {issues_done.shape[0]} <span class="w3-tag w3-light-grey">done</span>\n'
-with open('web/content/includes/activities_stats_home.inc', 'w') as f:
+with open('web/content/includes/activities_stats_dashboard.inc', 'w') as f:
     f.write(activities_stats)
 
 with open('web/content/includes/activities.js.inc', 'w') as f:
