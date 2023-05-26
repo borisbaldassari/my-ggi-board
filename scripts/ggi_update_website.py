@@ -309,6 +309,8 @@ if issues_not_started.shape[0] < 25:
     with open('web/content/includes/initialisation.inc', 'w') as f:
         f.write('')
 
+# TODO : remove all unused anymore .inc
+
 #
 # Setup website
 #

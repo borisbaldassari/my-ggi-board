@@ -6,7 +6,7 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL]). See the [Activity timeline of the project]([GGI_URL]/activity) in GitLab.
+This dashboard tracks information from your own [GGI board instance](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/boards). See the [Activity timeline of the project](https://gitlab.ow2.org/ggi/my-ggi-board-test//activity) in GitLab.
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
 
@@ -23,7 +23,7 @@ data = {
   labels: [
     'Not Started (' + data_all_activities[0] + ')',
     'In Progress (' + data_all_activities[1] + ')',
-    'Done  (' + data_all_activities[2] + ')',
+    'Completed  (' + data_all_activities[2] + ')',
   ],
   datasets: [{
     label: 'My activities',
@@ -60,11 +60,16 @@ new Chart("allActivities", {
 
 <script>
 labels = ['Usage', 'Trust', 'Culture', 'Engagement', 'Strategy'];
+
+data_not_started = {{% content "includes/ggi_data_goals_not_started.inc" %}}
+data_in_progress = {{% content "includes/ggi_data_goals_in_progress" %}}
+data_completed = {{% content "includes/ggi_data_goals_done.inc" %}}
+
 data = {
   labels: labels,
   datasets: [{
     label: 'Not started',
-    data: [65, 59, 90, 81, 56],
+    data: data_not_started,
     fill: true,
     backgroundColor: 'rgba(255, 99, 132, 0.2)',
     borderColor: 'rgb(255, 99, 132)',
@@ -74,7 +79,7 @@ data = {
     pointHoverBorderColor: 'rgb(255, 99, 132)'
   }, {
     label: 'In progress',
-    data: [28, 48, 40, 19, 96],
+    data: data_in_progress,
     fill: true,
     backgroundColor: 'rgba(54, 162, 235, 0.2)',
     borderColor: 'rgb(54, 162, 235)',
@@ -84,7 +89,7 @@ data = {
     pointHoverBorderColor: 'rgb(54, 162, 235)'
   }, {
     label: 'Completed',
-    data: [38, 28, 40, 49, 46],
+    data: data_completed,
     fill: true,
     backgroundColor: 'rgba(255, 205, 86, 0.2)',
     borderColor: 'rgb(255, 205, 86  )',
