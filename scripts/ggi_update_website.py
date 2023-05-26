@@ -125,7 +125,6 @@ else:
     GGI_PAGES_URL = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + \
         "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
 
-#TODO check if adding / fails under linux (needed in Windows otherwise we get \\-/ in TOML which causes error then
 GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT) + '/'
 GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
 
