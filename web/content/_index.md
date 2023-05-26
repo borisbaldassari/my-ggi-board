@@ -14,22 +14,20 @@ Please refer to the [official documentation](https://ospo.zone/ggi) or download 
 
 ## General progress
 
-<div class="w3-row">
-  <div class="w3-half w3-container">
-{{% content "includes/activities_stats_dashboard.inc" %}}
-  </div>
-  <div class="w3-half w3-container">
-<canvas id="allActivities" style="width:50%;height:50%"></canvas>
+<canvas id="allActivities"></canvas>
+ 
 <script>
+data_all_activities = {{% content "includes/ggi_data_all_activities.inc" %}}
+
 data = {
   labels: [
-    'Not Started',
-    'In Progress',
-    'Done'
+    'Not Started (' + data_all_activities[0] + ')',
+    'In Progress (' + data_all_activities[1] + ')',
+    'Done  (' + data_all_activities[2] + ')',
   ],
   datasets: [{
     label: 'My activities',
-    data: {{% content "includes/ggi_data_all_activities.inc" %}},
+    data: data_all_activities,
     backgroundColor: [
       'rgb(255, 99, 132)',
       'rgb(54, 162, 235)',
@@ -39,58 +37,91 @@ data = {
   }]
 };
 new Chart("allActivities", {
-  type: "doughnut",
-  data: data
+    type: "doughnut",
+    data: data,
+    options:{
+        plugins:{
+            legend:{
+                position: "bottom"
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    }
 });
 </script>
-  </div>
-</div> 
 
 <--->
 
 ## Goals
 
-<canvas id="myGoals" style="width:50%;height:50%"></canvas>
+
+<canvas id="myGoals"></canvas>
+
 <script>
 labels = ['Usage', 'Trust', 'Culture', 'Engagement', 'Strategy'];
 data = {
   labels: labels,
-  datasets: [
-    {
-      label: 'Done',
-      data: {{% content "includes/ggi_data_goals_done.inc" %}},
-      backgroundColor: 'rgb(255, 205, 86)',
-    },
-    {
-      label: 'In Progress',
-      data: {{% content "includes/ggi_data_goals_in_progress.inc" %}},
-      backgroundColor: 'rgb(54, 162, 235)',
-    },
-    {
-      label: 'Not Started',
-       data: {{% content "includes/ggi_data_goals_not_started.inc" %}},
-      backgroundColor: 'rgb(255, 99, 132)',
-    },
-  ]
+  datasets: [{
+    label: 'Not started',
+    data: [65, 59, 90, 81, 56],
+    fill: true,
+    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+    borderColor: 'rgb(255, 99, 132)',
+    pointBackgroundColor: 'rgb(255, 99, 132)',
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: 'rgb(255, 99, 132)'
+  }, {
+    label: 'In progress',
+    data: [28, 48, 40, 19, 96],
+    fill: true,
+    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+    borderColor: 'rgb(54, 162, 235)',
+    pointBackgroundColor: 'rgb(54, 162, 235)',
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: 'rgb(54, 162, 235)'
+  }, {
+    label: 'Completed',
+    data: [38, 28, 40, 49, 46],
+    fill: true,
+    backgroundColor: 'rgba(255, 205, 86, 0.2)',
+    borderColor: 'rgb(255, 205, 86  )',
+    pointBackgroundColor: 'rgb(255, 205, 86)',
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: 'rgb(255, 205, 86'
+  }]
 };
 new Chart("myGoals", {
-    type: 'bar',
+    type: 'radar',
     data: data,
-    responsive: true,
     options: {
-      scales: {
-        xAxes: [{
-	  stacked: true,
-	}],
-        yAxes: [{
-          beginAtZero: true,
-	  stacked: true
-	}]
-      }
+        scales: {
+            r: {
+                pointLabels: {
+                    font: {
+                        size: 14
+                    }
+                }
+            }
+        },
+        plugins:{
+            legend:{
+                position: "bottom"
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        elements: {
+          line: {
+            borderWidth: 3
+          }
+        }
     }
   }
 );
-
 </script>
 
 {{% /columns %}}
