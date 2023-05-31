@@ -73,7 +73,7 @@ In case the instance admin has disabled the _project_ access token, you can use 
 
 ### Configure and run the pipeline
 
-Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` (cannot be used in non-protected branches) and `Masked` (will not be shown in Jobs logs.)
+Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` (cannot be used in non-protected branches), `Masked` (will not be shown in Jobs logs), and (if applicable, depending on your version of GitLab) `Expanded`.
 <img src="resources/setup_create-variable-1.png" width="50%" height="50%"> <img src="resources/setup_create-variable-2.png" width="50%" height="50%">
 
 To  initiate the deployment, and then update the Dashboard, you may execute the pipeline manually: Browse to _CI/CD_, _Pipelines_, and click on _Run pipeline_:

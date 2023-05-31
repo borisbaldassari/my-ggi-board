@@ -4,38 +4,209 @@ date: [GGI_CURRENT_DATE]
 layout: default
 ---
 
-# Welcome
-
 {{% content "includes/initialisation.inc" %}}
 
-This is the website of your own good governance Initiative.
+This dashboard tracks information from your own [GGI board instance](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/boards). See the [Activity timeline of the project](https://gitlab.ow2.org/ggi/my-ggi-board-test//activity) in GitLab.
 
-There are currently:
+Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
 
-{{% content "includes/activities_stats_home.inc" %}}
+{{% columns %}}
+
+## General progress
+
+<canvas id="allActivities"></canvas>
+ 
+<script>
+data_all_activities = {{% content "includes/ggi_data_all_activities.inc" %}}
+
+data = {
+  labels: [
+    'Not Started (' + data_all_activities[0] + ')',
+    'In Progress (' + data_all_activities[1] + ')',
+    'Completed  (' + data_all_activities[2] + ')',
+  ],
+  datasets: [{
+    label: 'My activities',
+    data: data_all_activities,
+    backgroundColor: [
+      'rgb(255, 99, 132)',
+      'rgb(54, 162, 235)',
+      'rgb(255, 205, 86)'
+    ],
+    hoverOffset: 4
+  }]
+};
+new Chart("allActivities", {
+    type: "doughnut",
+    data: data,
+    options:{
+        plugins:{
+            legend:{
+                position: "bottom"
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+
+<--->
+
+## Goals
 
 
-## Current activities <a href='current_activities' class='w3-text-grey' style="float:right">[ details ]</a> 
+<canvas id="myGoals"></canvas>
 
-Current activities are defined as having the label <span class="w3-tag w3-light-grey">in_progress</span>. <br />
-These are your current activities:
+<script>
+labels = ['Usage', 'Trust', 'Culture', 'Engagement', 'Strategy'];
 
-{{% content "includes/current_activities.inc" %}}
+data_not_started = {{% content "includes/ggi_data_goals_not_started.inc" %}}
+data_in_progress = {{% content "includes/ggi_data_goals_in_progress" %}}
+data_completed = {{% content "includes/ggi_data_goals_done.inc" %}}
 
-See the detailed list of [current activities](current_activities).
+data = {
+  labels: labels,
+  datasets: [{
+    label: 'Not started',
+    data: data_not_started,
+    fill: true,
+    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+    borderColor: 'rgb(255, 99, 132)',
+    pointBackgroundColor: 'rgb(255, 99, 132)',
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: 'rgb(255, 99, 132)'
+  }, {
+    label: 'In progress',
+    data: data_in_progress,
+    fill: true,
+    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+    borderColor: 'rgb(54, 162, 235)',
+    pointBackgroundColor: 'rgb(54, 162, 235)',
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: 'rgb(54, 162, 235)'
+  }, {
+    label: 'Completed',
+    data: data_completed,
+    fill: true,
+    backgroundColor: 'rgba(255, 205, 86, 0.2)',
+    borderColor: 'rgb(255, 205, 86  )',
+    pointBackgroundColor: 'rgb(255, 205, 86)',
+    pointBorderColor: '#fff',
+    pointHoverBackgroundColor: '#fff',
+    pointHoverBorderColor: 'rgb(255, 205, 86'
+  }]
+};
+new Chart("myGoals", {
+    type: 'radar',
+    data: data,
+    options: {
+        scales: {
+            r: {
+                pointLabels: {
+                    font: {
+                        size: 14
+                    }
+                }
+            }
+        },
+        plugins:{
+            legend:{
+                position: "bottom"
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        elements: {
+          line: {
+            borderWidth: 3
+          }
+        }
+    }
+  }
+);
+</script>
 
+{{% /columns %}}
 
-## Completed activities <a href='past_activities' class='w3-text-grey' style="float:right">[ details ]</a>
+## Activities <a href='scorecards/' class='w3-text-grey' style="float:right">[ details ]</a> 
 
-Completed activities are defined as having the label <span class="w3-tag w3-light-grey">done</span>. <br />
-These are your completed activities:
+<script>
+var dataSet = {{% jscontent "includes/activities.js.inc" %}}
 
-{{% content "includes/past_activities.inc" %}}
+$(document).ready(function () {
+    $('#activities').DataTable({
+        data: dataSet,
+        order: [[1, 'asc']],
+        pageLength: 25,
+        lengthMenu: [
+            [10, 25, 50, -1],
+            [10, 25, 50, 'All'],
+        ],
+        columns: [
+            { title: 'ID',
+                render: function (data, type, row, meta) {
+                    if (type === 'display'){
+                        activity_id = row[0].toLowerCase();
+                        link = "scorecards/activity_" +activity_id;
+                        return '<a href="' + link + '">' + data + '</a>';
+                    }
+                    else{
+                        return data;
+                    }
+                }
+            },
+            { title: 'Status' },
+            { title: 'Title',
+                render: function (data, type, row, meta) {
+                    if (type === 'display'){
+                        activity_id = row[0].toLowerCase();
+                        link = "scorecards/activity_" +activity_id;
+                        return '<a href="' + link + '">' + data + '</a>';
+                    }
+                    else{
+                        return data;
+                    }
+                }
+            },
+            { title: 'Tasks',
+                render: function (data, type, row, meta) {
+                    return type === 'display' ?
+                        row[3] + '/' + row[4] : "";
+                },
+            },
+            { 
+                title: 'Completion',
+                render: function (data, type, row, meta) {
+                    let completion = "0%";
+                    let done = row[3];
+                    let total = row[4];
+                    if (total > 0){
+                        completion = Math.round(done/total*100);
+                    }
+                    if (type === 'display'){
+                        if (completion > 0){
+                            return '<div class="w3-light-grey w3-round"><div class="w3-container w3-blue w3-round" style="width:' + completion + '%">' + completion + '%</div></div>';
+                        }
+                        else{
+                            return '<div class="w3-light-grey w3-round">0%</div>';
+                        }
+                    }
+                    else{
+                        return data;
+                    }
+                },
+            }
+        ],
+    });
+});
+</script>
+<table id="activities" class="display" width="100%"></table>
 
-See the detailed list of [completed activities](past_activities).
+## Resources
 
-## About
-
-The [Good Governance Initiative](https://ospo.zone/ggi) is developed by the OSPO Alliance.
+The [Good Governance Initiative Handbook](https://ospo.zone/ggi) is developed by the OSPO Alliance. 
 
 Check [our website](https://ospo.zone) and [join the discussion](https://accounts.eclipse.org/mailing-list/ospo.zone)!

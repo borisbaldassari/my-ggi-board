@@ -173,13 +173,6 @@ if (args.opt_projdesc):
         project.save()
 
 
-def create_label(existing_labels, new_label, label_args):
-    if new_label in existing_labels:
-        print(f" - Ignore label: {new_label}")
-    else:
-        print(f" - Create label: {new_label}")
-        project.labels.create(label_args)
-
 #
 # Create labels & activities
 #
