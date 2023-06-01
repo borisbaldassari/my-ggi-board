@@ -107,9 +107,9 @@ else:
     GGI_GITLAB_PROJECT=conf['gitlab_project']
 
 if 'GGI_GITLAB_TOKEN' in os.environ:
-    print("Use ggi_gitlab_token from environment variable")
+    print("Use GGI_GITLAB_TOKEN from environment variable")
 else:
-    print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
+    print("Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
 
 
@@ -157,6 +157,7 @@ project = gl.projects.get(GGI_GITLAB_PROJECT)
 
 # Update current project description with Website URL
 if (args.opt_projdesc):
+    print("\n# Update Project description")
     if 'CI_PAGES_URL' in os.environ:
         ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
         ggi_pages_url = os.environ['CI_PAGES_URL']
@@ -167,10 +168,12 @@ if (args.opt_projdesc):
             f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment.\n\n'
             'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
         )
-        print(f"\nUpdate Project description with:\n<<<\n{desc}\n>>>\n")
+        print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
 
         project.description = desc
         project.save()
+    else:
+        print("Can not find environment variable 'CI_PAGES_URL', skipping.")
 
 
 #
