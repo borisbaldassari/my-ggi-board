@@ -1,12 +1,12 @@
 ---
 title: Your Good Governance initiative
-date: [GGI_CURRENT_DATE]
+date: 2023-05-26
 layout: default
 ---
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/boards). See the [Activity timeline of the project](https://gitlab.ow2.org/ggi/my-ggi-board-test//activity) in GitLab.
+This dashboard tracks information from your own [GGI board instance]([GGI_ACTIVITIES_URL). See the [Activity timeline of the project]([GGI_URL]/activity) in GitLab.
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/docs/ggi_handbook_v1.1.pdf).
 
