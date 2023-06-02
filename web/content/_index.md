@@ -6,7 +6,7 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/boards). See the [Activity timeline of the project](https://gitlab.ow2.org/ggi/my-ggi-board-test/activity) in GitLab.
+This dashboard tracks information from [GGI board instance]([GGI_ACTIVITIES_URL]). See the [Activity timeline of the project]([GGI_URL]/activity) in GitLab.
 
 Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/ggi/).
 
@@ -82,6 +82,11 @@ new Chart("myGoals", {
     type: 'bar',
     data: data,
     options: {
+        plugins:{
+            legend:{
+                position: "bottom"
+            }
+        },
         responsive: true,
         scales: {
             x: {
