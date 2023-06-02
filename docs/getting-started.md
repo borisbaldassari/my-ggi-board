@@ -10,12 +10,12 @@ The set up steps are:
 1. fork the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) in your own GitLab space.
 2. create a GitLab Token, configure a CI Variable [GGI_GITLAB_TOKEN](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project)
 3. run the configured pipeline, that will create:
-  - GitLab **issues** that stand for the **GGI activities**,
-  - appropriate **labels** for the goals, roles and progress,
-  - a GitLab **issues board** for a clear overview of you current activities,
-  - a static website, the **Dashboard**, to share progress and current work (in GitLab pages)
-  - an updated project description, with links to you own Dashboard,
-  - a nightly pipeline schedule to refresh the dashboard.
+   - GitLab **issues** that stand for the **GGI activities**,
+   - appropriate **labels** for the goals, roles and progress,
+   - a GitLab **issues board** for a clear overview of you current activities,
+   - a static website, the **Dashboard**, to share progress and current work (in GitLab pages)
+   - an updated project description, with links to you own Dashboard,
+   - a nightly pipeline schedule to refresh the dashboard.
 
 
 
@@ -58,18 +58,18 @@ In your own GitLab space:
 
 <img src="resources/setup_import-project.png" width="50%" height="50%">
 
-## Create your GitLab token
+# Create your GitLab token
 
 Two possibilities to create your [GitLab token](https://docs.gitlab.com/ee/security/token_overview.html), depending on your GitLab environment:
 - use a [Project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#project-access-tokens)
 - or a [Personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html).
 
-**Project access tokens**
+## Project access tokens
 
 Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. Remember it, you will never see it again.
 <img src="resources/setup_project-token.png" width="50%" height="50%">
 
-**Personal access tokens**
+## Personal access tokens
 
 In case the instance admin has disabled the _project_ access token, you can use an _personal_ access token, although we recommend creating a dedicated account for security purposes in that case. Go to Preferences > Access Tokens and create the token from there.
 
@@ -103,7 +103,7 @@ The project description should be updated with links to :
 - the Issues Board
 - the GGI Documentation
 
-<img src="resources/project-description.png" width="50%" height="50%">
+<img src="resources/project-description.png" width="75%" height="75%">
 
 
 # Notes
