@@ -29,7 +29,7 @@ This is what you get:
 - An Issue Board to organise your work
 - A static Dashboard that report your current activity and progress, refreshed overnight by a scheduled pipeline.
 
-To find out of to deploy the My-GGI-Board, see [docs/getting-started.md]
+To find out of to deploy the My-GGI-Board, see [getting-started.md](docs/getting-started.md)
 
 # Have a look !
 
