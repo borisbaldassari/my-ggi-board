@@ -9,12 +9,12 @@ The GGI framework is a guide to effectively implement, step by step, an Open Sou
 
 
 The goal here is, within minutes, to set up a simple environment to:
-- select the Activities you want to focus on
-- describe _how_ it applies to your situation
-- set a list of objectives for each Activity
-- track your progress via a simple web page (hosted within GitLab pages)
-- organise tasks with your team
-- easily share your progress
+- Select the Activities you want to focus on
+- Describe _how_ it applies to your situation
+- Set a list of objectives for each Activity
+- Track your progress via a simple web page (hosted within GitLab pages)
+- Organise tasks with your team
+- Easily share your progress
 
 # How it works
 
@@ -25,6 +25,7 @@ Everything can we put in place from the GitLab web interface, in 3 steps:
 
 This is what you get:
 - An Issue per GGI Activity
+- For each Activity, a section to detail your action plans and progres
 - An Issue Board to organise your work
 - A static Dashboard that report your current activity and progress, refreshed overnight by a scheduled pipeline.
 
@@ -32,11 +33,12 @@ To find out of to deploy the My-GGI-Board, see [docs/getting-started.md]
 
 # Have a look !
 
-Example of Dashbord:
+**Example of Dashbord:**
 
 <img src="resources/overview-dashboard.png" width="80%" height="80%">
 
-Example of Issue Board:
+
+**Example of Issue Board:**
 
 <img src="resources/overview-issue-board.png" width="80%" height="80%">
 
