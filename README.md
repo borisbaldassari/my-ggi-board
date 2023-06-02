@@ -1,17 +1,22 @@
 This is the home of your own Good Governance Initiative tracking board.
 
-This project helps implementing the [Good Governance Initiative (GGI)](https://ospo.zone/ggi) framework.
+[TOC]
+
+# Introduction
+
+This project helps implementing the [Good Governance Initiative (GGI)](https://ospo.zone/ggi) framework.  
 The GGI framework is a guide to effectively implement, step by step, an Open Source Program Office in your organisation. It proposes 25 activities organised in 5 distinct goals.
 
 
-The goal here is, within a few minutes, to set up a simple environment that helps:
-- select the activities you want to focus on
+The goal here is, within minutes, to set up a simple environment to:
+- select the Activities you want to focus on
 - describe _how_ it applies to your situation
 - set a list of objectives for each Activity
 - track your progress via a simple web page (hosted within GitLab pages)
-- orgnise tasks with your team
+- organise tasks with your team
 - easily share your progress
 
+# How it works
 
 Everything can we put in place from the GitLab web interface, in 3 steps:
 1. Fork this repository in your GitLab ([gitlab.com](https://gitlab.com) or your own instance)
@@ -24,6 +29,8 @@ This is what you get:
 - A static Dashboard that report your current activity and progress, refreshed overnight by a scheduled pipeline.
 
 To find out of to deploy the My-GGI-Board, see [docs/getting-started.md]
+
+# Have a look !
 
 Example of Dashbord:
 

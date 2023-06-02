@@ -1,8 +1,10 @@
 
-This page explains the steps to deploy My GGI Board.
-For the moment only GitLab -either [gitlab.com](https://gitlab.com) or your own instance- is supported. We plan to support other backends, such as [github.com](https://github.com) in the future.
+This page explains the steps to deploy My GGI Board.  
 
+For the moment only GitLab (either [gitlab.com](https://gitlab.com) or your own instance) is supported.
+We plan to support other backends, such as [github.com](https://github.com) in the future.
 
+[TOC]
 
 # Overview
 
