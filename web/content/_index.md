@@ -36,6 +36,6 @@ See the detailed list of [completed activities](past_activities).
 
 ## About
 
-The [Good Governance Initiative](https://ospo.zone/ggi) is developed by the OSPO Alliance.
+The [Good Governance Initiative](https://ospo-alliance.org/ggi) is developed by the OSPO Alliance.
 
-Check [our website](https://ospo.zone) and [join the discussion](https://accounts.eclipse.org/mailing-list/ospo.zone)!
+Check [our website](https://ospo-alliance.org) and [join the discussion](https://accounts.eclipse.org/mailing-list/ospo.zone)!
