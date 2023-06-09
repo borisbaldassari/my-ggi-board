@@ -8,7 +8,7 @@ layout: default
 
 This dashboard tracks information from [GGI board instance]([GGI_ACTIVITIES_URL]). See the [Activity timeline of the project]([GGI_URL]/activity) in GitLab.
 
-Please refer to the [official documentation](https://ospo.zone/ggi) or download the [PDF Handbook](https://ospo.zone/ggi/).
+Please refer to the [official documentation](https://ospo-alliance.org/ggi) or download the [PDF Handbook](https://ospo-alliance.org/docs/ggi_handbook_v1.1.pdf).
 
 {{% columns %}}
 
@@ -180,6 +180,6 @@ $(document).ready(function () {
 
 ## Resources
 
-The [Good Governance Initiative Handbook](https://ospo.zone/ggi) is developed by the OSPO Alliance. 
+The [Good Governance Initiative](https://ospo-alliance.org/ggi) is developed by the OSPO Alliance.
 
-Check [our website](https://ospo.zone) and [join the discussion](https://accounts.eclipse.org/mailing-list/ospo.zone)!
+Check [our website](https://ospo-alliance.org) and [join the discussion](https://accounts.eclipse.org/mailing-list/ospo.zone)!
