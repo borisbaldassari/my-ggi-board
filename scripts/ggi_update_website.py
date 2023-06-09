@@ -125,8 +125,8 @@ else:
     GGI_PAGES_URL = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + \
         "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
 
-GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT) + '/'
-GGI_ACTIVITIES_URL = os.path.join(GGI_URL, '-/boards')
+GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
+GGI_ACTIVITIES_URL = os.path.join(GGI_URL+'/', '-/boards')
 
 print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
 gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])

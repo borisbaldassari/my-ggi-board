@@ -6,7 +6,7 @@ layout: default
 
 {{% content "includes/initialisation.inc" %}}
 
-This dashboard tracks information from your own [GGI board instance](https://gitlab.ow2.org/ggi/my-ggi-board-test/-/boards). See the [Activity timeline of the project](https://gitlab.ow2.org/ggi/my-ggi-board-test//activity) in GitLab.
+This dashboard tracks information from [GGI board instance]([GGI_ACTIVITIES_URL]). See the [Activity timeline of the project]([GGI_URL]/activity) in GitLab.
 
 Please refer to the [official documentation](https://ospo-alliance.org/ggi) or download the [PDF Handbook](https://ospo-alliance.org/docs/ggi_handbook_v1.1.pdf).
 
@@ -55,78 +55,51 @@ new Chart("allActivities", {
 
 ## Goals
 
-
-<canvas id="myGoals"></canvas>
-
+<canvas id="myGoals" style="width:50%;height:50%"></canvas>
 <script>
 labels = ['Usage', 'Trust', 'Culture', 'Engagement', 'Strategy'];
-
-data_not_started = {{% content "includes/ggi_data_goals_not_started.inc" %}}
-data_in_progress = {{% content "includes/ggi_data_goals_in_progress" %}}
-data_completed = {{% content "includes/ggi_data_goals_done.inc" %}}
-
 data = {
   labels: labels,
-  datasets: [{
-    label: 'Not started',
-    data: data_not_started,
-    fill: true,
-    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-    borderColor: 'rgb(255, 99, 132)',
-    pointBackgroundColor: 'rgb(255, 99, 132)',
-    pointBorderColor: '#fff',
-    pointHoverBackgroundColor: '#fff',
-    pointHoverBorderColor: 'rgb(255, 99, 132)'
-  }, {
-    label: 'In progress',
-    data: data_in_progress,
-    fill: true,
-    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-    borderColor: 'rgb(54, 162, 235)',
-    pointBackgroundColor: 'rgb(54, 162, 235)',
-    pointBorderColor: '#fff',
-    pointHoverBackgroundColor: '#fff',
-    pointHoverBorderColor: 'rgb(54, 162, 235)'
-  }, {
-    label: 'Completed',
-    data: data_completed,
-    fill: true,
-    backgroundColor: 'rgba(255, 205, 86, 0.2)',
-    borderColor: 'rgb(255, 205, 86  )',
-    pointBackgroundColor: 'rgb(255, 205, 86)',
-    pointBorderColor: '#fff',
-    pointHoverBackgroundColor: '#fff',
-    pointHoverBorderColor: 'rgb(255, 205, 86'
-  }]
+  datasets: [
+    {
+      label: 'Done',
+      data: {{% content "includes/ggi_data_goals_done.inc" %}},
+      backgroundColor: 'rgb(255, 205, 86)',
+    },
+    {
+      label: 'In Progress',
+      data: {{% content "includes/ggi_data_goals_in_progress.inc" %}},
+      backgroundColor: 'rgb(54, 162, 235)',
+    },
+    {
+      label: 'Not Started',
+       data: {{% content "includes/ggi_data_goals_not_started.inc" %}},
+      backgroundColor: 'rgb(255, 99, 132)',
+    },
+  ]
 };
 new Chart("myGoals", {
-    type: 'radar',
+    type: 'bar',
     data: data,
     options: {
-        scales: {
-            r: {
-                pointLabels: {
-                    font: {
-                        size: 14
-                    }
-                }
-            }
-        },
         plugins:{
             legend:{
                 position: "bottom"
             }
         },
         responsive: true,
-        maintainAspectRatio: false,
-        elements: {
-          line: {
-            borderWidth: 3
-          }
+        scales: {
+            x: {
+                stacked: true
+            },
+            y: {
+                stacked: true
+            }
         }
     }
   }
 );
+
 </script>
 
 {{% /columns %}}
