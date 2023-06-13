@@ -23,7 +23,7 @@ paginate = 30
   [params.colorScheme]
     # Enable toggle colorScheme
     # Default to true
-    toggle = true
+    toggle = false
     # Default colorScheme
     # Default to auto
     default = "auto"
@@ -53,8 +53,8 @@ paginate = 30
   name = "My GitLab Board"
   url = "[GGI_ACTIVITIES_URL]"
 [[menu.footer]]
-    name = "RSS"
-    url = "index.xml"
+#    name = "RSS"
+#    url = "index.xml"
 
 [markup]
 [markup.highlight]
