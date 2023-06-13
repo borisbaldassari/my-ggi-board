@@ -4,6 +4,15 @@
             {{ range .Site.Menus.footer }}
             <a href="{{ .URL | relURL }}">{{ .Name }}</a>
             {{ end }}
+	    <a href="https://mastodon.social/@OSPOAlliance@mastodon.opencloud.lu">
+	      <img src="/svgs/social/mastodon.svg" alt="Mastodon"/>
+	    </a>
+	    <a href="https://www.linkedin.com/company/ospo-alliance/">
+	      <img src="/svgs/social/linkedin.svg" alt="LinkedIn"/>
+	    </a>
+	    <a href="https://twitter.com/OSPOAlliance">
+	      <img src="/svgs/social/twitter.svg" alt="Twitter"/>
+	    </a>
         </nav>
 
         {{ partial "footer/custom" . }}
