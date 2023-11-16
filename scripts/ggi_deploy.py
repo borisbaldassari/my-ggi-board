@@ -36,6 +36,7 @@ import os
 from collections import OrderedDict
 import os
 import urllib.parse
+import random
     
 
 # Define some variables.
@@ -69,6 +70,10 @@ parser.add_argument('-p', '--schedule-pipeline',
     dest='opt_schedulepipeline', 
     action='store_true', 
     help='Schedule nightly pipeline to update dashboard')
+parser.add_argument('-r', '--random-demo', 
+    dest='opt_random', 
+    action='store_true', 
+    help='Random Scorecard objectives and Activities status, for demo purposes')
 args = parser.parse_args()
 
 #
@@ -107,9 +112,9 @@ else:
     GGI_GITLAB_PROJECT=conf['gitlab_project']
 
 if 'GGI_GITLAB_TOKEN' in os.environ:
-    print("Use ggi_gitlab_token from environment variable")
+    print("Use GGI_GITLAB_TOKEN from environment variable")
 else:
-    print(" Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
+    print("Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
 
 
@@ -123,6 +128,23 @@ def create_label(existing_labels, new_label, label_args):
     else:
         print(f" Create label: {new_label}")
         project.labels.create(label_args)
+
+# Build a scorecard with a random number of objectives, randomly checked, if required by user
+# Otherwise, simply return the untouched scorecard text
+def get_scorecard():
+    if (args.opt_random):
+        # Create between 4 and 10 objectives per Scorecard
+        num_lines = random.randint(4, 10)
+        objectives_list = []
+        for idx in range(num_lines):
+            objectives = "- [ ] objective " + str(idx) + " \n"
+            # aim at 25% of objectives done
+            if random.randint(1, 4) == 1:
+                objectives = objectives.replace("[ ]", "[x]")
+            objectives_list.append(objectives)
+        return ''.join(init_scorecard).replace("What we aim to achieve in this iteration.", ''.join(objectives_list))
+    else:
+        return init_scorecard
 
 def extract_sections(activity):
     paragraphs = activity['content'].split('\n\n')
@@ -139,7 +161,7 @@ def extract_sections(activity):
     # Add Activity ID
     content_text = content['Introduction'][1] + '\n\n'
     # Add Scorecard
-    content_text += ''.join(init_scorecard)
+    content_text += ''.join(get_scorecard())
     del content['Introduction']
     # Add description content.
     for key in content.keys():
@@ -157,6 +179,7 @@ project = gl.projects.get(GGI_GITLAB_PROJECT)
 
 # Update current project description with Website URL
 if (args.opt_projdesc):
+    print("\n# Update Project description")
     if 'CI_PAGES_URL' in os.environ:
         ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
         ggi_pages_url = os.environ['CI_PAGES_URL']
@@ -165,20 +188,15 @@ if (args.opt_projdesc):
             'Here you will find '
             f'[**your dashboard**]({ggi_pages_url})\n'
             f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment.\n\n'
-            'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
+            'For more information please see the official project home page at https://ospo-alliance.org/'
         )
-        print(f"\nUpdate Project description with:\n<<<\n{desc}\n>>>\n")
+        print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
 
         project.description = desc
         project.save()
-
-
-def create_label(existing_labels, new_label, label_args):
-    if new_label in existing_labels:
-        print(f" - Ignore label: {new_label}")
     else:
-        print(f" - Create label: {new_label}")
-        project.labels.create(label_args)
+        print("Can not find environment variable 'CI_PAGES_URL', skipping.")
+
 
 #
 # Create labels & activities
@@ -205,7 +223,7 @@ if (args.opt_activities):
                      {'name': goal['name'], 'color': goal['colour']})
 
     # Read the custom scorecard init file.
-    print(f"# Reading scorecard init file from {init_scorecard_file}.")
+    print(f"\n# Reading scorecard init file from {init_scorecard_file}.")
     init_scorecard = []
     with open(init_scorecard_file, 'r', encoding='utf-8') as f:
         init_scorecard = f.readlines()
@@ -215,15 +233,20 @@ if (args.opt_activities):
     # First test the existence of Activities Issues:
     #   if at least one Issue is found bearing one Goal label,
     #   consider that all Issues exist and do not add any.
-    issues_test = project.issues.list(labels=[metadata['goals'][0]['name']])
+    issues_test = project.issues.list(state='opened',labels=[metadata['goals'][0]['name']])
     if (len(issues_test) > 0):
         print(" Ignore, Issues already exist")
     else:
         for activity in metadata['activities']:
+            progress_label = conf['progress_labels']['not_started']
+            if (args.opt_random):
+                progress_idx = random.choice(list(conf['progress_labels']))
+                progress_label = conf['progress_labels'][progress_idx]
+
             labels = \
                 [activity['goal']] + \
                 activity['roles'] + \
-                [conf['progress_labels']['not_started']]
+                [progress_label]
             print(f"  - Issue: {activity['name']:<60} Labels: {labels}")
             ret = project.issues.create({'title': activity['name'],
                                    'description': extract_sections(activity), 

@@ -3,15 +3,14 @@ languageCode = 'en-us'
 title = 'My Good Governance Initiative'
 
 theme = "hugo-tania"
-paginate = 6
-
+paginate = 30
 
 [params]
   # Emoji will show before the blog title on site navbar.
-  titleEmoji  = "😎"
+  titleEmoji  = ""
 
   # Logo will show before the blog title on site navbar.
-  titleLogo = ""
+  titleLogo = "images/OSPO_Alliance_Logo.svg"
 
   # Enable float footnotes.
   # Default to true
@@ -24,7 +23,7 @@ paginate = 6
   [params.colorScheme]
     # Enable toggle colorScheme
     # Default to true
-    toggle = true
+    toggle = false
     # Default colorScheme
     # Default to auto
     default = "auto"
@@ -51,14 +50,11 @@ paginate = 6
 
 [menu]
 [[menu.header]]
-  name = "My Board"
+  name = "My GitLab Board"
   url = "[GGI_ACTIVITIES_URL]"
-[[menu.header]]
-  name = "Dashboard"
-  url = "dashboard"
 [[menu.footer]]
-    name = "RSS"
-    url = "index.xml"
+#    name = "RSS"
+#    url = "index.xml"
 
 [markup]
 [markup.highlight]

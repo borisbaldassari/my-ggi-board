@@ -1,94 +1,48 @@
-
-# Welcome
-
 This is the home of your own Good Governance Initiative tracking board.
 
-The set up steps are:
-- fork the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) in your own GitLab space.
-- create a GitLab Token, configure a CI Variable [GGI_GITLAB_TOKEN](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project)
-- run the configured pipeline, that will create:
-  - appropriate **labels** for the goals, roles and progress,
-  - GitLab **issues** that stand for the **GGI activities**,
-  - an **issues board** for a clear overview of you current activities,
-  - a static website, the **Dashboard**, to share progress and current work,
-  - an updated project description, with links to you own Dashboard,
-  - a nightly pipeline schedule to refresh the dashboard.
+[TOC]
+
+# Introduction
+
+This project helps implementing the [Good Governance Initiative (GGI)](https://ospo.zone/ggi) framework.  
+The GGI framework is a guide to effectively implement, step by step, an Open Source Program Office in your organisation. It proposes 25 activities organised in 5 distinct goals.
 
 
-## Setup
+The goal here is, within minutes, to set up a simple environment to:
+- Select the Activities you want to focus on
+- Describe _how_ it applies to your situation
+- Set a list of objectives for each Activity
+- Track your progress via a simple web page (hosted within GitLab pages)
+- Organise tasks with your team
+- Easily share your progress
 
-### Fork the repository
+# How it works
 
-Multiple options here: you may want, for example, to use the Import feature proposed by GitLab, or fork manually.
+Everything can we put in place from the GitLab web interface, in 3 steps:
+1. Fork this repository in your GitLab ([gitlab.com](https://gitlab.com) or your own instance)
+2. Create an Access Token and configure a new CI/CD Variable in GitLab
+3. Execute a pre-configured pipeline manually, only once.
 
-**Fork option 1: Manual Fork**
+This is what you get:
+- An Issue per GGI Activity
+- For each Activity, a section to detail your action plans and progres
+- An Issue Board to organise your work
+- A static Dashboard that report your current activity and progress, refreshed overnight by a scheduled pipeline.
 
-- Create an empty project on your target GitLab instance.
-<img src="resources/setup_create-project.png" width="50%" height="50%">
+To find out of to deploy the My-GGI-Board, see [getting-started.md](docs/getting-started.md)
 
-- Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
+# Have a look !
 
-To do so, clone the my-ggi-board repository locally, and add the new project's reference to the remotes:
-```
-$ git clone --origin ow2-upstream https://gitlab.ow2.org/ggi/my-ggi-board.git
-$ cd my-ggi-board
-$ git remote add origin https://gitlab.com/<your-gitlab-space>/my-ggi-board.git
-$ git push --set-upstream origin main
-```
+**Example of Dashbord:**
 
-Your remotes should look like this:
-```
-$ git remote -v
-origin  https://gitlab.com/<your-gitlab-space>/my-ggi-board.git (fetch)
-origin  https://gitlab.com/<your-gitlab-space>/my-ggi-board.git (push)
-ow2-upstream    https://gitlab.ow2.org/ggi/my-ggi-board.git (fetch)
-ow2-upstream    https://gitlab.ow2.org/ggi/my-ggi-board.git (push)
-```
-**After you have pushed**, the pipeline will be triggered and will fail: this is expected, as the `GGI_GITLAB_TOKEN` variable has not been defined yet, see below.
+<img src="resources/overview-dashboard.png" width="80%" height="80%">
 
-**Fork option 2: Import Project**
 
-In your own GitLab space:
-- Create a new project
-- Choose: _Import project_
-- Choose: _Repository by URL_
-- Enter `https://gitlab.ow2.org/ggi/my-ggi-board.git`
+**Example of Issue Board:**
 
-<img src="resources/setup_import-project.png" width="50%" height="50%">
+<img src="resources/overview-issue-board.png" width="80%" height="80%">
 
-### Create your GitLab token
 
-Two possibilities to create your [GitLab token](https://docs.gitlab.com/ee/security/token_overview.html), depending on your GitLab environment: use a [Project access token](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html#project-access-tokens) of a [Personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html).
 
-**Project access tokens**
 
-Create an access token (Project settings > Access Tokens) with the `api` privilege and with role `Maintainer`. Remember it, you will never see it again.
-<img src="resources/setup_project-token.png" width="50%" height="50%">
 
-**Personal access tokens**
-
-In case the instance admin has disabled the _project_ access token, you can use an _personal_ access token, although we recommend creating a dedicated account for security purposes in that case. Go to Preferences > Access Tokens and create the token from there.
-
-<img src="resources/setup_personal-token.png" width="50%" height="50%">
-
-### Configure and run the pipeline
-
-Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Protected` (cannot be used in non-protected branches) and `Masked` (will not be shown in Jobs logs.)
-<img src="resources/setup_create-variable-1.png" width="50%" height="50%"> <img src="resources/setup_create-variable-2.png" width="50%" height="50%">
-
-To  initiate the deployment, and then update the Dashboard, you may execute the pipeline manually: Browse to _CI/CD_, _Pipelines_, and click on _Run pipeline_:
-
-<img src="resources/setup_run-pipeline.png" width="50%" height="50%">
-
-**Scheduled pipeline**
-
-By default, a pipeline is scheduled every night
-- you can see and update it by clicking on _Schedules_ in the _CI/CD_ menu.
-- it is only created if Zero schedule is configured
-  - so if you remove it, it will reappear at next pipeline execution
-  - to prevent this, you can _deactivate_ the pipeline rather than removing it.
-
-## Notes
-
-* Prerequisites for Python are registered in `requirements.txt`. You are encouraged to create a virtual environment to execute the scripts, althought it is not required.
-* GitLab CE doesn't allow to create Boards through the API.
