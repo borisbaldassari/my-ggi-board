@@ -233,7 +233,7 @@ if (args.opt_activities):
     # First test the existence of Activities Issues:
     #   if at least one Issue is found bearing one Goal label,
     #   consider that all Issues exist and do not add any.
-    issues_test = project.issues.list(state='opened',labels=[metadata['goals'][0]['name']])
+    issues_test = project.issues.list(state='opened')
     if (len(issues_test) > 0):
         print(" Ignore, Issues already exist")
     else:
