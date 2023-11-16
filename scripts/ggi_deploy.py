@@ -188,7 +188,7 @@ if (args.opt_projdesc):
             'Here you will find '
             f'[**your dashboard**]({ggi_pages_url})\n'
             f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment.\n\n'
-            'For more information please see the official project home page at https://gitlab.ow2.org/ggi/ggi/'
+            'For more information please see the official project home page at https://ospo-alliance.org/'
         )
         print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
 
