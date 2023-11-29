@@ -25,19 +25,16 @@
 #   -b, --board                 Create board
 #   -d, --project-description   Update Project Description with pointers to the Board and Dashboard
 #   -p, --schedule-pipeline     Schedule nightly pipeline to update dashboard
-# 
 
+import argparse
 import gitlab
 import json
-import re
-import argparse
 import urllib.parse
 import os
-from collections import OrderedDict
-import os
-import urllib.parse
 import random
-    
+import re
+
+from collections import OrderedDict
 
 # Define some variables.
 conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
@@ -182,12 +179,15 @@ if (args.opt_projdesc):
     print("\n# Update Project description")
     if 'CI_PAGES_URL' in os.environ:
         ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
+       	ggi_handbook_version = metadata["handbook_version"]
+	    
+        
         ggi_pages_url = os.environ['CI_PAGES_URL']
         desc = (
             'Your own Good Governance Initiative project.\n\n'
             'Here you will find '
             f'[**your dashboard**]({ggi_pages_url})\n'
-            f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment.\n\n'
+            f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment, based on the version {ggi_handbook_version} of the [GGI handbook](https://ospo-alliance.org/ggi/)\n\n'
             'For more information please see the official project home page at https://ospo-alliance.org/'
         )
         print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
@@ -195,7 +195,7 @@ if (args.opt_projdesc):
         project.description = desc
         project.save()
     else:
-        print("Can not find environment variable 'CI_PAGES_URL', skipping.")
+        print("Cannot find environment variable 'CI_PAGES_URL', skipping.")
 
 
 #
