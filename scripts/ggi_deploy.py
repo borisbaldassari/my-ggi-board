@@ -114,7 +114,6 @@ else:
     print("Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
     exit(1)
 
-
 #
 # Utility functions
 #
@@ -179,7 +178,7 @@ if (args.opt_projdesc):
     print("\n# Update Project description")
     if 'CI_PAGES_URL' in os.environ:
         ggi_activities_url = os.path.join(urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT), '-/boards')
-       	ggi_handbook_version = metadata["handbook_version"]
+        ggi_handbook_version = metadata["handbook_version"]
 	    
         
         ggi_pages_url = os.environ['CI_PAGES_URL']
@@ -238,11 +237,13 @@ if (args.opt_activities):
         print(" Ignore, Issues already exist")
     else:
         for activity in metadata['activities']:
-            progress_label = conf['progress_labels']['not_started']
+            progress_label = ''
             if (args.opt_random):
-                progress_idx = random.choice(list(conf['progress_labels']))
-                progress_label = conf['progress_labels'][progress_idx]
-
+                # randomly choose among valid progress labels
+                # + artificially introduce an extra option for no progress label
+                progress_idx = random.choice(list(conf['progress_labels']) + ['none'])
+                if (progress_idx != 'none' ):
+                    progress_label = conf['progress_labels'][progress_idx]
             labels = \
                 [activity['goal']] + \
                 activity['roles'] + \
