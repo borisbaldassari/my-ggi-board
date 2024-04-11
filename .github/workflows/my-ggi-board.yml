@@ -7,7 +7,7 @@ on:
       - main
 jobs:
   Update website:
-    name: Update website
+    name: update-website
     runs-on: ubuntu-latest
     steps:
       - name: List files in the repository
