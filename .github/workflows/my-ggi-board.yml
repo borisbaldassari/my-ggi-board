@@ -10,6 +10,8 @@ jobs:
     name: Update website
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
