@@ -15,11 +15,11 @@ jobs:
           ls ${{ github.workspace }}
       - name: Install depencies
         run: |
-	  python -m pip install -r requirements.txt
+          python -m pip install -r requirements.txt
       - name: GGI Deploy
         run: |
-	  python scripts/ggi_deploy.py -a -b -d -p
+          python scripts/ggi_deploy.py -a -b -d -p
       - name: GGI Update website
         run: |
-	  python scripts/ggi_update_website.py
+          python scripts/ggi_update_website.py
 
