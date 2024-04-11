@@ -6,8 +6,8 @@ on:
     branches:
       - main
 jobs:
-  Update website:
-    name: update-website
+  update-website:
+    name: Update website
     runs-on: ubuntu-latest
     steps:
       - name: List files in the repository
