@@ -9,17 +9,21 @@
 # SPDX-License-Identifier: EPL-2.0
 ######################################################################
 
-# This script:
-# - reads the metadata defined in the `conf` directory,
-# - retrieves information from the gitlab project,
-# - updates the static website with new information and plots
+"""
+This script:
+- reads the metadata defined in the `conf` directory,
+- retrieves information from the gitlab project,
+- updates the static website with new information and plots
 
+"""
 
+import argparse
 import gitlab
 import json
 import pandas as pd
 import re
 import glob, os
+from typing import List
 from fileinput import FileInput
 from datetime import date
 from collections import OrderedDict
@@ -41,7 +45,26 @@ re_activity_id = re.compile(r"^Activity ID: \[(GGI-A-\d\d)\]\(.+\).$")
 re_section = re.compile(r"^### (?P<section>.*?)\s*$")
 re_subsection = re.compile(r"^#### (?P<subsection>.*?)\s*$")
 
-def extract_workflow(activity_desc):
+def _parse_args():
+    """
+    Parse arguments from command line.
+    """
+    
+    parser = argparse.ArgumentParser(
+        description="Regerate website.")
+    parser.add_argument('-v', '--verbose', 
+                        dest='opt_verbose', 
+                        action='store_true', 
+                        help='More logging.')
+    args = parser.parse_args()
+
+    return args
+
+
+def extract_workflow(activity_desc: str):
+    """
+    Extract specific sections from an issue description.
+    """
     paragraphs = activity_desc.split('\n')
     content_t = 'Introduction'
     content = OrderedDict()
@@ -84,253 +107,266 @@ def extract_workflow(activity_desc):
     del workflow[list(workflow)[-1]][-1]
     return a_id, content['Description'], workflow, tasks
 
-#
-# Read metadata for activities and deployment options.
-#
+def retrieve_env():
+    """
+    Read metadata for activities and deployment options.
+    
+    Determine GitLab server URL and Project name
+    * From Environment variable if available, or
+    * From configuration file otherwise
+    """
 
-print(f"# Reading deployment options from {file_conf}.")
-with open(file_conf, 'r', encoding='utf-8') as f:
-    conf = json.load(f)
+    print(f"# Reading deployment options from {file_conf}.")
+    with open(file_conf, 'r', encoding='utf-8') as f:
+        params = json.load(f)
 
-# Determine GitLab server URL and Project name
-# From Environment variable if available
-# From configuration file otherwise
+    if 'CI_SERVER_URL' in os.environ:
+        print("- Use GitLab URL from environment variable")
+        params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
+    else:
+        print("- Use GitLab URL from configuration file")
+        params['GGI_GITLAB_URL'] = params['gitlab_url']
 
-if 'CI_SERVER_URL' in os.environ:
-    GGI_GITLAB_URL = os.environ['CI_SERVER_URL']
-    print("- Use GitLab URL from environment variable")
-else:
-    print("- Use GitLab URL from configuration file")
-    GGI_GITLAB_URL = conf['gitlab_url']
+    if 'CI_PROJECT_PATH' in os.environ:
+        print("- Use GitLab Project from environment variable")
+        params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
+    else:
+        print("- Use GitLab URL from configuration file")
+        params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
+    
+    if 'GGI_GITLAB_TOKEN' in os.environ:
+        print("- Using ggi_gitlab_token from env var.")
+        params['GGI_GITLAB_TOKEN'] = os.environ['GGI_GITLAB_TOKEN']
+    else:
+        print("- Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
+        exit(1)
 
-if 'CI_PROJECT_PATH' in os.environ:
-    GGI_GITLAB_PROJECT = os.environ['CI_PROJECT_PATH']
-    print("- Use GitLab Project from environment variable")
-else:
-    print("- Use GitLab URL from configuration file")
-    GGI_GITLAB_PROJECT = conf['gitlab_project']
+    if 'CI_PAGES_URL' in os.environ:
+        print("- Using GGI_PAGES_URL from environment variable.")
+        params['GGI_PAGES_URL'] = os.environ['CI_PAGES_URL']
+    else:
+        print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
+        pieces = tldextract.extract(params['GGI_GITLAB_URL'])
+        params['GGI_PAGES_URL'] = 'https://' + params['GGI_GITLAB_PROJECT'].split('/')[0] + \
+            "." + pieces.domain + ".io/" + params['GGI_GITLAB_PROJECT'].split('/')[-1]
 
-if 'GGI_GITLAB_TOKEN' in os.environ:
-    print("- Using ggi_gitlab_token from env var.")
-else:
-    print("- Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
-    exit(1)
+    params['GGI_URL'] = urllib.parse.urljoin(params['GGI_GITLAB_URL'], params['GGI_GITLAB_PROJECT'])
+    params['GGI_ACTIVITIES_URL'] = os.path.join(params['GGI_URL'] + '/', '-/boards')
 
-if 'CI_PAGES_URL' in os.environ:
-    GGI_PAGES_URL = os.environ['CI_PAGES_URL']
-    print("- Using GGI_PAGES_URL from environment variable.")
-else:
-    print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
-    pieces = tldextract.extract(GGI_GITLAB_URL)
-    GGI_PAGES_URL = 'https://' + GGI_GITLAB_PROJECT.split('/')[0] + \
-        "." + pieces.domain + ".io/" + GGI_GITLAB_PROJECT.split('/')[-1]
+    return params
 
-GGI_URL = urllib.parse.urljoin(GGI_GITLAB_URL, GGI_GITLAB_PROJECT)
-GGI_ACTIVITIES_URL = os.path.join(GGI_URL+'/', '-/boards')
 
-print(f"\n# Connection to GitLab at {GGI_GITLAB_URL} - {GGI_GITLAB_PROJECT}.")
-gl = gitlab.Gitlab(url=GGI_GITLAB_URL, per_page=50, private_token=os.environ['GGI_GITLAB_TOKEN'])
-project = gl.projects.get(GGI_GITLAB_PROJECT)
+def retrieve_gitlab_issues(params: dict):
+    """
+    Retrieve issues from GitLab instance.
+    """
+    print(f"\n# Connection to GitLab at {params['GGI_GITLAB_URL']} - {params['GGI_GITLAB_PROJECT']}.")
+    gl = gitlab.Gitlab(url=params['GGI_GITLAB_URL'], per_page=50, private_token=params['GGI_GITLAB_TOKEN'])
+    project = gl.projects.get(params['GGI_GITLAB_PROJECT'])
 
-print("# Fetching issues..")
-gl_issues = project.issues.list(state='opened', all=True)
+    print("# Fetching issues..")
+    gl_issues = project.issues.list(state='opened', all=True)
+    print(f"  Found {len(gl_issues)} issues.")
 
-# Define columns for recorded dataframes.
-issues = []
-issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
-               'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
+    # Define columns for recorded dataframes.
+    issues = []
 
-tasks = []
-tasks_cols = ['issue_id', 'state', 'task']
+    tasks = []
 
-hist = []
-hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
+    hist = []
 
-count = 1
-workflow = {}
-tasks = []
-activities_dataset = []
+    count = 1
+    workflow = {}
+    tasks = []
 
-for i in gl_issues:
-    desc = i.description
-    paragraphs = desc.split('\n\n')
-    lines = desc.split('\n')
-    a_id, description, workflow, a_tasks = extract_workflow(desc)
-    for t in a_tasks:
-        tasks.append([a_id,
-                      'completed' if t['is_completed'] else 'open',
-                      t['task']])
-    short_desc = '\n'.join(description)
-    tasks_total = len(a_tasks)
-    tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
-    issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
-                   i.updated_at, i.web_url, short_desc, workflow, tasks_total, tasks_done])
+    for i in gl_issues:
+        desc = i.description
+        paragraphs = desc.split('\n\n')
+        lines = desc.split('\n')
+        a_id, description, workflow, a_tasks = extract_workflow(desc)
+        for t in a_tasks:
+            tasks.append([a_id,
+                          'completed' if t['is_completed'] else 'open',
+                          t['task']])
+        short_desc = '\n'.join(description)
+        tasks_total = len(a_tasks)
+        tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
+        issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
+                       i.updated_at, i.web_url, short_desc, workflow,
+                       tasks_total, tasks_done])
+
+        # Retrieve information about labels.
+        for n in i.resourcelabelevents.list():
+            event = i.resourcelabelevents.get(n.id)
+            n_type = 'label'
+            label = n.label['name'] if n.label else ''
+            n_action = f"{n.action} {label}"
+            user = n.user['username'] if n.user else 'unknown'
+            line = [n.created_at, i.iid,
+                    n.id, n_type, user, 
+                    n_action, i.web_url]
+            hist.append(line)
+            
+        print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
+        
+        # Remove these lines when dev/debug is over
+        if count == 10:
+            break
+        else:
+            count += 1
+
+    return issues, tasks, hist
+
+
+def write_to_csv(issues, tasks, events):
+    """
+    Print all issues, tasks and events to CSV files.
+
+    CSV files are written directly to the website directory structure,
+    and provided to the user as downloads for further analysis.
+    """
+    print("\n# Writing issues and history to files.")
+    issues.to_csv('web/content/includes/issues.csv',
+                  columns=['issue_id', 'activity_id', 'state', 'title', 'labels',
+                           'updated_at', 'url', 'tasks_total', 'tasks_done'], index=False)
+    events.to_csv('web/content/includes/labels_hist.csv', index=False)
+    tasks.to_csv('web/content/includes/tasks.csv', index=False)
+
+    
+def write_activities_to_md(issues: List):
+    # Generate list of current activities
+    print("\n# Writing issues.") 
+
+    for local_id, activity_id, activity_date, title, url, desc, workflow, tasks_done, tasks_total in zip(
+            issues['issue_id'],
+            issues['activity_id'],
+            issues['updated_at'],
+            issues['title'],
+            issues['url'],
+            issues['desc'],
+            issues['workflow'],
+            issues['tasks_done'],
+            issues['tasks_total']):
+        print(f" {local_id}, {activity_id}, {title}, {url}")
+        
+        my_issue = []
+        
+        my_issue.append('---')
+        my_issue.append(f'title: {title}')
+        my_issue.append(f'date: {activity_date}')
+        my_issue.append('layout: default')
+        my_issue.append('---')
+    
+        my_issue.append(f"Link to Issue: <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+        my_issue.append(f"Tasks: {tasks_done} done / {tasks_total} total.")
+        if tasks_total > 0:
+            p = int(tasks_done) * 100 // int(tasks_total)
+            my_issue.append(f'  <div class="w3-light-grey w3-round">')
+            my_issue.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
+            my_issue.append(f'  </div><br />')
+        else:
+            my_issue.append(f'  <br /><br />')
+        my_workflow = "\n"
+        for subsection in workflow:
+            my_workflow += f'**{subsection}**\n\n'
+            my_workflow += '\n'.join(workflow[subsection])
+            my_workflow += '\n\n'
+        my_issue.append(f"{my_workflow}")
+
+        filename = f'web/content/scorecards/activity_{activity_id}.md'
+        with open(filename, 'w') as f:
+            f.write('\n'.join(my_issue))
+    
+
+def write_data_points(issues, params):
+    """
+    Generates data points for the various dashboard plots.
+    """
+
+    # Identify activities depending on their progress
+    issues_not_started = issues.loc[issues['labels'].str.contains(params['progress_labels']['not_started']),]
+    issues_in_progress = issues.loc[issues['labels'].str.contains(params['progress_labels']['in_progress']),]
+    issues_done = issues.loc[issues['labels'].str.contains(params['progress_labels']['done']),]
+    
+    # Generate all activities stats.
+    ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
+    with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
+        f.write(ggi_data_all_activities)
+
+    # Generate data points for the dashboard - goals - done
+    done_stats = [
+        issues_done['labels'].str.contains('Usage').sum(),
+        issues_done['labels'].str.contains('Trust').sum(),
+        issues_done['labels'].str.contains('Culture').sum(),
+        issues_done['labels'].str.contains('Engagement').sum(),
+        issues_done['labels'].str.contains('Strategy').sum()
+    ]
+    with open('web/content/includes/ggi_data_goals_done.inc', 'w') as f:
+        f.write(str(done_stats))
+
+    # Generate data points for the dashboard - goals - in_progress
+    in_progress_stats = [
+        issues_in_progress['labels'].str.contains('Usage').sum(),
+        issues_in_progress['labels'].str.contains('Trust').sum(),
+        issues_in_progress['labels'].str.contains('Culture').sum(),
+        issues_in_progress['labels'].str.contains('Engagement').sum(),
+        issues_in_progress['labels'].str.contains('Strategy').sum()
+    ]
+    with open('web/content/includes/ggi_data_goals_in_progress.inc', 'w') as f:
+        f.write(str(in_progress_stats))
+
+    # Generate data points for the dashboard - goals - not_started
+    not_started_stats = [
+        issues_not_started['labels'].str.contains('Usage').sum(),
+        issues_not_started['labels'].str.contains('Trust').sum(),
+        issues_not_started['labels'].str.contains('Culture').sum(),
+        issues_not_started['labels'].str.contains('Engagement').sum(),
+        issues_not_started['labels'].str.contains('Strategy').sum()
+    ]
+    with open('web/content/includes/ggi_data_goals_not_started.inc', 'w') as f:
+        f.write(str(not_started_stats))
+
+    # Generate activities basic statistics, with links to be used from home page.
+    activities_stats = f'Identified {issues.shape[0]} activities overall.\n'
+    activities_stats += f'* {issues_not_started.shape[0]} are <span class="w3-tag w3-light-grey">not_started</span>\n'
+    activities_stats += f'* {issues_in_progress.shape[0]} are <span class="w3-tag w3-light-grey">in_progress</span>\n'
+    activities_stats += f'* {issues_done.shape[0]} are <span class="w3-tag w3-light-grey">done</span>\n'
+    with open('web/content/includes/activities_stats_dashboard.inc', 'w') as f:
+        f.write(activities_stats)
 
     # Used for the activities table dataset
-    status = "Not started"
-    if tasks_done > 0:
-        status = "In progress"
-        if tasks_done == tasks_total:
-            status = "Completed"
+    activities_dataset = []
+    print(issues)
+    for index, issue in issues.iterrows():
+        # XXX TODO
+        issue_id = issue['issue_id']
+        status = issue['state']
+        title = issue['title']
+        tasks_done = issue['tasks_done']
+        tasks_total = issue['tasks_total']
+        status = "Not started"
+        if tasks_done > 0:
+            status = "In progress"
+            if tasks_done == tasks_total:
+                status = "Completed"
 
-    activities_dataset.append([a_id, status, i.title, tasks_done, tasks_total])
+        activities_dataset.append([issue_id, status, title, tasks_done, tasks_total])
 
-    # Retrieve information about labels.
-    for n in i.resourcelabelevents.list():
-        event = i.resourcelabelevents.get(n.id)
-        n_type = 'label'
-        label = n.label['name'] if n.label else ''
-        n_action = f"{n.action} {label}"
-        line = [n.created_at, i.iid,
-                n.id, n_type, n.user['username'], 
-                n_action, i.web_url]
-        hist.append(line)
+    with open('web/content/includes/activities.js.inc', 'w') as f:
+        f.write(str(activities_dataset))
 
-    print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
-        
-    # Remove these lines when dev/debug is over
-    if count == 30:
-        break
-    else:
-        count += 1
+    # Empty (or not) the initialisation banner text in index
+    # if at least one activity is started.
+    if issues_not_started.shape[0] < 25:
+        with open('web/content/includes/initialisation.inc', 'w') as f:
+            f.write('')
 
-# Convert lists to dataframes
-issues = pd.DataFrame(issues, columns=issues_cols)
-tasks = pd.DataFrame(tasks, columns=tasks_cols)
-hist = pd.DataFrame(hist, columns=hist_cols)
 
-# Identify activities depending on their progress
-issues_not_started = issues.loc[issues['labels'].str.contains(conf['progress_labels']['not_started']),]
-issues_in_progress = issues.loc[issues['labels'].str.contains(conf['progress_labels']['in_progress']),]
-issues_done = issues.loc[issues['labels'].str.contains(conf['progress_labels']['done']),]
-
-# Print all issues, tasks and events to CSV file
-print("\n# Writing issues and history to files.")
-issues.to_csv('web/content/includes/issues.csv',
-              columns=['issue_id', 'activity_id', 'state', 'title', 'labels',
-               'updated_at', 'url', 'tasks_total', 'tasks_done'], index=False)
-hist.to_csv('web/content/includes/labels_hist.csv', index=False)
-tasks.to_csv('web/content/includes/tasks.csv', index=False)
-
-# Generate list of current activities
-print("\n# Writing issues.") 
-
-for local_id, activity_id, activity_date, title, url, desc, workflow, tasks_done, tasks_total in zip(
-        issues['issue_id'],
-        issues['activity_id'],
-        issues['updated_at'],
-        issues['title'],
-        issues['url'],
-        issues['desc'],
-        issues['workflow'],
-        issues['tasks_done'],
-        issues['tasks_total']):
-    print(f" {local_id}, {activity_id}, {title}, {url}")
-
-    my_issue = []
-
-    my_issue.append('---')
-    my_issue.append(f'title: {title}')
-    my_issue.append(f'date: {activity_date}')
-    my_issue.append('layout: default')
-    my_issue.append('---')
-    
-    my_issue.append(f"Link to Issue: <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
-    my_issue.append(f"Tasks: {tasks_done} done / {tasks_total} total.")
-    if tasks_total > 0:
-        p = int(tasks_done) * 100 // int(tasks_total)
-        my_issue.append(f'  <div class="w3-light-grey w3-round">')
-        my_issue.append(f'    <div class="w3-container w3-blue w3-round" style="width:{p}%">{p}%</div>')
-        my_issue.append(f'  </div><br />')
-    else:
-        my_issue.append(f'  <br /><br />')
-    my_workflow = "\n"
-    for subsection in workflow:
-        my_workflow += f'**{subsection}**\n\n'
-        my_workflow += '\n'.join(workflow[subsection])
-        my_workflow += '\n\n'
-    my_issue.append(f"{my_workflow}")
-
-    filename = f'web/content/scorecards/activity_{activity_id}.md'
-    with open(filename, 'w') as f:
-        f.write('\n'.join(my_issue))
-    
-# Generate data points for the dashboard
-ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
-with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
-    f.write(ggi_data_all_activities)
-
-# Generate data points for the dashboard - goals - done
-done_stats = [
-    issues_done['labels'].str.contains('Usage').sum(),
-    issues_done['labels'].str.contains('Trust').sum(),
-    issues_done['labels'].str.contains('Culture').sum(),
-    issues_done['labels'].str.contains('Engagement').sum(),
-    issues_done['labels'].str.contains('Strategy').sum()
-]
-with open('web/content/includes/ggi_data_goals_done.inc', 'w') as f:
-    f.write(str(done_stats))
-
-# Generate data points for the dashboard - goals - in_progress
-in_progress_stats = [
-    issues_in_progress['labels'].str.contains('Usage').sum(),
-    issues_in_progress['labels'].str.contains('Trust').sum(),
-    issues_in_progress['labels'].str.contains('Culture').sum(),
-    issues_in_progress['labels'].str.contains('Engagement').sum(),
-    issues_in_progress['labels'].str.contains('Strategy').sum()
-]
-with open('web/content/includes/ggi_data_goals_in_progress.inc', 'w') as f:
-    f.write(str(in_progress_stats))
-
-# Generate data points for the dashboard - goals - not_started
-not_started_stats = [
-    issues_not_started['labels'].str.contains('Usage').sum(),
-    issues_not_started['labels'].str.contains('Trust').sum(),
-    issues_not_started['labels'].str.contains('Culture').sum(),
-    issues_not_started['labels'].str.contains('Engagement').sum(),
-    issues_not_started['labels'].str.contains('Strategy').sum()
-]
-with open('web/content/includes/ggi_data_goals_not_started.inc', 'w') as f:
-    f.write(str(not_started_stats))
-
-# Generate activities basic statistics, with links to be used from home page.
-activities_stats = f'Identified {issues.shape[0]} activities overall.\n'
-activities_stats += f'* {issues_not_started.shape[0]} are <span class="w3-tag w3-light-grey">not_started</span>\n'
-activities_stats += f'* {issues_in_progress.shape[0]} are <span class="w3-tag w3-light-grey">in_progress</span>\n'
-activities_stats += f'* {issues_done.shape[0]} are <span class="w3-tag w3-light-grey">done</span>\n'
-
-with open('web/content/includes/activities_stats_dashboard.inc', 'w') as f:
-    f.write(activities_stats)
-
-with open('web/content/includes/activities.js.inc', 'w') as f:
-    f.write(str(activities_dataset))
-
-# Empty (or not) the initialisation banner text in index.
-if issues_not_started.shape[0] < 25:
-    with open('web/content/includes/initialisation.inc', 'w') as f:
-        f.write('')
-
-#
-# Setup website
-#
-
-#
-# Replace 
-#
-print("\n# Replacing keywords in static website.")
-
-# List of strings to be replaced.
-print("\n# List of keywords and values:")
-keywords = {
-    '[GGI_URL]': GGI_URL,
-    '[GGI_PAGES_URL]': GGI_PAGES_URL,
-    '[GGI_ACTIVITIES_URL]': GGI_ACTIVITIES_URL,
-    '[GGI_CURRENT_DATE]': str(date.today())
-}
-[ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
-
-# Replace keywords in md files.
 def update_keywords(file_in, keywords):
+    """
+    Reads a file, and replace every occurrence of one keyword with
+    its replacement string.
+    """
     occurrences = []
     for keyword in keywords:
         for line in FileInput(file_in, inplace=1, backup='.bak'):
@@ -340,14 +376,63 @@ def update_keywords(file_in, keywords):
             print(line, end='')
     [ print(o) for o in occurrences ]
             
-print("\n# Replacing keywords in files.")
-update_keywords('web/config.toml', keywords)
-update_keywords('web/content/includes/initialisation.inc', keywords)
-update_keywords('web/content/scorecards/_index.md', keywords)
-#update_keywords('README.md', keywords)
-files = glob.glob("web/content/*.md")
-files_ = [ f for f in files if os.path.isfile(f) ]
-for file in files_:
-    update_keywords(file, keywords)
 
-print("Done.")
+def main():
+    """
+    Main sequence.
+    """
+
+    args = _parse_args()
+    
+    params = retrieve_env()
+    print(params)
+    
+    issues, tasks, hist = retrieve_gitlab_issues(params)
+
+    # Convert lists to dataframes
+    issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
+                   'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
+    issues = pd.DataFrame(issues, columns=issues_cols)
+    tasks_cols = ['issue_id', 'state', 'task']
+    tasks = pd.DataFrame(tasks, columns=tasks_cols)
+    hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
+    hist = pd.DataFrame(hist, columns=hist_cols)
+    
+    write_to_csv(issues, tasks, hist)
+    
+    write_activities_to_md(issues)
+
+    write_data_points(issues, params)
+    
+    #
+    # Replace URLs, date
+    #
+
+    print("\n# Replacing keywords in static website.")
+    
+    # List of strings to be replaced.
+    print("\n# List of keywords and values:")
+    keywords = {
+        '[GGI_URL]': params['GGI_URL'],
+        '[GGI_PAGES_URL]': params['GGI_PAGES_URL'],
+        '[GGI_ACTIVITIES_URL]': params['GGI_ACTIVITIES_URL'],
+        '[GGI_CURRENT_DATE]': str(date.today())
+    }
+    [ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
+
+    print("\n# Replacing keywords in files.")
+    update_keywords('web/config.toml', keywords)
+    update_keywords('web/content/includes/initialisation.inc', keywords)
+    update_keywords('web/content/scorecards/_index.md', keywords)
+    #update_keywords('README.md', keywords)
+    files = glob.glob("web/content/*.md")
+    files_ = [ f for f in files if os.path.isfile(f) ]
+    for file in files_:
+        update_keywords(file, keywords)
+
+    print("Done.")
+
+    
+if __name__ == '__main__':    
+
+    main()
