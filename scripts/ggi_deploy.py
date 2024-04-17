@@ -29,13 +29,17 @@ optional arguments:
 """
 
 import argparse
-import gitlab
 import json
 import urllib.parse
 import os
 import random
 import re
 import tldextract
+
+import gitlab
+from github import Github
+# Authentication is defined via github.Auth
+from github import Auth
 
 from collections import OrderedDict
 
@@ -110,8 +114,160 @@ def retrieve_env():
 
     print(f"# Reading deployment options from {conf_file}")
     with open(conf_file, 'r', encoding='utf-8') as f:
-        params = json.load(f)
+        params = json.load(f)        
+
+    return metadata, params
+
+
+def create_gitlab_label(existing_labels, new_label, label_args):
+    """
+    Creates a set of labels in the GitLab project.
+    """
+    if new_label in existing_labels:
+        print(f" Ignore label: {new_label}")
+    else:
+        print(f" Create label: {new_label}")
+        project.labels.create(label_args)
+
+def get_scorecard():
+    """
+    Build a scorecard with a random number of objectives,
+    randomly checked, if required by user.
+    Otherwise, simply return the untouched scorecard text
+    """
+
+    if (args.opt_random):
+        # Create between 4 and 10 objectives per Scorecard
+        num_lines = random.randint(4, 10)
+        objectives_list = []
+        for idx in range(num_lines):
+            objectives = "- [ ] objective " + str(idx) + " \n"
+            # aim at 25% of objectives done
+            if random.randint(1, 4) == 1:
+                objectives = objectives.replace("[ ]", "[x]")
+            objectives_list.append(objectives)
+        return ''.join(init_scorecard).replace("What we aim to achieve in this iteration.", ''.join(objectives_list))
+    else:
+        return init_scorecard
+
+
+def extract_sections(activity):
+    """
+    Extracts the scorecard from the "Introduction" section in the
+    description field of an issue.
+    """
+    paragraphs = activity['content'].split('\n\n')
+    content_t = 'Introduction'
+    content = OrderedDict()
+    content = {content_t: []}
+    for p in paragraphs:
+        match_section = re.search(re_section, p)
+        if (match_section):
+            content_t = match_section.group('section')
+            content[content_t] = []
+        else:
+            content[content_t].append(p)
+    # Add Activity ID
+    content_text = content['Introduction'][1] + '\n\n'
+    # Add Scorecard
+    content_text += ''.join(get_scorecard())
+    del content['Introduction']
+    # Add description content.
+    for key in content.keys():
+        content_text += f"\n\n### {key}\n\n"
+        content_text += '\n\n'.join(content[key])
+    return content_text
+
+
+def setup_github(metadata, params: dict, args: dict):
+    """
+    Executes the following deployment sequence on a GitHub instance:
+    * Reads gitlab-specific variables.
+    * Connect to GitHub
+    * Create labels & activities
+    * Create Goals board
+    * Create schedule for pipeline
+    """
+
+    # Get environment / vars.
+    
+    if 'github_project' in params:
+        print(f"- Using GitHub project {params['github_project']} " +
+              "from configuration file.")
+    else:
+        print("I need a project (org + repo), e.g. ospo-alliance/" +
+              "my-ggi-board. Exiting.")
+        exit(1)
+
+    if 'GGI_GITHUB_TOKEN' in os.environ:
+        print("- Using ggi_github_token from env var.")
+        params['GGI_GITHUB_TOKEN'] = os.environ['GGI_GITHUB_TOKEN']
+    else:
+        print("- Cannot find env var GGI_GITHUB_TOKEN. Please set it and re-run me.")
+        exit(1)
+    
+    # Using an access token
+    auth = Auth.Token(params['GGI_GITHUB_TOKEN'])
+
+    # Connecting to the GitHub instance.
+    if 'github_host' in params and params['github_host'] != 'null':
+        print(f"- Using GitHub on-premise host {params['github_host']} " +
+              "from configuration file.")
+        # Github Enterprise with custom hostname
+        github_url = f"{params['github_host']}/api/v3"
+        g = Github(auth=auth,
+                   base_url=github_url)
+        params['GGI_GITHUB_URL'] = params['github_host']
+    else:
+        # Public Web Github
+        print("- Using public GitHub instance.")
+        g = Github(auth=auth)
+        params['GGI_GITHUB_URL'] = "https://github.com/" 
         
+    params['GGI_GITHUB_URL'] = params['GGI_GITHUB_URL'] + "/" + params["github_project"]
+
+    print(f"\n# Retrieving project from GitHub at {params['GGI_GITHUB_URL']}.")
+    repo = g.get_repo(params["github_project"])
+
+    if (args.opt_activities):
+
+        # Create labels.
+        existing_labels = repo.get_labels()
+        #existing_labels = [i.name for i in project.labels.list()]
+        print('DBG', existing_labels)
+        # Create role labels if needed
+        print("\n Roles labels")
+        for label, colour in metadata['roles'].items():
+            create_github_label(existing_labels, label, {'name': label, 'color': colour})
+
+        # Create labels for activity tracking
+        print("\n Progress labels")
+        for name, label in conf['progress_labels'].items():
+            create_github_label(existing_labels, label, {'name': label, 'color': '#ed9121'})
+
+        # Create goal labels if needed
+        print("\n Goal labels")
+        for goal in metadata['goals']:
+            create_github_label(existing_labels, goal['name'],
+                         {'name': goal['name'], 'color': goal['colour']})
+
+    
+    # Create issue with labels.
+    label = repo.get_label("My Label")
+
+    # Close the connection.
+    g.close()
+
+def setup_gitlab(metadata, params: dict, args: dict):
+    """
+    Executes the following deployment sequence on a GitLab instance:
+    * Reads gitlab-specific variables.
+    * Connect to GitLab
+    * Create labels & activities
+    * Create Goals board
+    * Create schedule for pipeline
+    """
+
     if 'CI_SERVER_URL' in os.environ:
         print("- Use GitLab URL from environment variable")
         params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
@@ -145,89 +301,6 @@ def retrieve_env():
     params['GGI_URL'] = urllib.parse.urljoin(params['GGI_GITLAB_URL'], params['GGI_GITLAB_PROJECT'])
     params['GGI_ACTIVITIES_URL'] = os.path.join(params['GGI_URL'] + '/', '-/boards')
 
-    return metadata, params
-
-
-def create_label(existing_labels, new_label, label_args):
-    if new_label in existing_labels:
-        print(f" Ignore label: {new_label}")
-    else:
-        print(f" Create label: {new_label}")
-        project.labels.create(label_args)
-
-def get_scorecard():
-    """
-    Build a scorecard with a random number of objectives,
-    randomly checked, if required by user.
-    Otherwise, simply return the untouched scorecard text
-    """
-
-    if (args.opt_random):
-        # Create between 4 and 10 objectives per Scorecard
-        num_lines = random.randint(4, 10)
-        objectives_list = []
-        for idx in range(num_lines):
-            objectives = "- [ ] objective " + str(idx) + " \n"
-            # aim at 25% of objectives done
-            if random.randint(1, 4) == 1:
-                objectives = objectives.replace("[ ]", "[x]")
-            objectives_list.append(objectives)
-        return ''.join(init_scorecard).replace("What we aim to achieve in this iteration.", ''.join(objectives_list))
-    else:
-        return init_scorecard
-
-
-def extract_sections(activity):
-    paragraphs = activity['content'].split('\n\n')
-    content_t = 'Introduction'
-    content = OrderedDict()
-    content = {content_t: []}
-    for p in paragraphs:
-        match_section = re.search(re_section, p)
-        if (match_section):
-            content_t = match_section.group('section')
-            content[content_t] = []
-        else:
-            content[content_t].append(p)
-    # Add Activity ID
-    content_text = content['Introduction'][1] + '\n\n'
-    # Add Scorecard
-    content_text += ''.join(get_scorecard())
-    del content['Introduction']
-    # Add description content.
-    for key in content.keys():
-        content_text += f"\n\n### {key}\n\n"
-        content_text += '\n\n'.join(content[key])
-    return content_text
-
-
-def setup_github(metadata, params: dict, args: dict):
-    """
-    Executes the following deployment sequence on a GitHub instance:
-    * Connect to GitHub
-    * Create labels & activities
-    * Create Goals board
-    * Create schedule for pipeline
-    """
-
-    print(f"\n# Connection to GitHub at {params['GGI_GITHUB_URL']} " +
-          f"- {params['GGI_GITHUB_PROJECT']}.")
-    gh = gitlab.Gitlab(url=params['GGI_GITHUB_URL'],
-                       per_page=50,
-                       private_token=params['GGI_GITHUB_TOKEN'])
-    project = gl.projects.get(params['GGI_GITHUB_PROJECT'])
-
-    
-
-
-def setup_gitlab(metadata, params: dict, args: dict):
-    """
-    Executes the following deployment sequence on a GitLab instance:
-    * Connect to GitLab
-    * Create labels & activities
-    * Create Goals board
-    * Create schedule for pipeline
-    """
     
     print(f"\n# Connection to GitLab at {params['GGI_GITLAB_URL']} " +
           f"- {params['GGI_GITLAB_PROJECT']}.")
@@ -268,17 +341,17 @@ def setup_gitlab(metadata, params: dict, args: dict):
         # Create role labels if needed
         print("\n Roles labels")
         for label, colour in metadata['roles'].items():
-            create_label(existing_labels, label, {'name': label, 'color': colour})
+            create_gitlab_label(existing_labels, label, {'name': label, 'color': colour})
 
         # Create labels for activity tracking
         print("\n Progress labels")
         for name, label in conf['progress_labels'].items():
-            create_label(existing_labels, label, {'name': label, 'color': '#ed9121'})
+            create_gitlab_label(existing_labels, label, {'name': label, 'color': '#ed9121'})
 
         # Create goal labels if needed
         print("\n Goal labels")
         for goal in metadata['goals']:
-            create_label(existing_labels, goal['name'],
+            create_gitlab_label(existing_labels, goal['name'],
                          {'name': goal['name'], 'color': goal['colour']})
 
         # Read the custom scorecard init file.
