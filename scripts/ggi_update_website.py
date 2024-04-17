@@ -210,7 +210,7 @@ def retrieve_gitlab_issues(params: dict):
         print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
         
         # Remove these lines when dev/debug is over
-        if count == 10:
+        if count == 30:
             break
         else:
             count += 1
@@ -418,6 +418,7 @@ def main():
         '[GGI_ACTIVITIES_URL]': params['GGI_ACTIVITIES_URL'],
         '[GGI_CURRENT_DATE]': str(date.today())
     }
+    # Print the list of keywords to be replaced in files.
     [ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
 
     print("\n# Replacing keywords in files.")
@@ -426,9 +427,9 @@ def main():
     update_keywords('web/content/scorecards/_index.md', keywords)
     #update_keywords('README.md', keywords)
     files = glob.glob("web/content/*.md")
-    files_ = [ f for f in files if os.path.isfile(f) ]
-    for file in files_:
-        update_keywords(file, keywords)
+    for file in files:
+        if os.path.isfile(file):
+            update_keywords(file, keywords)
 
     print("Done.")
 
