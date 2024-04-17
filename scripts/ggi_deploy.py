@@ -54,7 +54,16 @@ def _parse_args():
     """
     Parse arguments from command line.
     """
-    parser = argparse.ArgumentParser()
+    desc = "Deploys an instance of the GGI Board on a GitLab or GitHub instance."
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument('-gl', '--gitlab',
+                        dest='opt_gitlab',
+                        action='store_true',
+                        help='Use GitLab backend.')
+    parser.add_argument('-gh', '--github',
+                        dest='opt_github',
+                        action='store_true',
+                        help='Use GitHub backend.')
     parser.add_argument('-a', '--activities', 
                         dest='opt_activities', 
                         action='store_true', 
@@ -190,6 +199,25 @@ def extract_sections(activity):
         content_text += f"\n\n### {key}\n\n"
         content_text += '\n\n'.join(content[key])
     return content_text
+
+
+def setup_github(metadata, params: dict, args: dict):
+    """
+    Executes the following deployment sequence on a GitHub instance:
+    * Connect to GitHub
+    * Create labels & activities
+    * Create Goals board
+    * Create schedule for pipeline
+    """
+
+    print(f"\n# Connection to GitHub at {params['GGI_GITHUB_URL']} " +
+          f"- {params['GGI_GITHUB_PROJECT']}.")
+    gh = gitlab.Gitlab(url=params['GGI_GITHUB_URL'],
+                       per_page=50,
+                       private_token=params['GGI_GITHUB_TOKEN'])
+    project = gl.projects.get(params['GGI_GITHUB_PROJECT'])
+
+    
 
 
 def setup_gitlab(metadata, params: dict, args: dict):
@@ -334,9 +362,22 @@ def main():
     """
     args = _parse_args()
 
-    metadata, params = retrieve_env()
-    setup_gitlab(metadata, params, args)
-    
+    if args.opt_gitlab:
+        print("* Using GitLab backend.")
+        metadata, params = retrieve_env()
+        setup_gitlab(metadata, params, args)
+    elif args.opt_github:
+        print("* Using GitHub backend.")
+        metadata, params = retrieve_env()
+        setup_github(metadata, params, args)
+    elif args.opt_github and args.opt_gitlab:
+        print("Cannot use both GitHub and GitLab backends.")
+        print("Please select only one. Exiting.")
+        exit(2)
+    else:
+        print("Please select one backend (--gitlab or --github). Exiting.")
+        exit(3)
+        
     print("\nDone.")
 
 
