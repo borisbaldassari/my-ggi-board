@@ -37,6 +37,7 @@ file_meta = 'conf/ggi_activities_metadata.json'
 file_json_out = 'ggi_activities_full.json'
 
 # Define regexps
+
 # Identify tasks in description:
 re_tasks = re.compile(r"^\s*- \[(?P<is_completed>.)\] (?P<task>.+)$")
 # Identify tasks in description:
@@ -160,8 +161,11 @@ def retrieve_gitlab_issues(params: dict):
     """
     Retrieve issues from GitLab instance.
     """
-    print(f"\n# Connection to GitLab at {params['GGI_GITLAB_URL']} - {params['GGI_GITLAB_PROJECT']}.")
-    gl = gitlab.Gitlab(url=params['GGI_GITLAB_URL'], per_page=50, private_token=params['GGI_GITLAB_TOKEN'])
+    print(f"\n# Connection to GitLab at {params['GGI_GITLAB_URL']} " +
+          f"- {params['GGI_GITLAB_PROJECT']}.")
+    gl = gitlab.Gitlab(url=params['GGI_GITLAB_URL'],
+                       per_page=50,
+                       private_token=params['GGI_GITLAB_TOKEN'])
     project = gl.projects.get(params['GGI_GITLAB_PROJECT'])
 
     print("# Fetching issues..")
