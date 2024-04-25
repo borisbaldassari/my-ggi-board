@@ -15,7 +15,7 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - name: Install depencies
+      - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt
       - name: GGI Deploy
@@ -31,7 +31,7 @@ jobs:
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - name: Install depencies
+      - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt
       - name: GGI Update website
