@@ -30,21 +30,16 @@ optional arguments:
 
 import argparse
 import json
-import urllib.parse
 import os
 import random
 import re
-import tldextract
 
-import gitlab
-from github import Github
+from ggi_deploy_github import *
+from ggi_deploy_gitlab import *
+
 # Authentication is defined via github.Auth
-from github import Auth
 
 from collections import OrderedDict
-
-import ggi_deploy_github
-import ggi_deploy_gitlab
 
 # Define some variables.
 conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
