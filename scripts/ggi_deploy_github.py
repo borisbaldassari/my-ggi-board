@@ -117,7 +117,7 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
             create_github_label(repo, existing_labels, goal['name'],
                                 {'name': goal['name'], 'color': goal['colour']})
 
-    # Create issue with labels.
+    #TODO Create issues with labels.
     # label = repo.get_label("My Label")
 
     # Close the connection.

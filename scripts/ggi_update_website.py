@@ -18,16 +18,10 @@ This script:
 """
 
 import argparse
-import json
-import pandas as pd
 import re
-import glob, os
-from typing import List
-from fileinput import FileInput
-from datetime import date
 from collections import OrderedDict
-import tldextract
-import urllib.parse
+from fileinput import FileInput
+from typing import List
 
 # Define some variables.
 
@@ -108,55 +102,6 @@ def extract_workflow(activity_desc: str):
         del workflow[list(workflow)[-1]][-1]
         del workflow[list(workflow)[-1]][-1]
     return a_id, content['Description'], workflow, tasks
-
-
-def retrieve_env():
-    """
-    Read metadata for activities and deployment options.
-    
-    Determine GitLab server URL and Project name
-    * From Environment variable if available, or
-    * From configuration file otherwise
-    """
-
-    print(f"# Reading deployment options from {file_conf}.")
-    with open(file_conf, 'r', encoding='utf-8') as f:
-        params = json.load(f)
-
-    if 'CI_SERVER_URL' in os.environ:
-        print("- Use GitLab URL from environment variable")
-        params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
-    else:
-        print("- Use GitLab URL from configuration file")
-        params['GGI_GITLAB_URL'] = params['gitlab_url']
-
-    if 'CI_PROJECT_PATH' in os.environ:
-        print("- Use GitLab Project from environment variable")
-        params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
-    else:
-        print("- Use GitLab URL from configuration file")
-        params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
-
-    if 'GGI_GITLAB_TOKEN' in os.environ:
-        print("- Using ggi_gitlab_token from env var.")
-        params['GGI_GITLAB_TOKEN'] = os.environ['GGI_GITLAB_TOKEN']
-    else:
-        print("- Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
-        exit(1)
-
-    if 'CI_PAGES_URL' in os.environ:
-        print("- Using GGI_PAGES_URL from environment variable.")
-        params['GGI_PAGES_URL'] = os.environ['CI_PAGES_URL']
-    else:
-        print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
-        pieces = tldextract.extract(params['GGI_GITLAB_URL'])
-        params['GGI_PAGES_URL'] = 'https://' + params['GGI_GITLAB_PROJECT'].split('/')[0] + \
-                                  "." + pieces.domain + ".io/" + params['GGI_GITLAB_PROJECT'].split('/')[-1]
-
-    params['GGI_URL'] = urllib.parse.urljoin(params['GGI_GITLAB_URL'], params['GGI_GITLAB_PROJECT'])
-    params['GGI_ACTIVITIES_URL'] = os.path.join(params['GGI_URL'] + '/', '-/boards')
-
-    return params
 
 
 def write_to_csv(issues, tasks, events):
