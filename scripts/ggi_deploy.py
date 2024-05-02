@@ -12,7 +12,7 @@
 """
 This script:
 - reads the metadata defined in the `conf` directory,
-- connects to the GitLab uinstance as configured in the ggi_deployment.json file
+- connects to the GitLab instance as configured in the ggi_deployment.json file
 - optionally creates the activities on a new (empty) gitlab project,
 - optionally creates a board and its lists to display activities.
 
@@ -33,14 +33,13 @@ import json
 import os
 import random
 import re
-import urllib.parse
 
 # Authentication is defined via github.Auth
 
 from collections import OrderedDict
 
 # Define some variables.
-conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/conf'
+conf_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/conf'
 activities_file = conf_dir + '/ggi_activities_full.json'
 conf_file = conf_dir + '/ggi_deployment.json'
 init_scorecard_file = conf_dir + '/workflow_init.inc'
@@ -48,33 +47,34 @@ init_scorecard_file = conf_dir + '/workflow_init.inc'
 # Define some regexps
 re_section = re.compile(r"^### (?P<section>.*?)\s*$")
 
-ggi_board_name='GGI Activities/Goals'
+ggi_board_name = 'GGI Activities/Goals'
+
 
 def parse_args():
     """
     Parse arguments from command line.
     """
-    desc = "Deploys an instance of the GGI Board on a GitLab or GitHub instance."
+    desc = "Deploys an instance of the GGI Board on a GitLab/GitHub instance."
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('-a', '--activities', 
-                        dest='opt_activities', 
-                        action='store_true', 
+    parser.add_argument('-a', '--activities',
+                        dest='opt_activities',
+                        action='store_true',
                         help='Create activities')
-    parser.add_argument('-b', '--board', 
-                        dest='opt_board', 
-                        action='store_true', 
+    parser.add_argument('-b', '--board',
+                        dest='opt_board',
+                        action='store_true',
                         help='Create board')
-    parser.add_argument('-d', '--project-description', 
-                        dest='opt_projdesc', 
-                        action='store_true', 
+    parser.add_argument('-d', '--project-description',
+                        dest='opt_projdesc',
+                        action='store_true',
                         help='Update Project description')
-    parser.add_argument('-p', '--schedule-pipeline', 
-                        dest='opt_schedulepipeline', 
-                        action='store_true', 
+    parser.add_argument('-p', '--schedule-pipeline',
+                        dest='opt_schedulepipeline',
+                        action='store_true',
                         help='Schedule nightly pipeline to update dashboard')
-    parser.add_argument('-r', '--random-demo', 
-                        dest='opt_random', 
-                        action='store_true', 
+    parser.add_argument('-r', '--random-demo',
+                        dest='opt_random',
+                        action='store_true',
                         help='Random Scorecard objectives and Activities status, for demo purposes')
     args = parser.parse_args()
 
@@ -96,25 +96,24 @@ def retrieve_env():
 
     # Read the custom scorecard init file.
     print(f"# Reading scorecard init file from {init_scorecard_file}.")
-    init_scorecard = []
     with open(init_scorecard_file, 'r', encoding='utf-8') as f:
         init_scorecard = f.readlines()
 
     print(f"# Reading deployment options from {conf_file}")
     with open(conf_file, 'r', encoding='utf-8') as f:
-        params = json.load(f)        
+        params = json.load(f)
 
-    return metadata, params
+    return metadata, params, init_scorecard
 
 
-def get_scorecard():
+def get_scorecard(opt_random, init_scorecard):
     """
     Build a scorecard with a random number of objectives,
     randomly checked, if required by user.
     Otherwise, simply return the untouched scorecard text
     """
 
-    if (args.opt_random):
+    if opt_random:
         # Create between 4 and 10 objectives per Scorecard
         num_lines = random.randint(4, 10)
         objectives_list = []
@@ -129,7 +128,7 @@ def get_scorecard():
         return init_scorecard
 
 
-def extract_sections(activity):
+def extract_sections(args, init_scorecard, activity):
     """
     Extracts the scorecard from the "Introduction" section in the
     description field of an issue.
@@ -140,7 +139,7 @@ def extract_sections(activity):
     content = {content_t: []}
     for p in paragraphs:
         match_section = re.search(re_section, p)
-        if (match_section):
+        if match_section:
             content_t = match_section.group('section')
             content[content_t] = []
         else:
@@ -148,41 +147,10 @@ def extract_sections(activity):
     # Add Activity ID
     content_text = content['Introduction'][1] + '\n\n'
     # Add Scorecard
-    content_text += ''.join(get_scorecard())
+    content_text += ''.join(get_scorecard(args.opt_random, init_scorecard))
     del content['Introduction']
     # Add description content.
     for key in content.keys():
         content_text += f"\n\n### {key}\n\n"
         content_text += '\n\n'.join(content[key])
     return content_text
-
-
-def main():
-    """
-    Main program. Executes GitLab or GitHub setup functions.
-    """
-    args = _parse_args()
-
-    if args.opt_gitlab:
-        print("* Using GitLab backend.")
-        metadata, params = retrieve_env()
-        setup_gitlab(metadata, params, args)
-    elif args.opt_github:
-        print("* Using GitHub backend.")
-        metadata, params = retrieve_env()
-        setup_github(metadata, params, args)
-    elif args.opt_github and args.opt_gitlab:
-        print("Cannot use both GitHub and GitLab backends.")
-        print("Please select only one. Exiting.")
-        exit(2)
-    else:
-        print("Please select one backend (--gitlab or --github). Exiting.")
-        exit(3)
-        
-    print("\nDone.")
-
-
-    
-if __name__ == '__main__':    
-
-    main()

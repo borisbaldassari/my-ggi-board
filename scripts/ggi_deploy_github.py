@@ -12,14 +12,40 @@
 """
 
 """
+import urllib.parse
+
+from ggi_deploy import *
 
 from github import Github
+from github import Auth
 
-def create_github_label(existing_labels, new_label, label_args):
-    pass
-    #TODO to be implemented
 
-def setup_github(metadata, params: dict, args: dict):
+def main():
+    """
+    Main GITHUB.
+    """
+    args = parse_args()
+
+    print("* Using GitHub backend.")
+    metadata, params, init_scorecard = retrieve_env()
+    setup_github(metadata, params, init_scorecard, args)
+
+    print("\nDone.")
+
+def create_github_label(repo, existing_labels, new_label, label_args):
+    """
+    Creates a set of labels in the GitHub project.
+    """
+    if new_label in existing_labels:
+        print(f" Ignore label: {new_label}")
+    else:
+        print(f" Create label: {new_label}")
+        name = label_args['name']
+        color = label_args['color'].replace("#","")
+        repo.create_label(name, color)
+
+
+def setup_github(metadata, params: dict, init_scorecard, args: dict):
     """
     Executes the following deployment sequence on a GitHub instance:
     * Reads gitlab-specific variables.
@@ -30,7 +56,7 @@ def setup_github(metadata, params: dict, args: dict):
     """
 
     # Get environment / vars.
-    
+
     if 'github_project' in params:
         print(f"- Using GitHub project {params['github_project']} " +
               "from configuration file.")
@@ -45,7 +71,7 @@ def setup_github(metadata, params: dict, args: dict):
     else:
         print("- Cannot find env var GGI_GITHUB_TOKEN. Please set it and re-run me.")
         exit(1)
-    
+
     # Using an access token
     auth = Auth.Token(params['GGI_GITHUB_TOKEN'])
 
@@ -62,39 +88,40 @@ def setup_github(metadata, params: dict, args: dict):
         # Public Web Github
         print("- Using public GitHub instance.")
         g = Github(auth=auth)
-        params['GGI_GITHUB_URL'] = "https://github.com/" 
-        
+        params['GGI_GITHUB_URL'] = "https://github.com/"
+
     params['GGI_GITHUB_URL'] = params['GGI_GITHUB_URL'] + "/" + params["github_project"]
 
     print(f"\n# Retrieving project from GitHub at {params['GGI_GITHUB_URL']}.")
     repo = g.get_repo(params["github_project"])
 
-    if (args.opt_activities):
+    if args.opt_activities:
 
         # Create labels.
         existing_labels = repo.get_labels()
-        #existing_labels = [i.name for i in project.labels.list()]
+        # existing_labels = [i.name for i in project.labels.list()]
         print('DBG', existing_labels)
         # Create role labels if needed
         print("\n Roles labels")
         for label, colour in metadata['roles'].items():
-            create_github_label(existing_labels, label, {'name': label, 'color': colour})
+            create_github_label(repo, existing_labels, label, {'name': label, 'color': colour})
 
         # Create labels for activity tracking
         print("\n Progress labels")
-        for name, label in conf['progress_labels'].items():
-            create_github_label(existing_labels, label, {'name': label, 'color': '#ed9121'})
+        for name, label in params['progress_labels'].items():
+            create_github_label(repo, existing_labels, label, {'name': label, 'color': 'ed9121'})
 
         # Create goal labels if needed
         print("\n Goal labels")
         for goal in metadata['goals']:
-            create_github_label(existing_labels, goal['name'],
-                         {'name': goal['name'], 'color': goal['colour']})
+            create_github_label(repo, existing_labels, goal['name'],
+                                {'name': goal['name'], 'color': goal['colour']})
 
-    
     # Create issue with labels.
-    label = repo.get_label("My Label")
+    # label = repo.get_label("My Label")
 
     # Close the connection.
     g.close()
 
+if __name__ == '__main__':
+    main()

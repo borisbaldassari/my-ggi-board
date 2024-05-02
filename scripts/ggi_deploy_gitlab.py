@@ -12,13 +12,9 @@
 """
 
 """
-import argparse
-import gitlab
-import json
-import os
-import random
-import re
 import urllib.parse
+
+import gitlab
 
 from ggi_deploy import *
 
@@ -30,13 +26,13 @@ def main():
     args = parse_args()
 
     print("* Using GitLab backend.")
-    metadata, params = retrieve_env()
-    setup_gitlab(metadata, params, args)
+    metadata, params, init_scorecard = retrieve_env()
+    setup_gitlab(metadata, params, init_scorecard, args)
     
     print("\nDone.")
 
 
-def create_gitlab_label(existing_labels, new_label, label_args):
+def create_gitlab_label(project, existing_labels, new_label, label_args):
     """
     Creates a set of labels in the GitLab project.
     """
@@ -47,7 +43,7 @@ def create_gitlab_label(existing_labels, new_label, label_args):
         project.labels.create(label_args)
 
 
-def setup_gitlab(metadata, params: dict, args: dict):
+def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
     """
     Executes the following deployment sequence on a GitLab instance:
     * Reads gitlab-specific variables.
@@ -56,7 +52,6 @@ def setup_gitlab(metadata, params: dict, args: dict):
     * Create Goals board
     * Create schedule for pipeline
     """
-    print("setup_gitlab")
     if 'CI_SERVER_URL' in os.environ:
         print("- Use GitLab URL from environment variable")
         params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
@@ -98,7 +93,7 @@ def setup_gitlab(metadata, params: dict, args: dict):
     project = gl.projects.get(params['GGI_GITLAB_PROJECT'])
 
     # Update current project description with Website URL
-    if (args.opt_projdesc):
+    if args.opt_projdesc:
         print("\n# Update Project description")
         if 'CI_PAGES_URL' in params:
             ggi_activities_url = params['GGI_ACTIVITIES_URL']
@@ -108,7 +103,9 @@ def setup_gitlab(metadata, params: dict, args: dict):
                 'Your own Good Governance Initiative project.\n\n'
                 'Here you will find '
                 f'[**your dashboard**]({ggi_pages_url})\n'
-                f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI deployment, based on the version {ggi_handbook_version} of the [GGI handbook](https://ospo-alliance.org/ggi/)\n\n'
+                f'and the [**GitLab Board**]({ggi_activities_url}) with all activities describing the local GGI '
+                f'deployment, based on the version {ggi_handbook_version} of the [GGI handbook]('
+                f'https://ospo-alliance.org/ggi/)\n\n'
                 'For more information please see the official project home page at https://ospo-alliance.org/'
             )
             print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
@@ -121,7 +118,7 @@ def setup_gitlab(metadata, params: dict, args: dict):
     #
     # Create labels & activities
     #
-    if (args.opt_activities):
+    if args.opt_activities:
 
         print("\n# Manage labels")
         existing_labels = [i.name for i in project.labels.list()]
@@ -129,24 +126,23 @@ def setup_gitlab(metadata, params: dict, args: dict):
         # Create role labels if needed
         print("\n Roles labels")
         for label, colour in metadata['roles'].items():
-            create_gitlab_label(existing_labels, label, {'name': label, 'color': colour})
+            create_gitlab_label(project, existing_labels, label, {'name': label, 'color': colour})
 
         # Create labels for activity tracking
         print("\n Progress labels")
         for name, label in params['progress_labels'].items():
-            create_gitlab_label(existing_labels, label, {'name': label, 'color': '#ed9121'})
+            create_gitlab_label(project, existing_labels, label, {'name': label, 'color': '#ed9121'})
 
         # Create goal labels if needed
         print("\n Goal labels")
         for goal in metadata['goals']:
-            create_gitlab_label(existing_labels, goal['name'],
+            create_gitlab_label(project, existing_labels, goal['name'],
                          {'name': goal['name'], 'color': goal['colour']})
 
-        # Read the custom scorecard init file.
-        print(f"\n# Reading scorecard init file from {init_scorecard_file}.")
-        init_scorecard = []
-        with open(init_scorecard_file, 'r', encoding='utf-8') as f:
-            init_scorecard = f.readlines()
+        # # Read the custom scorecard init file.
+        # print(f"\n# Reading scorecard init file from {init_scorecard_file}.")
+        # with open(init_scorecard_file, 'r', encoding='utf-8') as f:
+        #     init_scorecard = f.readlines()
     
         # Create issues with their associated labels.
         print("\n# Create activities.")
@@ -154,30 +150,30 @@ def setup_gitlab(metadata, params: dict, args: dict):
         #   if at least one Issue is found bearing one Goal label,
         #   consider that all Issues exist and do not add any.
         issues_test = project.issues.list(state='opened')
-        if (len(issues_test) > 0):
+        if len(issues_test) > 0:
             print(" Ignore, Issues already exist")
         else:
             for activity in metadata['activities']:
                 progress_label = ''
-                if (args.opt_random):
+                if args.opt_random:
                     # randomly choose among valid progress labels
                     # + artificially introduce an extra option for no progress label
-                    progress_idx = random.choice(list(conf['progress_labels']) + ['none'])
-                    if (progress_idx != 'none' ):
-                        progress_label = conf['progress_labels'][progress_idx]
+                    progress_idx = random.choice(list(params['progress_labels']) + ['none'])
+                    if progress_idx != 'none':
+                        progress_label = params['progress_labels'][progress_idx]
                 labels = \
                     [activity['goal']] + \
                     activity['roles'] + \
                     [progress_label]
                 print(f"  - Issue: {activity['name']:<60} Labels: {labels}")
                 ret = project.issues.create({'title': activity['name'],
-                                             'description': extract_sections(activity), 
+                                             'description': extract_sections(args, init_scorecard, activity),
                                              'labels': labels})
 
     #
     # Create Goals board
     #
-    if (args.opt_board):
+    if args.opt_board:
         print(f"\n# Create Goals board: {ggi_board_name}")
         boards_list=project.boards.list()
         board_exists=False
@@ -204,10 +200,10 @@ def setup_gitlab(metadata, params: dict, args: dict):
                 b_list = board.lists.create({'label_id': goal_label.id})
 
     # Create a scheduled pipeline trigger, if none exist yet.
-    if (args.opt_schedulepipeline):
+    if args.opt_schedulepipeline:
         print(f"\n# Schedule nightly pipeline to refresh the Dashboard")
         nb_pipelines=len(project.pipelineschedules.list())
-        if (nb_pipelines > 0):
+        if nb_pipelines > 0:
             print(f" Ignore, already {nb_pipelines} scheduled pipeline(s)")
         else:
             sched = project.pipelineschedules.create({
