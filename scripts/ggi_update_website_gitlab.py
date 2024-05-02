@@ -12,6 +12,9 @@
 """
 
 """
+import gitlab
+
+from ggi_update_website import *
 
 
 def retrieve_gitlab_issues(params: dict):
@@ -31,14 +34,8 @@ def retrieve_gitlab_issues(params: dict):
 
     # Define columns for recorded dataframes.
     issues = []
-
     tasks = []
-
     hist = []
-
-    count = 1
-    workflow = {}
-    tasks = []
 
     for i in gl_issues:
         desc = i.description
@@ -51,7 +48,7 @@ def retrieve_gitlab_issues(params: dict):
                           t['task']])
         short_desc = '\n'.join(description)
         tasks_total = len(a_tasks)
-        tasks_done = len( [ t for t in a_tasks if t['is_completed'] ] )
+        tasks_done = len([t for t in a_tasks if t['is_completed']])
         issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
                        i.updated_at, i.web_url, short_desc, workflow,
                        tasks_total, tasks_done])
@@ -64,14 +61,68 @@ def retrieve_gitlab_issues(params: dict):
             n_action = f"{n.action} {label}"
             user = n.user['username'] if n.user else 'unknown'
             line = [n.created_at, i.iid,
-                    n.id, n_type, user, 
+                    n.id, n_type, user,
                     n_action, i.web_url]
             hist.append(line)
-            
+
         print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
-        
-        # Remove these lines when dev/debug is over
-        if count == 30:
-            break
-        else:
-            count += 1
+
+        return issues, tasks, hist
+
+
+def main():
+    """
+    Main sequence.
+    """
+
+    args = parse_args()
+
+    params = retrieve_env()
+    print(params)
+
+    issues, tasks, hist = retrieve_gitlab_issues(params)
+
+    # Convert lists to dataframes
+    issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
+                   'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
+    issues = pd.DataFrame(issues, columns=issues_cols)
+    tasks_cols = ['issue_id', 'state', 'task']
+    tasks = pd.DataFrame(tasks, columns=tasks_cols)
+    hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
+    hist = pd.DataFrame(hist, columns=hist_cols)
+
+    write_to_csv(issues, tasks, hist)
+    write_activities_to_md(issues)
+    write_data_points(issues, params)
+
+    #
+    # Replace URLs, date
+    #
+    print("\n# Replacing keywords in static website.")
+
+    # List of strings to be replaced.
+    print("\n# List of keywords and values:")
+    keywords = {
+        '[GGI_URL]': params['GGI_URL'],
+        '[GGI_PAGES_URL]': params['GGI_PAGES_URL'],
+        '[GGI_ACTIVITIES_URL]': params['GGI_ACTIVITIES_URL'],
+        '[GGI_CURRENT_DATE]': str(date.today())
+    }
+    # Print the list of keywords to be replaced in files.
+    [print(f"- {k} {keywords[k]}") for k in keywords.keys()]
+
+    print("\n# Replacing keywords in files.")
+    update_keywords('web/config.toml', keywords)
+    update_keywords('web/content/includes/initialisation.inc', keywords)
+    update_keywords('web/content/scorecards/_index.md', keywords)
+    # update_keywords('README.md', keywords)
+    files = glob.glob("web/content/*.md")
+    for file in files:
+        if os.path.isfile(file):
+            update_keywords(file, keywords)
+
+    print("Done.")
+
+
+if __name__ == '__main__':
+    main()

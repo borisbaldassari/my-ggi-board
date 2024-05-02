@@ -18,7 +18,6 @@ This script:
 """
 
 import argparse
-import gitlab
 import json
 import pandas as pd
 import re
@@ -46,16 +45,17 @@ re_activity_id = re.compile(r"^Activity ID: \[(GGI-A-\d\d)\]\(.+\).$")
 re_section = re.compile(r"^### (?P<section>.*?)\s*$")
 re_subsection = re.compile(r"^#### (?P<subsection>.*?)\s*$")
 
-def _parse_args():
+
+def parse_args():
     """
     Parse arguments from command line.
     """
-    
+
     parser = argparse.ArgumentParser(
         description="Regerate website.")
-    parser.add_argument('-v', '--verbose', 
-                        dest='opt_verbose', 
-                        action='store_true', 
+    parser.add_argument('-v', '--verbose',
+                        dest='opt_verbose',
+                        action='store_true',
                         help='More logging.')
     args = parser.parse_args()
 
@@ -104,9 +104,11 @@ def extract_workflow(activity_desc: str):
     # Remove first element (useless html stuff)
     del workflow['Default']
     # Remove last two elements (useless html stuff too)
-    del workflow[list(workflow)[-1]][-1]
-    del workflow[list(workflow)[-1]][-1]
+    if len(list(workflow)) > 2:
+        del workflow[list(workflow)[-1]][-1]
+        del workflow[list(workflow)[-1]][-1]
     return a_id, content['Description'], workflow, tasks
+
 
 def retrieve_env():
     """
@@ -134,7 +136,7 @@ def retrieve_env():
     else:
         print("- Use GitLab URL from configuration file")
         params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
-    
+
     if 'GGI_GITLAB_TOKEN' in os.environ:
         print("- Using ggi_gitlab_token from env var.")
         params['GGI_GITLAB_TOKEN'] = os.environ['GGI_GITLAB_TOKEN']
@@ -149,12 +151,13 @@ def retrieve_env():
         print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
         pieces = tldextract.extract(params['GGI_GITLAB_URL'])
         params['GGI_PAGES_URL'] = 'https://' + params['GGI_GITLAB_PROJECT'].split('/')[0] + \
-            "." + pieces.domain + ".io/" + params['GGI_GITLAB_PROJECT'].split('/')[-1]
+                                  "." + pieces.domain + ".io/" + params['GGI_GITLAB_PROJECT'].split('/')[-1]
 
     params['GGI_URL'] = urllib.parse.urljoin(params['GGI_GITLAB_URL'], params['GGI_GITLAB_PROJECT'])
     params['GGI_ACTIVITIES_URL'] = os.path.join(params['GGI_URL'] + '/', '-/boards')
 
     return params
+
 
 def write_to_csv(issues, tasks, events):
     """
@@ -170,10 +173,10 @@ def write_to_csv(issues, tasks, events):
     events.to_csv('web/content/includes/labels_hist.csv', index=False)
     tasks.to_csv('web/content/includes/tasks.csv', index=False)
 
-    
+
 def write_activities_to_md(issues: List):
     # Generate list of current activities
-    print("\n# Writing issues.") 
+    print("\n# Writing issues.")
 
     for local_id, activity_id, activity_date, title, url, desc, workflow, tasks_done, tasks_total in zip(
             issues['issue_id'],
@@ -186,16 +189,17 @@ def write_activities_to_md(issues: List):
             issues['tasks_done'],
             issues['tasks_total']):
         print(f" {local_id}, {activity_id}, {title}, {url}")
-        
+
         my_issue = []
-        
+
         my_issue.append('---')
         my_issue.append(f'title: {title}')
         my_issue.append(f'date: {activity_date}')
         my_issue.append('layout: default')
         my_issue.append('---')
-    
-        my_issue.append(f"Link to Issue: <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
+
+        my_issue.append(
+            f"Link to Issue: <a href='{url}' class='w3-text-grey' style='float:right'>[ {activity_id} ]</a>\n\n")
         my_issue.append(f"Tasks: {tasks_done} done / {tasks_total} total.")
         if tasks_total > 0:
             p = int(tasks_done) * 100 // int(tasks_total)
@@ -214,7 +218,7 @@ def write_activities_to_md(issues: List):
         filename = f'web/content/scorecards/activity_{activity_id}.md'
         with open(filename, 'w') as f:
             f.write('\n'.join(my_issue))
-    
+
 
 def write_data_points(issues, params):
     """
@@ -225,7 +229,7 @@ def write_data_points(issues, params):
     issues_not_started = issues.loc[issues['labels'].str.contains(params['progress_labels']['not_started']),]
     issues_in_progress = issues.loc[issues['labels'].str.contains(params['progress_labels']['in_progress']),]
     issues_done = issues.loc[issues['labels'].str.contains(params['progress_labels']['done']),]
-    
+
     # Generate all activities stats.
     ggi_data_all_activities = f'[{issues_not_started.shape[0]}, {issues_in_progress.shape[0]}, {issues_done.shape[0]}]'
     with open('web/content/includes/ggi_data_all_activities.inc', 'w') as f:
@@ -312,66 +316,4 @@ def update_keywords(file_in, keywords):
                 occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
                 line = line.replace(keyword, keywords[keyword])
             print(line, end='')
-    [ print(o) for o in occurrences ]
-            
-
-def main():
-    """
-    Main sequence.
-    """
-
-    args = _parse_args()
-    
-    params = retrieve_env()
-    print(params)
-    
-    issues, tasks, hist = retrieve_gitlab_issues(params)
-
-    # Convert lists to dataframes
-    issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
-                   'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
-    issues = pd.DataFrame(issues, columns=issues_cols)
-    tasks_cols = ['issue_id', 'state', 'task']
-    tasks = pd.DataFrame(tasks, columns=tasks_cols)
-    hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
-    hist = pd.DataFrame(hist, columns=hist_cols)
-    
-    write_to_csv(issues, tasks, hist)
-    
-    write_activities_to_md(issues)
-
-    write_data_points(issues, params)
-    
-    #
-    # Replace URLs, date
-    #
-
-    print("\n# Replacing keywords in static website.")
-    
-    # List of strings to be replaced.
-    print("\n# List of keywords and values:")
-    keywords = {
-        '[GGI_URL]': params['GGI_URL'],
-        '[GGI_PAGES_URL]': params['GGI_PAGES_URL'],
-        '[GGI_ACTIVITIES_URL]': params['GGI_ACTIVITIES_URL'],
-        '[GGI_CURRENT_DATE]': str(date.today())
-    }
-    # Print the list of keywords to be replaced in files.
-    [ print(f"- {k} {keywords[k]}") for k in keywords.keys() ]
-
-    print("\n# Replacing keywords in files.")
-    update_keywords('web/config.toml', keywords)
-    update_keywords('web/content/includes/initialisation.inc', keywords)
-    update_keywords('web/content/scorecards/_index.md', keywords)
-    #update_keywords('README.md', keywords)
-    files = glob.glob("web/content/*.md")
-    for file in files:
-        if os.path.isfile(file):
-            update_keywords(file, keywords)
-
-    print("Done.")
-
-    
-if __name__ == '__main__':    
-
-    main()
+    [print(o) for o in occurrences]
