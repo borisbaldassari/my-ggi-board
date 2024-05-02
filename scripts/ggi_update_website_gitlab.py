@@ -13,6 +13,7 @@
 
 """
 
+
 def retrieve_gitlab_issues(params: dict):
     """
     Retrieve issues from GitLab instance.

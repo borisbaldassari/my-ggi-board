@@ -12,7 +12,28 @@
 """
 
 """
+import argparse
 import gitlab
+import json
+import os
+import random
+import re
+import urllib.parse
+
+from ggi_deploy import *
+
+
+def main():
+    """
+    Main GITLAB.
+    """
+    args = parse_args()
+
+    print("* Using GitLab backend.")
+    metadata, params = retrieve_env()
+    setup_gitlab(metadata, params, args)
+    
+    print("\nDone.")
 
 
 def create_gitlab_label(existing_labels, new_label, label_args):
@@ -35,7 +56,7 @@ def setup_gitlab(metadata, params: dict, args: dict):
     * Create Goals board
     * Create schedule for pipeline
     """
-
+    print("setup_gitlab")
     if 'CI_SERVER_URL' in os.environ:
         print("- Use GitLab URL from environment variable")
         params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
@@ -50,14 +71,14 @@ def setup_gitlab(metadata, params: dict, args: dict):
         print("- Use GitLab URL from configuration file")
         params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
 
-    if 'CI_PAGES_URL' in os.environ:
-        print("- Using GGI_PAGES_URL from environment variable.")
-        params['CI_PAGES_URL'] = os.environ['CI_PAGES_URL']
-    else:
-        print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
-        pieces = tldextract.extract(params['GGI_GITLAB_URL'])
-        params['CI_PAGES_URL'] = 'https://' + params['GGI_GITLAB_PROJECT'].split('/')[0] + \
-            "." + pieces.domain + ".io/" + params['GGI_GITLAB_PROJECT'].split('/')[-1]
+    # if 'CI_PAGES_URL' in os.environ:
+    #     print("- Using GGI_PAGES_URL from environment variable.")
+    #     params['CI_PAGES_URL'] = os.environ['CI_PAGES_URL']
+    # else:
+    #     print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
+    #     pieces = tldextract.extract(params['GGI_GITLAB_URL'])
+    #     params['CI_PAGES_URL'] = 'https://' + params['GGI_GITLAB_PROJECT'].split('/')[0] + \
+    #         "." + pieces.domain + ".io/" + params['GGI_GITLAB_PROJECT'].split('/')[-1]
 
     if 'GGI_GITLAB_TOKEN' in os.environ:
         print("- Using ggi_gitlab_token from env var.")
@@ -68,7 +89,6 @@ def setup_gitlab(metadata, params: dict, args: dict):
 
     params['GGI_URL'] = urllib.parse.urljoin(params['GGI_GITLAB_URL'], params['GGI_GITLAB_PROJECT'])
     params['GGI_ACTIVITIES_URL'] = os.path.join(params['GGI_URL'] + '/', '-/boards')
-
     
     print(f"\n# Connection to GitLab at {params['GGI_GITLAB_URL']} " +
           f"- {params['GGI_GITLAB_PROJECT']}.")
@@ -113,7 +133,7 @@ def setup_gitlab(metadata, params: dict, args: dict):
 
         # Create labels for activity tracking
         print("\n Progress labels")
-        for name, label in conf['progress_labels'].items():
+        for name, label in params['progress_labels'].items():
             create_gitlab_label(existing_labels, label, {'name': label, 'color': '#ed9121'})
 
         # Create goal labels if needed
@@ -198,3 +218,6 @@ def setup_gitlab(metadata, params: dict, args: dict):
 
 
 
+
+if __name__ == '__main__':    
+    main()

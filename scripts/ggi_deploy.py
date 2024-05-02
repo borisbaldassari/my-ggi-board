@@ -33,9 +33,7 @@ import json
 import os
 import random
 import re
-
-from ggi_deploy_github import *
-from ggi_deploy_gitlab import *
+import urllib.parse
 
 # Authentication is defined via github.Auth
 
@@ -52,20 +50,12 @@ re_section = re.compile(r"^### (?P<section>.*?)\s*$")
 
 ggi_board_name='GGI Activities/Goals'
 
-def _parse_args():
+def parse_args():
     """
     Parse arguments from command line.
     """
     desc = "Deploys an instance of the GGI Board on a GitLab or GitHub instance."
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument('-gl', '--gitlab',
-                        dest='opt_gitlab',
-                        action='store_true',
-                        help='Use GitLab backend.')
-    parser.add_argument('-gh', '--github',
-                        dest='opt_github',
-                        action='store_true',
-                        help='Use GitHub backend.')
     parser.add_argument('-a', '--activities', 
                         dest='opt_activities', 
                         action='store_true', 
