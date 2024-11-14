@@ -12,7 +12,7 @@ stages:
 
 update_website:
   stage: build
-  image: python:3.7
+  image: python:latest
   script:
     - python -m	pip install -r requirements.txt
     - python scripts/ggi_deploy.py -a -b -d -p
