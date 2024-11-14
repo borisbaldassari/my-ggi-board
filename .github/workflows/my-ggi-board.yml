@@ -1,0 +1,40 @@
+
+name: My GGI Deploy deployment
+run-name: Deploying your own GGI!
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy-ggi:
+    name: Deploy board
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+      - name: GGI Deploy
+        run: |
+          python scripts/ggi_deploy.py -a -b -d -p --github
+  update-website:
+    name: Update website
+    needs: deploy-ggi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+      - name: GGI Update website
+        run: |
+          python scripts/ggi_update_website.py --github
+

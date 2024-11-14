@@ -2,3 +2,5 @@
 **/*.swp
 **/ggi_deployment.json
 .env
+/Pipfile
+/Pipfile.lock
