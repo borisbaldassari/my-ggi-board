@@ -52,20 +52,20 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
     * Create Goals board
     * Create schedule for pipeline
     """
-    if 'CI_SERVER_URL' in os.environ:
-        print("- Use GitLab URL from environment variable")
-        params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
-    else:
-        print("- Use GitLab URL from configuration file")
-        params['GGI_GITLAB_URL'] = params['gitlab_url']
+    #if 'CI_SERVER_URL' in os.environ:
+    #    print("- Use GitLab URL from environment variable")
+    #    params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
+    #else:
+    print("- Use GitLab URL from configuration file")
+    params['GGI_GITLAB_URL'] = params['gitlab_url']
     print(params['GGI_GITLAB_URL'])
     
-    if 'CI_PROJECT_PATH' in os.environ:
-        print("- Use GitLab Project from environment variable")
-        params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
-    else:
-        print("- Use GitLab URL from configuration file")
-        params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
+    #if 'CI_PROJECT_PATH' in os.environ:
+    #    print("- Use GitLab Project from environment variable")
+    #    params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
+    #else:
+    print("- Use GitLab URL from configuration file")
+    params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
     print(params['GGI_GITLAB_PROJECT'])
 
     # if 'CI_PAGES_URL' in os.environ:
