@@ -68,9 +68,9 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
     params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
     print(params['GGI_GITLAB_PROJECT'])
 
-    # if 'CI_PAGES_URL' in os.environ:
-    #     print("- Using GGI_PAGES_URL from environment variable.")
-    #     params['CI_PAGES_URL'] = os.environ['CI_PAGES_URL']
+    if 'CI_PAGES_URL' in os.environ:
+        print("- Using GGI_PAGES_URL from environment variable.")
+        params['CI_PAGES_URL'] = os.environ['CI_PAGES_URL']
     # else:
     #     print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
     #     pieces = tldextract.extract(params['GGI_GITLAB_URL'])
