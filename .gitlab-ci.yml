@@ -4,7 +4,6 @@
 
 variables:
   GIT_SUBMODULE_STRATEGY: none
-  GGI_GITLAB_TOKEN: $GGI_GITLAB_TOKEN
 
 stages:
   - build
