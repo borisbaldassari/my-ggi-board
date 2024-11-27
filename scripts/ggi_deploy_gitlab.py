@@ -156,7 +156,7 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
             print(" Ignore, Issues already exist")
         else:
             for activity in metadata['activities']:
-                progress_label = ''
+                progress_label = params['progress_labels']['not_started']
                 if args.opt_random:
                     # randomly choose among valid progress labels
                     # + artificially introduce an extra option for no progress label
