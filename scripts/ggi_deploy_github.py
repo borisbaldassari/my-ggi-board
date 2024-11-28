@@ -229,7 +229,7 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
             print("Ignore, Issues already exist")
         else:
             for activity in metadata['activities']:
-                progress_label = ''
+                progress_label = params['progress_labels']['not_started']
                 if args.opt_random:
                     # Choix aléatoire parmi les étiquettes de progression valides
                     progress_idx = random.choice(list(params['progress_labels']) + ['none'])
