@@ -17,6 +17,10 @@ The goal is
 
 # How it works
 
+Currently the deployment is supported on the following platforms:
+- [GitLab](https://gitlab.com)
+- [GitHub](https://github.com)
+
 ## GitLab deployment
 
 ### Fork the repository
@@ -35,13 +39,13 @@ In your own GitLab space:
 - Adjust parameters (project url, slug and visibility level)
 - Click: _Create project_
 
-<img src="resources/setup_import-project.png" width="50%" height="50%">
+    <img src="resources/setup_import-project.png" width="50%" height="50%">
 
 
 **Manually Fork**  
 1. Create an empty project on your target GitLab instance.
 
-<img src="resources/setup_create-project.png" width="50%" height="50%">
+    <img src="resources/setup_create-project.png" width="50%" height="50%">
 
 1. Clone the [my-ggi-board repository](https://gitlab.ow2.org/ggi/my-ggi-board) to your new project.
 
@@ -89,7 +93,8 @@ In case the instance admin has disabled the _project_ access token, you can use 
   - Create labels, activities, board.
   - Setup the static website configuration (GitLab Pages)
   - Replace the URL in the README.
-1. Commit your changes: `git commit -m 'initial commit' -a`
+
+10. Commit your changes: `git commit -m 'initial commit' -a`
 1. Push to the local gitlab instance on the `main` branch: `git push my-ggi`. That will:
   - Create a pipeline and gitlab page thanks to the `.gitlab_ci.yml` file.
   - Execute the ggi_update_website script, updating the website's content.
@@ -111,7 +116,7 @@ In your own GitHub space:
 - Choose the owner and the repository name
 - Click on _Begin import_
 
-<img src="resources/setup_create-project_github.png" width="50%" height="50%">
+    <img src="resources/setup_create-project_github.png" width="50%" height="50%">
 
 **Manually Fork**
 
