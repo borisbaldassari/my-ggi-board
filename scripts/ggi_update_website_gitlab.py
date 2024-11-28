@@ -38,19 +38,19 @@ def retrieve_env():
     with open(file_conf, 'r', encoding='utf-8') as f:
         params = json.load(f)
 
-    if 'CI_SERVER_URL' in os.environ:
-        print("- Use GitLab URL from environment variable")
-        params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
-    else:
-        print("- Use GitLab URL from configuration file")
-        params['GGI_GITLAB_URL'] = params['gitlab_url']
+    #if 'CI_SERVER_URL' in os.environ:
+    #    print("- Use GitLab URL from environment variable")
+    #    params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
+    #else:
+    print("- Use GitLab URL from configuration file")
+    params['GGI_GITLAB_URL'] = params['gitlab_url']
 
-    if 'CI_PROJECT_PATH' in os.environ:
-        print("- Use GitLab Project from environment variable")
-        params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
-    else:
-        print("- Use GitLab URL from configuration file")
-        params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
+    #if 'CI_PROJECT_PATH' in os.environ:
+    #   print("- Use GitLab Project from environment variable")
+    #    params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
+    #else:
+    print("- Use GitLab URL from configuration file")
+    params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
 
     if 'GGI_GITLAB_TOKEN' in os.environ:
         print("- Using ggi_gitlab_token from env var.")
@@ -123,7 +123,7 @@ def retrieve_gitlab_issues(params: dict):
 
         print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
 
-        return issues, tasks, hist
+    return issues, tasks, hist
 
 
 def main():

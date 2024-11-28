@@ -12,13 +12,14 @@
 """
 
 """
+import time
 import urllib.parse
 
 import requests
 
 from ggi_deploy import *
 
-from github import Github
+from github import Github, GithubException
 from github import Auth
 
 
@@ -174,25 +175,15 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
     # TODO make this works
     if args.opt_projdesc:
         print("\n# Update Project description")
-        if True or 'CI_PAGES_URL' in params:
-            ggi_activities_url = "https://tbd.com" #params['GGI_ACTIVITIES_URL']
-            ggi_handbook_version = metadata["handbook_version"]
-            ggi_pages_url = "https://tbd.com" #params['CI_PAGES_URL']
-            desc = (
-                'Your own Good Governance Initiative project.\n\n'
-                'Here you will find '
-                f'[**your dashboard**]({ggi_pages_url})\n'
-                f'and the [**GitHub Project Board**]({ggi_activities_url}) with all activities describing the local GGI '
-                f'deployment, based on the version {ggi_handbook_version} of the [GGI handbook]('
-                f'https://ospo-alliance.org/ggi/)\n\n'
-                'For more information please see the official project home page at https://ospo-alliance.org/'
-            )
-            print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
 
-            # Update the repository description
-            repo.edit(description=desc)
-        else:
-            print("Cannot find environment variable 'CI_PAGES_URL', skipping.")
+        desc = (
+            'Your own Good Governance Initiative project.'
+        )
+        print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
+
+        # Update the repository description
+        repo.edit(description=desc)
+
 
     #
     # Create labels & activities
@@ -225,11 +216,10 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
         #   consider that all Issues exist and do not add any.
         open_issues = repo.get_issues(state='open')
         if open_issues.totalCount > 0:
-            # TODO better check for issues with labels
             print("Ignore, Issues already exist")
         else:
             for activity in metadata['activities']:
-                progress_label = ''
+                progress_label = params['progress_labels']['not_started']
                 if args.opt_random:
                     # Choix aléatoire parmi les étiquettes de progression valides
                     progress_idx = random.choice(list(params['progress_labels']) + ['none'])
@@ -241,13 +231,16 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
 
                 print(f"  - Issue: {activity['name']:<60} Labels: {labels}")
                 # Création de l'issue
-                issue = repo.create_issue(
-                    title=activity['name'],
-                    body=extract_sections(args, init_scorecard, activity),
-                    labels=labels
-                )
+                try:
+                    issue = repo.create_issue(
+                        title=activity['name'],
+                        body=extract_sections(args, init_scorecard, activity),
+                        labels=labels
+                    )
+                    time.sleep(2)
+                except GithubException as e:
+                    print(f"Status: {e.status}, Data: {e.data}")
 
-    #
     # Create Goals board
     if args.opt_board:
         # TODO : check why graphQL API does not work
