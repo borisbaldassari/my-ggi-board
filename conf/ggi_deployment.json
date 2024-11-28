@@ -1,7 +1,7 @@
 {
     "gitlab_url": "https://gitlab.ow2.org",
     "gitlab_project": "ggi/my-ggi-board-test",
-    "github_host": null,
+    "github_url": null,
     "github_project": "borisbaldassari/my-ggi-board",
     "progress_labels": {
         "not_started": "Not Selected",
