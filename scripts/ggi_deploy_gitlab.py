@@ -28,7 +28,7 @@ def main():
     print("* Using GitLab backend.")
     metadata, params, init_scorecard = retrieve_env()
     setup_gitlab(metadata, params, init_scorecard, args)
-    
+
     print("\nDone.")
 
 
@@ -59,7 +59,7 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
     print("- Use GitLab URL from configuration file")
     params['GGI_GITLAB_URL'] = params['gitlab_url']
     print(params['GGI_GITLAB_URL'])
-    
+
     #if 'CI_PROJECT_PATH' in os.environ:
     #    print("- Use GitLab Project from environment variable")
     #    params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
@@ -86,7 +86,7 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
 
     params['GGI_URL'] = urllib.parse.urljoin(params['GGI_GITLAB_URL'], params['GGI_GITLAB_PROJECT'])
     params['GGI_ACTIVITIES_URL'] = os.path.join(params['GGI_URL'] + '/', '-/boards')
-    
+
     print(f"\n# Connection to GitLab at {params['GGI_GITLAB_URL']} " +
           f"- {params['GGI_GITLAB_PROJECT']}.")
     gl = gitlab.Gitlab(url=params['GGI_GITLAB_URL'],
@@ -145,7 +145,7 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
         # print(f"\n# Reading scorecard init file from {init_scorecard_file}.")
         # with open(init_scorecard_file, 'r', encoding='utf-8') as f:
         #     init_scorecard = f.readlines()
-    
+
         # Create issues with their associated labels.
         print("\n# Create activities.")
         # First test the existence of Activities Issues:
@@ -195,7 +195,7 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
                     if l.name == g['name']:
                         goal_lists.append(l)
                         break
-        
+
             # Then create the lists in gitlab
             for goal_label in goal_lists:
                 print(f"  - Create list for {goal_label.name}")
@@ -216,6 +216,5 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
 
 
 
-
-if __name__ == '__main__':    
+if __name__ == '__main__':
     main()

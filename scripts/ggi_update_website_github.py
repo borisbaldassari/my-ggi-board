@@ -38,10 +38,6 @@ def retrieve_env():
     with open(file_conf, 'r', encoding='utf-8') as f:
         params = json.load(f)
 
-    return params
-
-
-def retrieve_github_issues(params: dict):
     if 'github_project' in params:
         print(f"- Using GitHub project {params['github_project']} " +
               "from configuration file.")
@@ -57,6 +53,13 @@ def retrieve_github_issues(params: dict):
         print("- Cannot find env var GGI_GITHUB_TOKEN. Please set it and re-run me.")
         exit(1)
 
+    params['GGI_PAGES_URL']= "https://ospo-alliance.github.io/my-ggi-board-test/"
+    params['GGI_ACTIVITIES_URL']= "https://github.com/ospo-alliance/my-ggi-board-test/issues"
+
+    return params
+
+
+def retrieve_github_issues(params: dict):
     # Using an access token
     auth = Auth.Token(params['GGI_GITHUB_TOKEN'])
 
@@ -84,20 +87,18 @@ def retrieve_github_issues(params: dict):
     Retrieve issues from GitHub instance.
     """
 
-    print("# Fetching issues..")
-    issues = repo.get_issues()
-
-    print(f"  Found {issues.totalCount} issues.")
-
-    #TODO : extract the right infos from issues
-
     # Define columns for recorded dataframes.
     issues = []
     tasks = []
     hist = []
 
-    for i in issues:
-        desc = i.description
+    print("# Fetching issues..")
+    repo_issues = repo.get_issues()
+
+    print(f"  Found {repo_issues.totalCount} issues.")
+
+    for i in repo_issues:
+        desc = i.body
         paragraphs = desc.split('\n\n')
         lines = desc.split('\n')
         a_id, description, workflow, a_tasks = extract_workflow(desc)
@@ -108,25 +109,44 @@ def retrieve_github_issues(params: dict):
         short_desc = '\n'.join(description)
         tasks_total = len(a_tasks)
         tasks_done = len([t for t in a_tasks if t['is_completed']])
-        issues.append([i.iid, a_id, i.state, i.title, ','.join(i.labels),
-                       i.updated_at, i.web_url, short_desc, workflow,
+        #TODO comprendre pourquoi i.state et pas le label de progression
+        #TODO comprendre pourquoi tasks_total et done sont mal calculés pour GitHub
+        issues.append([i.id, a_id, i.state, i.title, ','.join([label.name for label in i.labels]),
+                       i.updated_at, i.url, short_desc, workflow,
                        tasks_total, tasks_done])
 
         # Retrieve information about labels.
-        for n in i.resourcelabelevents.list():
-            event = i.resourcelabelevents.get(n.id)
-            n_type = 'label'
-            label = n.label['name'] if n.label else ''
-            n_action = f"{n.action} {label}"
-            user = n.user['username'] if n.user else 'unknown'
-            line = [n.created_at, i.iid,
-                    n.id, n_type, user,
-                    n_action, i.web_url]
-            hist.append(line)
+        # for n in i.resourcelabelevents.list():
+        #     event = i.resourcelabelevents.get(n.id)
+        #     n_type = 'label'
+        #     label = n.label['name'] if n.label else ''
+        #     n_action = f"{n.action} {label}"
+        #     user = n.user['username'] if n.user else 'unknown'
+        #     line = [n.created_at, i.iid,
+        #             n.id, n_type, user,
+        #             n_action, i.web_url]
+        #     hist.append(line)
 
-        print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
+        for event in i.get_events():
+            if event.event == "labeled" or event.event == "unlabeled":
+                n_type = 'label'
+                label = event.label.name if event.label else ''
+                n_action = f"{event.event} {label}"
+                user = event.actor.login if event.actor else 'unknown'
+                line = [
+                    event.created_at,  # Date de l'événement
+                    i.number,  # Numéro de l'issue
+                    event.id,  # ID de l'événement
+                    n_type,  # Type d'événement (toujours 'label')
+                    user,  # Utilisateur qui a déclenché l'événement
+                    n_action,  # Action effectuée (labeled/unlabeled)
+                    i.html_url  # URL de l'issue
+                ]
+                hist.append(line)
 
-        return issues, tasks, hist
+        #print(f"- {i.id} - {a_id} - {i.title} - {i.url} - {i.updated_at}.")
+
+    return issues, tasks, hist
 
 
 def main():
@@ -162,7 +182,7 @@ def main():
     # List of strings to be replaced.
     print("\n# List of keywords and values:")
     keywords = {
-        '[GGI_URL]': params['GGI_URL'],
+        '[GGI_URL]': params['GGI_GITHUB_URL'],
         '[GGI_PAGES_URL]': params['GGI_PAGES_URL'],
         '[GGI_ACTIVITIES_URL]': params['GGI_ACTIVITIES_URL'],
         '[GGI_CURRENT_DATE]': str(date.today())
@@ -179,7 +199,14 @@ def main():
     for file in files:
         if os.path.isfile(file):
             update_keywords(file, keywords)
-
+    try:
+        with open('web/content/_index.md', 'r') as file:
+            file_content = file.read()
+            print(file_content)
+    except FileNotFoundError:
+        print('not found')
+    except Exception as e:
+        print('an error occurred')
     print("Done.")
 
 

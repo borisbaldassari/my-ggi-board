@@ -2,6 +2,7 @@
 name: My GGI Deploy deployment
 run-name: Deploying your own GGI!
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -19,8 +20,10 @@ jobs:
         run: |
           python -m pip install -r requirements.txt
       - name: GGI Deploy
+        env:
+          GGI_GITHUB_TOKEN: ${{ secrets.GGI_GITHUB_TOKEN }}
         run: |
-          python scripts/ggi_deploy.py -a -b -d -p --github
+          python scripts/ggi_deploy_github.py -a -d -p
   update-website:
     name: Update website
     needs: deploy-ggi
@@ -28,13 +31,48 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
       - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt
       - name: GGI Update website
+        env:
+          GGI_GITHUB_TOKEN: ${{ secrets.GGI_GITHUB_TOKEN }}
         run: |
-          python scripts/ggi_update_website.py --github
+          python scripts/ggi_update_website_github.py
+      - name: Save generated website files
+        uses: actions/upload-artifact@v3
+        with:
+          name: updated-website
+          path: ./web
+  deploy:
+    name: Deploy Pages
+    runs-on: ubuntu-latest
+    needs: update-website
 
+    steps:
+    - name: Download updated website files
+      uses: actions/download-artifact@v3
+      with:
+        name: updated-website
+        path: ./web
+
+    - name: Verify activities
+      run: cat ./web/content/includes/activities.js.inc
+
+    - name: Set up Hugo
+      uses: peaceiris/actions-hugo@v3
+      with:
+        hugo-version: "latest"
+        extended: true
+
+    - name: Build Hugo site
+      run: |
+        cd web
+        hugo
+        cd -
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GGI_GITHUB_TOKEN }}
+        publish_dir: ./web/public

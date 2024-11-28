@@ -123,7 +123,7 @@ def retrieve_gitlab_issues(params: dict):
 
         print(f"- {i.iid} - {a_id} - {i.title} - {i.web_url} - {i.updated_at}.")
 
-        return issues, tasks, hist
+    return issues, tasks, hist
 
 
 def main():

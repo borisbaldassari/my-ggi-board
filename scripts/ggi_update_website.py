@@ -182,33 +182,33 @@ def write_data_points(issues, params):
 
     # Generate data points for the dashboard - goals - done
     done_stats = [
-        issues_done['labels'].str.contains('Usage').sum(),
-        issues_done['labels'].str.contains('Trust').sum(),
-        issues_done['labels'].str.contains('Culture').sum(),
-        issues_done['labels'].str.contains('Engagement').sum(),
-        issues_done['labels'].str.contains('Strategy').sum()
+        int(issues_done['labels'].str.contains('Usage').sum()),
+        int(issues_done['labels'].str.contains('Trust').sum()),
+        int(issues_done['labels'].str.contains('Culture').sum()),
+        int(issues_done['labels'].str.contains('Engagement').sum()),
+        int(issues_done['labels'].str.contains('Strategy').sum())
     ]
     with open('web/content/includes/ggi_data_goals_done.inc', 'w') as f:
         f.write(str(done_stats))
 
     # Generate data points for the dashboard - goals - in_progress
     in_progress_stats = [
-        issues_in_progress['labels'].str.contains('Usage').sum(),
-        issues_in_progress['labels'].str.contains('Trust').sum(),
-        issues_in_progress['labels'].str.contains('Culture').sum(),
-        issues_in_progress['labels'].str.contains('Engagement').sum(),
-        issues_in_progress['labels'].str.contains('Strategy').sum()
+        int(issues_in_progress['labels'].str.contains('Usage').sum()),
+        int(issues_in_progress['labels'].str.contains('Trust').sum()),
+        int(issues_in_progress['labels'].str.contains('Culture').sum()),
+        int(issues_in_progress['labels'].str.contains('Engagement').sum()),
+        int(issues_in_progress['labels'].str.contains('Strategy').sum())
     ]
     with open('web/content/includes/ggi_data_goals_in_progress.inc', 'w') as f:
         f.write(str(in_progress_stats))
 
     # Generate data points for the dashboard - goals - not_started
     not_started_stats = [
-        issues_not_started['labels'].str.contains('Usage').sum(),
-        issues_not_started['labels'].str.contains('Trust').sum(),
-        issues_not_started['labels'].str.contains('Culture').sum(),
-        issues_not_started['labels'].str.contains('Engagement').sum(),
-        issues_not_started['labels'].str.contains('Strategy').sum()
+        int(issues_not_started['labels'].str.contains('Usage').sum()),
+        int(issues_not_started['labels'].str.contains('Trust').sum()),
+        int(issues_not_started['labels'].str.contains('Culture').sum()),
+        int(issues_not_started['labels'].str.contains('Engagement').sum()),
+        int(issues_not_started['labels'].str.contains('Strategy').sum())
     ]
     with open('web/content/includes/ggi_data_goals_not_started.inc', 'w') as f:
         f.write(str(not_started_stats))
@@ -225,9 +225,7 @@ def write_data_points(issues, params):
     activities_dataset = []
     print(issues)
     for index, issue in issues.iterrows():
-        # XXX TODO
-        issue_id = issue['issue_id']
-        status = issue['state']
+        activity_id = issue['activity_id']
         title = issue['title']
         tasks_done = issue['tasks_done']
         tasks_total = issue['tasks_total']
@@ -237,7 +235,7 @@ def write_data_points(issues, params):
             if tasks_done == tasks_total:
                 status = "Completed"
 
-        activities_dataset.append([issue_id, status, title, tasks_done, tasks_total])
+        activities_dataset.append([activity_id, status, title, tasks_done, tasks_total])
 
     with open('web/content/includes/activities.js.inc', 'w') as f:
         f.write(str(activities_dataset))
