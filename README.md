@@ -4,7 +4,7 @@ This is the home of your own Good Governance Initiative tracking board.
 
 # Introduction
 
-This project helps implementing the [Good Governance Initiative (GGI)](https://ospo.zone/ggi) framework.  
+This project helps implementing the [Good Governance Initiative (GGI)](https://ospo-alliance.org/ggi) framework.  
 The GGI framework is a guide to effectively implement, step by step, an Open Source Program Office in your organisation. It proposes 25 activities organised in 5 distinct goals.
 
 
