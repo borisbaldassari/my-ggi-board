@@ -17,12 +17,14 @@ This script:
 - optionally creates a board and its lists to display activities.
 
 The script expects your GitLab private key in the environment variable: GGI_GITLAB_TOKEN
+You may also set an environment variable 'GGI_DEMO_MODE' to 'true' to activate the demo mode.
 
 usage: ggi_deploy [-h] [-a] [-b] [-d] [-p]
 
 optional arguments:
   -h, --help                  Show this help message and exit
   -a, --activities            Create activities
+  -r, --random-demo           Random Scorecard objectives and Activities status, for demo purposes
   -b, --board                 Create board
   -d, --project-description   Update Project Description with pointers to the Board and Dashboard
   -p, --schedule-pipeline     Schedule nightly pipeline to update dashboard
@@ -78,6 +80,10 @@ def parse_args():
                         action='store_true',
                         help='Random Scorecard objectives and Activities status, for demo purposes')
     args = parser.parse_args()
+
+    if 'GGI_DEMO_MODE' in os.environ:
+        if os.environ['GGI_DEMO_MODE'].lower() == 'true':
+            opt_random = True
 
     return args
 

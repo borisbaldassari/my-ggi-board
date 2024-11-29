@@ -52,55 +52,62 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
     * Create Goals board
     * Create schedule for pipeline
     """
-    #if 'CI_SERVER_URL' in os.environ:
-    #    print("- Use GitLab URL from environment variable")
-    #    params['GGI_GITLAB_URL'] = os.environ['CI_SERVER_URL']
-    #else:
-    print("- Use GitLab URL from configuration file")
-    params['GGI_GITLAB_URL'] = params['gitlab_url']
-    print(params['GGI_GITLAB_URL'])
 
-    #if 'CI_PROJECT_PATH' in os.environ:
-    #    print("- Use GitLab Project from environment variable")
-    #    params['GGI_GITLAB_PROJECT'] = os.environ['CI_PROJECT_PATH']
-    #else:
-    print("- Use GitLab URL from configuration file")
-    params['GGI_GITLAB_PROJECT'] = params['gitlab_project']
-    print(params['GGI_GITLAB_PROJECT'])
+    # Get conf: URL
+    if 'CI_SERVER_URL' in os.environ:
+        params['gitlab_url'] = os.environ['CI_SERVER_URL']
+        print("- Using URL from env var 'CI_SERVER_URL'")
+    elif 'GGI_GITLAB_URL' in os.environ:
+        params['gitlab_url'] = os.environ['GGI_GITLAB_URL']
+        print("- Using URL from env var 'GGI_GITLAB_URL'")
+    elif 'gitlab_url' in params :
+        print("- Using URL from configuration file")
+    else:
+        print("Cannot find GitLab root URL, Exiting.")
+        exit(1)
 
-    if 'CI_PAGES_URL' in os.environ:
-        print("- Using GGI_PAGES_URL from environment variable.")
-        params['CI_PAGES_URL'] = os.environ['CI_PAGES_URL']
-    # else:
-    #     print("- Cannot find an env var for GGI_PAGES_URL. Computing it from conf.")
-    #     pieces = tldextract.extract(params['GGI_GITLAB_URL'])
-    #     params['CI_PAGES_URL'] = 'https://' + params['GGI_GITLAB_PROJECT'].split('/')[0] + \
-    #         "." + pieces.domain + ".io/" + params['GGI_GITLAB_PROJECT'].split('/')[-1]
+    # Get conf: Project
+    if 'CI_PROJECT_PATH' in os.environ:
+        params['gitlab_project'] = os.environ['CI_PROJECT_PATH']
+        print("- Using Project from env var 'CI_PROJECT_PATH'")
+    elif 'GGI_GITLAB_PROJECT' in os.environ:
+        params['gitlab_project'] = os.environ['GGI_GITLAB_PROJECT']
+        print("- Using Project from env var 'GGI_GITLAB_PROJECT'")
+    elif 'gitlab_project' in params:
+        print(f"- Using Project from configuration file")
+    else:
+        print("Cannot find GitLab project (org + repo), e.g. ospo-alliance/" +
+              "my-ggi-board. Exiting.")
+        exit(1)
 
     if 'GGI_GITLAB_TOKEN' in os.environ:
-        print("- Using ggi_gitlab_token from env var.")
-        params['GGI_GITLAB_TOKEN'] = os.environ['GGI_GITLAB_TOKEN']
+        print("- Using token from env var 'GGI_GITLAB_TOKEN'")
+        params['gitlab_token'] = os.environ['GGI_GITLAB_TOKEN']
     else:
         print("- Cannot find env var GGI_GITLAB_TOKEN. Please set it and re-run me.")
         exit(1)
 
-    params['GGI_URL'] = urllib.parse.urljoin(params['GGI_GITLAB_URL'], params['GGI_GITLAB_PROJECT'])
-    params['GGI_ACTIVITIES_URL'] = os.path.join(params['GGI_URL'] + '/', '-/boards')
+    params['gitlab_repo_url'] = urllib.parse.urljoin(params['gitlab_url'], params['gitlab_project'])
+    params['gitlab_activities_url'] = urllib.parse.urljoin(params['gitlab_repo_url'], '/', '-/boards')
+    print("Configuration:")
+    print("URL       : " + params['gitlab_url'])
+    print("Project   : " + params['gitlab_project'])
+    print("Full URL  : " + params['gitlab_repo_url'])
+    print("Activities: " + params['gitlab_activities_url'])
 
-    print(f"\n# Connection to GitLab at {params['GGI_GITLAB_URL']} " +
-          f"- {params['GGI_GITLAB_PROJECT']}.")
-    gl = gitlab.Gitlab(url=params['GGI_GITLAB_URL'],
+    print(f"\n# Connection to GitLab at {params['gitlab_url']} ")
+    gl = gitlab.Gitlab(url=params['gitlab_url'],
                        per_page=50,
-                       private_token=params['GGI_GITLAB_TOKEN'])
-    project = gl.projects.get(params['GGI_GITLAB_PROJECT'])
+                       private_token=params['gitlab_token'])
+    project = gl.projects.get(params['gitlab_project'])
 
     # Update current project description with Website URL
     if args.opt_projdesc:
         print("\n# Update Project description")
-        if 'CI_PAGES_URL' in params:
-            ggi_activities_url = params['GGI_ACTIVITIES_URL']
-            ggi_handbook_version = metadata["handbook_version"]
-            ggi_pages_url = params['CI_PAGES_URL']
+        if 'CI_PAGES_URL' in os.environ:
+            ggi_activities_url = params['gitlab_activities_url']
+            ggi_handbook_version = metadata['handbook_version']
+            ggi_pages_url = os.environ['CI_PAGES_URL']
             desc = (
                 'Your own Good Governance Initiative project.\n\n'
                 'Here you will find '
@@ -213,8 +220,6 @@ def setup_gitlab(metadata, params: dict, init_scorecard, args: dict):
                 'description': 'Nightly Update',
                 'cron': '0 3 * * *'})
             print(f" Pipeline created: '{sched.description}'")
-
-
 
 if __name__ == '__main__':
     main()
