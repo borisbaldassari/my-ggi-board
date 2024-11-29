@@ -223,18 +223,19 @@ def write_data_points(issues, params):
 
     # Used for the activities table dataset
     activities_dataset = []
-    print(issues)
     for index, issue in issues.iterrows():
         activity_id = issue['activity_id']
         title = issue['title']
         tasks_done = issue['tasks_done']
         tasks_total = issue['tasks_total']
-        status = "Not started"
-        if tasks_done > 0:
-            status = "In progress"
-            if tasks_done == tasks_total:
-                status = "Completed"
-
+        if params['progress_labels']['not_started'] in issue['labels']:
+            status = params['progress_labels']['not_started']
+        elif params['progress_labels']['in_progress'] in issue['labels']:
+            status = params['progress_labels']['in_progress']
+        elif params['progress_labels']['done'] in issue['labels']:
+            status = params['progress_labels']['done']
+        else:
+            status = 'Unknown'
         activities_dataset.append([activity_id, status, title, tasks_done, tasks_total])
 
     with open('web/content/includes/activities.js.inc', 'w') as f:
