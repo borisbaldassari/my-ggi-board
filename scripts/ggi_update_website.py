@@ -215,25 +215,27 @@ def write_data_points(issues, params):
 
     # Generate activities basic statistics, with links to be used from home page.
     activities_stats = f'Identified {issues.shape[0]} activities overall.\n'
-    activities_stats += f'* {issues_not_started.shape[0]} are <span class="w3-tag w3-light-grey">not_started</span>\n'
-    activities_stats += f'* {issues_in_progress.shape[0]} are <span class="w3-tag w3-light-grey">in_progress</span>\n'
-    activities_stats += f'* {issues_done.shape[0]} are <span class="w3-tag w3-light-grey">done</span>\n'
+    activities_stats += f'* {issues_not_started.shape[0]} are <span class="w3-tag w3-light-grey">{params["progress_labels"]["not_started"]}</span>\n'
+    activities_stats += f'* {issues_in_progress.shape[0]} are <span class="w3-tag w3-light-grey">{params["progress_labels"]["in_progress"]}</span>\n'
+    activities_stats += f'* {issues_done.shape[0]} are <span class="w3-tag w3-light-grey">{params["progress_labels"]["done"]}</span>\n'
     with open('web/content/includes/activities_stats_dashboard.inc', 'w') as f:
         f.write(activities_stats)
 
     # Used for the activities table dataset
     activities_dataset = []
-    print(issues)
     for index, issue in issues.iterrows():
         activity_id = issue['activity_id']
         title = issue['title']
         tasks_done = issue['tasks_done']
         tasks_total = issue['tasks_total']
-        status = "Not started"
-        if tasks_done > 0:
-            status = "In progress"
-            if tasks_done == tasks_total:
-                status = "Completed"
+        if params['progress_labels']['not_started'] in issue['labels']:
+            status = params['progress_labels']['not_started']
+        elif params['progress_labels']['in_progress'] in issue['labels']:
+            status = params['progress_labels']['in_progress']
+        elif params['progress_labels']['done'] in issue['labels']:
+            status = params['progress_labels']['done']
+        else:
+            status = 'Unknown'
 
         activities_dataset.append([activity_id, status, title, tasks_done, tasks_total])
 
