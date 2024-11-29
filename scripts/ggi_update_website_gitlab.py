@@ -137,7 +137,7 @@ def main():
     print(params)
 
     issues, tasks, hist = retrieve_gitlab_issues(params)
-
+    
     # Convert lists to dataframes
     issues_cols = ['issue_id', 'activity_id', 'state', 'title', 'labels',
                    'updated_at', 'url', 'desc', 'workflow', 'tasks_total', 'tasks_done']
@@ -146,6 +146,10 @@ def main():
     tasks = pd.DataFrame(tasks, columns=tasks_cols)
     hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
     hist = pd.DataFrame(hist, columns=hist_cols)
+
+    print(f"Issues {issues}")
+    print(f"Tasks {tasks}")
+    print(f"Hist {hist}")
 
     write_to_csv(issues, tasks, hist)
     write_activities_to_md(issues)
