@@ -174,7 +174,7 @@ def main():
     import os
     print('DBG website_gitlab list files:')
     print(listdir('.'))
-    print(os.getcwd('.'))
+    print(os.getcwd())
 
     print("\n# Replacing keywords in files.")
     update_keywords('web/config.toml', keywords)
