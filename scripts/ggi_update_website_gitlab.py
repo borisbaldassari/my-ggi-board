@@ -134,7 +134,7 @@ def main():
     args = parse_args()
 
     params = retrieve_env()
-    print(params)
+    #print(params)
 
     issues, tasks, hist = retrieve_gitlab_issues(params)
     
@@ -147,9 +147,9 @@ def main():
     hist_cols = ['time', 'issue_id', 'event_id', 'type', 'author', 'action', 'url']
     hist = pd.DataFrame(hist, columns=hist_cols)
 
-    print(f"Issues {issues}")
-    print(f"Tasks {tasks}")
-    print(f"Hist {hist}")
+    #print(f"Issues {issues}")
+    #print(f"Tasks {tasks}")
+    #print(f"Hist {hist}")
 
     write_to_csv(issues, tasks, hist)
     write_activities_to_md(issues)
@@ -170,6 +170,11 @@ def main():
     }
     # Print the list of keywords to be replaced in files.
     [print(f"- {k} {keywords[k]}") for k in keywords.keys()]
+
+    import os
+    print('DBG website_gitlab list files:')
+    print(listdir('.'))
+    print(os.getcwd('.'))
 
     print("\n# Replacing keywords in files.")
     update_keywords('web/config.toml', keywords)

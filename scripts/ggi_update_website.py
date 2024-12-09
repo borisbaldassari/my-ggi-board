@@ -21,6 +21,7 @@ import argparse
 import re
 from collections import OrderedDict
 from fileinput import FileInput
+from os import listdir
 from typing import List
 
 # Define some variables.
@@ -255,6 +256,10 @@ def update_keywords(file_in, keywords):
     its replacement string.
     """
     occurrences = []
+    import os
+    print('DBG Update keywords list files:')
+    print(listdir(file_in))
+    print(os.getcwd())
     for keyword in keywords:
         for line in FileInput(file_in, inplace=1, backup='.bak'):
             if keyword in line:
