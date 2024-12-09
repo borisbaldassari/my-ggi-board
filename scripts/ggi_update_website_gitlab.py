@@ -171,11 +171,6 @@ def main():
     # Print the list of keywords to be replaced in files.
     [print(f"- {k} {keywords[k]}") for k in keywords.keys()]
 
-    import os
-    print('DBG website_gitlab list files:')
-    print(listdir('.'))
-    print(os.getcwd())
-
     print("\n# Replacing keywords in files.")
     update_keywords('web/config.toml', keywords)
     update_keywords('web/content/includes/initialisation.inc', keywords)
