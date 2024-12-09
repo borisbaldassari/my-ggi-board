@@ -256,6 +256,7 @@ def update_keywords(file_in, keywords):
     its replacement string.
     """
     occurrences = []
+    print(f'Executing update_keywords({file_in}, {keywords}).')
     for keyword in keywords:
         for line in FileInput(file_in, inplace=1, backup='.bak'):
             if keyword in line:
@@ -263,3 +264,4 @@ def update_keywords(file_in, keywords):
                 line = line.replace(keyword, keywords[keyword])
             print(line, end='')
     [print(o) for o in occurrences]
+    print('Hello World!')
