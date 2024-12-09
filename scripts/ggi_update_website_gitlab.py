@@ -171,7 +171,7 @@ def main():
     # Print the list of keywords to be replaced in files.
     [print(f"- {k} {keywords[k]}") for k in keywords.keys()]
 
-    print("\n# Replacing keywords in files.")
+    # Replacing keywords in files.
     update_keywords('web/config.toml', keywords)
     update_keywords('web/content/includes/initialisation.inc', keywords)
     update_keywords('web/content/scorecards/_index.md', keywords)
