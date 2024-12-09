@@ -258,11 +258,11 @@ def update_keywords(file_in, keywords):
     occurrences = []
     import os
     print('DBG Update keywords list files:')
-    print(listdir(file_in))
     print(os.getcwd())
     for keyword in keywords:
         for line in FileInput(file_in, inplace=1, backup='.bak'):
             if keyword in line:
+                print(f'Found {keyword} in {file_in} at line {line}.')
                 occurrences.append(f'- Changing "{keyword}" to "{keywords[keyword]}" in {file_in}.')
                 line = line.replace(keyword, keywords[keyword])
             print(line, end='')
