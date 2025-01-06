@@ -81,24 +81,8 @@ In case the instance admin has disabled the _project_ access token, you can use 
 
     <img src="resources/setup_create-variable-1.png" width="50%" height="50%"> <img src="resources/setup_create-variable-2.png" width="50%" height="50%">
 
-1. Clone your repository locally
-1. Create a virtual env and install requirements.
-
-    ```
-    python -m venv env
-    source env/bin/activate
-    pip install -r requirements.txt
-    ```
-1. Run the deploy script: `python scripts/ggi_deploy_gitlab.py -a -b -d -p`. That will:
-  - Create labels, activities, board.
-  - Setup the static website configuration (GitLab Pages)
-  - Replace the URL in the README.
-
-10. Commit your changes: `git commit -m 'initial commit' -a`
-1. Push to the local gitlab instance on the `main` branch: `git push my-ggi`. That will:
-  - Create a pipeline and gitlab page thanks to the `.gitlab_ci.yml` file.
-  - Execute the ggi_update_website script, updating the website's content.
-  - Publish the gitlab page.
+1. Run the pipeline: go to Build > Pipelines, click on the button 'New Pipeline' and then click on the button 'Run Pipeline'
+1. Once the pipeline is over, you are done, your dashboard is ready !
 
 
 ## GitHub deployment
@@ -144,7 +128,6 @@ $ git push my-ggi-board
 
 1. Edit the file in `conf/ggi_deployment.json`, and set the variables `github_url` (such as `https://github.com`) and `github_project` (such as `my-ggi-board`)
 1. Commit and publish that file to your repository
-1. Export the access token as an environment variable: `export GGI_GITHUB_TOKEN=xxxxxxx`.
 1. Go to repository Settings > General > Features and enable 'Issues' and 'Projects'. 
 1. Create a GitHub Actions env variable: go to Settings > Secrets and Variables > Actions, then add a new repository secret named `GGI_GITHUB_TOKEN` and set the access token as the value. Click on 'Add secret'.
 
