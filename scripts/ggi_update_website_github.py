@@ -38,7 +38,12 @@ def retrieve_env():
     with open(file_conf, 'r', encoding='utf-8') as f:
         params = json.load(f)
 
-    if 'github_project' in params:
+    if 'GGI_GITHUB_REPOSITORY' in os.environ: # github.repository
+        params['GGI_GITHUB_PROJECT'] = os.environ['GGI_GITHUB_REPOSITORY']
+        print(f"- Using GitHub project {params['GGI_GITHUB_PROJECT']} " +
+              "from environment variable file.")
+    elif 'github_project' in params:
+        params['GGI_GITHUB_PROJECT'] = params['github_project']
         print(f"- Using GitHub project {params['github_project']} " +
               "from configuration file.")
     else:
@@ -53,35 +58,35 @@ def retrieve_env():
         print("- Cannot find env var GGI_GITHUB_TOKEN. Please set it and re-run me.")
         exit(1)
 
-    params['GGI_PAGES_URL']= "https://ospo-alliance.github.io/my-ggi-board-test/"
-    params['GGI_ACTIVITIES_URL']= "https://github.com/ospo-alliance/my-ggi-board-test/issues"
+    if 'github_host' in params and params['github_host'] != 'null':
+        print(f"- Using GitHub on-premises host {params['github_host']} " +
+              "from configuration file.")
+        # Github Enterprise with custom hostname
+        params['GGI_API_URL'] = f"{params['github_host']}/api/v3"
+        params['GGI_GITHUB_URL'] = urllib.parse.urljoin(params['github_host'] + '/', params['GGI_GITHUB_PROJECT'])
+        params['GGI_PAGES_URL'] = 'https://fix.me'
+    else:
+        # Public Web GitHub
+        params['GGI_API_URL'] = None
+        params['GGI_GITHUB_URL'] = urllib.parse.urljoin('https://github.com/', params['GGI_GITHUB_PROJECT'])
+        params['GGI_PAGES_URL'] = urllib.parse.urljoin(
+            'https://' + re.sub('/.*$', '', params['GGI_GITHUB_PROJECT']) + '.github.io/', 
+            re.sub('^.*/', '', params['GGI_GITHUB_PROJECT']))
+        print("- Using public GitHub instance.")
+
+    params['GGI_ACTIVITIES_URL']= urllib.parse.urljoin(params['GGI_GITHUB_URL'] + '/', 'issues')
 
     return params
 
-
 def retrieve_github_issues(params: dict):
+    print(f"\n# Retrieving project from GitHub at {params['GGI_GITHUB_URL']}.")
     # Using an access token
     auth = Auth.Token(params['GGI_GITHUB_TOKEN'])
-
-    # Connecting to the GitHub instance.
-    if 'github_host' in params and params['github_host'] != 'null':
-        print(f"- Using GitHub on-premise host {params['github_host']} " +
-              "from configuration file.")
-        # Github Enterprise with custom hostname
-        github_url = f"{params['github_host']}/api/v3"
-        g = Github(auth=auth,
-                   base_url=github_url)
-        params['GGI_GITHUB_URL'] = params['github_host']
-    else:
-        # Public Web Github
-        print("- Using public GitHub instance.")
+    if params['GGI_API_URL'] == None :
         g = Github(auth=auth)
-        params['GGI_GITHUB_URL'] = "https://github.com/"
-
-    params['GGI_GITHUB_URL'] = params['GGI_GITHUB_URL'] + "/" + params["github_project"]
-
-    print(f"\n# Retrieving project from GitHub at {params['GGI_GITHUB_URL']}.")
-    repo = g.get_repo(params["github_project"])
+    else:
+        g = Github(auth=auth, base_url=params['GGI_API_URL'])
+    repo = g.get_repo(params["GGI_GITHUB_PROJECT"])
 
     """
     Retrieve issues from GitHub instance.
