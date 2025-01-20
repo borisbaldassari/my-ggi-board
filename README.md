@@ -73,16 +73,16 @@ In case the instance admin has disabled the _project_ access token, you can use 
 ### Setup the environment
 
 1. Edit the file in `conf/ggi_deployment.json`, and set the variables `gitlab_url` (such as `https://gitlab.com`) and `gitlab_project` (such as `ggi/my-ggi-board-test`)
-1. Commit and publish that file to your repository
-1. Export the access token as an environment variable: `export GGI_GITLAB_TOKEN=xxxxxxx`.
-1. Enable CI/CD feature for the project : go to Settings > Visibility, project features, permissions > CI/CD and save changes
-1. Configure GitLab Pages feature for the project : go to Deploy > Pages, uncheck 'Use unique domain' and Save changes
-1. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Masked and hidden` (will not be shown in Jobs logs and revealed once set), `Protected` (cannot be used in non-protected branches) and non-expandable. 
+2. Commit and publish that file to your repository
+3. (Optional) Export the access token as an environment variable: `export GGI_GITLAB_TOKEN=xxxxxxx`.
+4. Enable CI/CD feature for the project : go to Settings > Visibility, project features, permissions > CI/CD and save changes
+5. (Optional) Configure GitLab Pages feature for the project : go to Deploy > Pages, uncheck 'Use unique domain' and Save changes
+6. Create a CI/CD env variable: go to Settings > CI/CD > Variables, then add a variable named `GGI_GITLAB_TOKEN` and set the access token as the value. Make it `Masked and hidden` (will not be shown in Jobs logs and revealed once set), `Protected` (cannot be used in non-protected branches) and non-expandable. 
 
     <img src="resources/setup_create-variable-1.png" width="50%" height="50%"> <img src="resources/setup_create-variable-2.png" width="50%" height="50%">
 
-1. Run the pipeline: go to Build > Pipelines, click on the button 'New Pipeline' and then click on the button 'Run Pipeline'
-1. Once the pipeline is over, you are done, your dashboard is ready !
+7. Run the pipeline: go to Build > Pipelines, click on the button 'New Pipeline' and then click on the button 'Run Pipeline'
+8. Once the pipeline is over, you are done, your dashboard is ready !
 
 
 ## GitHub deployment
