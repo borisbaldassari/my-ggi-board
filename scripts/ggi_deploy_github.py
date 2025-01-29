@@ -167,6 +167,7 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
 
 
     params['github_repo_url'] = urllib.parse.urljoin(params['github_url'], params['github_project'])
+    params['github_activities_url'] = params['github_repo_url'] + '/projects'
 
     print("Configuration:")
     print("URL     : " + params['github_url'])
@@ -185,18 +186,22 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
     repo = g.get_repo(params['github_project'])
 
     # Update current project description with Website URL
-    # TODO make this work
     if args.opt_projdesc:
         print("\n# Update Project description")
+        ggi_activities_url = params['github_activities_url']
+
+        repo_fullname = os.getenv("GITHUB_REPOSITORY", "unknown/repo")  # "username/repository-name"
+        repo_owner = os.getenv("GITHUB_REPOSITORY_OWNER", "unknown")  # "username"
+        repo_name = repo_fullname.split("/")[-1]
+        github_pages_url = f"https://{repo_owner}.github.io/{repo_name}/"
 
         desc = (
-            'Your own Good Governance Initiative project.'
+            'Here you will find your dashboard: ' + github_pages_url + ' and the issues board: ' + ggi_activities_url + ' with all activities describing the local GGI'
         )
-        print(f"\nNew description:\n<<<---------\n{desc}\n--------->>>\n")
+        print(f"nNew description:\n<<<---------\n{desc}\n--------->>>\n")
 
         # Update the repository description
-        repo.edit(description=desc)
-
+        repo.edit(description=desc, homepage="https://ospo-alliance.org/")
 
     #
     # Create labels & activities
