@@ -41,7 +41,7 @@ jobs:
         run: |
           python scripts/ggi_update_website_github.py
       - name: Save generated website files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: updated-website
           path: ./web
@@ -52,7 +52,7 @@ jobs:
 
     steps:
     - name: Download updated website files
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: updated-website
         path: ./web

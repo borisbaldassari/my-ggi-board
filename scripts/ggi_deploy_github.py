@@ -158,7 +158,7 @@ def setup_github(metadata, params: dict, init_scorecard, args: dict):
     if 'GGI_GITHUB_PROJECT' in os.environ:
         params['github_project'] = os.environ['GGI_GITHUB_PROJECT']
         print("- Using Project from env var 'GGI_GITHUB_PROJECT'")
-    elif 'github_project' in params:
+    elif 'github_project' in params and params['github_project'] != None:
         print(f"- Using Project from configuration file")
     else:
         print("I need a project (org + repo), e.g. ospo-alliance/" +
