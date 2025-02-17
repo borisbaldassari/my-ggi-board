@@ -135,3 +135,4 @@ This will:
 
     <img src="resources/setup_run-pipeline_github.png" width="50%" height="50%"> 
 
+1. You can then create your issues board by creating a new 'Project' into your GitHub organisation, link the project to your repository and finally link the issues to it.
