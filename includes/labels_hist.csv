@@ -1,0 +1,86 @@
+time,issue_id,event_id,type,author,action,url
+2026-01-05 14:56:14+00:00,25,21855901088,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/25
+2026-01-05 14:56:14+00:00,25,21855901127,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/25
+2026-01-05 14:56:15+00:00,25,21855901171,label,borisbaldassari,labeled Strategy Goal,https://github.com/borisbaldassari/my-ggi-board/issues/25
+2026-01-05 14:56:13+00:00,24,21855900555,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/24
+2026-01-05 14:56:13+00:00,24,21855900592,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/24
+2026-01-05 14:56:13+00:00,24,21855900645,label,borisbaldassari,labeled Strategy Goal,https://github.com/borisbaldassari/my-ggi-board/issues/24
+2026-01-05 14:56:10+00:00,23,21855899742,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/23
+2026-01-05 14:56:10+00:00,23,21855899783,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/23
+2026-01-05 14:56:10+00:00,23,21855899824,label,borisbaldassari,labeled Strategy Goal,https://github.com/borisbaldassari/my-ggi-board/issues/23
+2026-01-05 14:56:08+00:00,22,21855898932,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/22
+2026-01-05 14:56:08+00:00,22,21855898973,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/22
+2026-01-05 14:56:08+00:00,22,21855899033,label,borisbaldassari,labeled Strategy Goal,https://github.com/borisbaldassari/my-ggi-board/issues/22
+2026-01-05 14:56:05+00:00,21,21855897966,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/21
+2026-01-05 14:56:05+00:00,21,21855898011,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/21
+2026-01-05 14:56:05+00:00,21,21855898072,label,borisbaldassari,labeled Strategy Goal,https://github.com/borisbaldassari/my-ggi-board/issues/21
+2026-01-05 14:56:04+00:00,20,21855897447,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/20
+2026-01-05 14:56:04+00:00,20,21855897490,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/20
+2026-01-05 14:56:04+00:00,20,21855897534,label,borisbaldassari,labeled Engagement Goal,https://github.com/borisbaldassari/my-ggi-board/issues/20
+2026-01-05 14:56:01+00:00,19,21855896617,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/19
+2026-01-05 14:56:01+00:00,19,21855896659,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/19
+2026-01-05 14:56:02+00:00,19,21855896721,label,borisbaldassari,labeled Engagement Goal,https://github.com/borisbaldassari/my-ggi-board/issues/19
+2026-01-05 14:55:58+00:00,18,21855895601,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/18
+2026-01-05 14:55:58+00:00,18,21855895645,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/18
+2026-01-05 14:55:58+00:00,18,21855895699,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/18
+2026-01-05 14:55:58+00:00,18,21855895741,label,borisbaldassari,labeled Engagement Goal,https://github.com/borisbaldassari/my-ggi-board/issues/18
+2026-01-05 14:55:56+00:00,17,21855894836,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/17
+2026-01-05 14:55:56+00:00,17,21855894884,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/17
+2026-01-05 14:55:56+00:00,17,21855894928,label,borisbaldassari,labeled Engagement Goal,https://github.com/borisbaldassari/my-ggi-board/issues/17
+2026-01-05 14:55:54+00:00,16,21855894168,label,borisbaldassari,labeled Developer,https://github.com/borisbaldassari/my-ggi-board/issues/16
+2026-01-05 14:55:54+00:00,16,21855894225,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/16
+2026-01-05 14:55:54+00:00,16,21855894280,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/16
+2026-01-05 14:55:54+00:00,16,21855894333,label,borisbaldassari,labeled Engagement Goal,https://github.com/borisbaldassari/my-ggi-board/issues/16
+2026-01-05 14:55:51+00:00,15,21855893317,label,borisbaldassari,labeled Developer,https://github.com/borisbaldassari/my-ggi-board/issues/15
+2026-01-05 14:55:52+00:00,15,21855893359,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/15
+2026-01-05 14:55:52+00:00,15,21855893416,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/15
+2026-01-05 14:55:52+00:00,15,21855893478,label,borisbaldassari,labeled Culture Goal,https://github.com/borisbaldassari/my-ggi-board/issues/15
+2026-01-05 14:55:49+00:00,14,21855892676,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/14
+2026-01-05 14:55:49+00:00,14,21855892712,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/14
+2026-01-05 14:55:50+00:00,14,21855892747,label,borisbaldassari,labeled Culture Goal,https://github.com/borisbaldassari/my-ggi-board/issues/14
+2026-01-05 14:55:47+00:00,13,21855891763,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/13
+2026-01-05 14:55:47+00:00,13,21855891802,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/13
+2026-01-05 14:55:47+00:00,13,21855891847,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/13
+2026-01-05 14:55:47+00:00,13,21855891887,label,borisbaldassari,labeled Culture Goal,https://github.com/borisbaldassari/my-ggi-board/issues/13
+2026-01-05 14:55:44+00:00,12,21855891117,label,borisbaldassari,labeled Developer,https://github.com/borisbaldassari/my-ggi-board/issues/12
+2026-01-05 14:55:45+00:00,12,21855891153,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/12
+2026-01-05 14:55:45+00:00,12,21855891189,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/12
+2026-01-05 14:55:45+00:00,12,21855891237,label,borisbaldassari,labeled Culture Goal,https://github.com/borisbaldassari/my-ggi-board/issues/12
+2026-01-05 14:55:42+00:00,11,21855890427,label,borisbaldassari,labeled Developer,https://github.com/borisbaldassari/my-ggi-board/issues/11
+2026-01-05 14:55:42+00:00,11,21855890468,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/11
+2026-01-05 14:55:43+00:00,11,21855890510,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/11
+2026-01-05 14:55:43+00:00,11,21855890546,label,borisbaldassari,labeled Culture Goal,https://github.com/borisbaldassari/my-ggi-board/issues/11
+2026-01-05 14:55:40+00:00,10,21855889511,label,borisbaldassari,labeled Developer,https://github.com/borisbaldassari/my-ggi-board/issues/10
+2026-01-05 14:55:40+00:00,10,21855889565,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/10
+2026-01-05 14:55:40+00:00,10,21855889629,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/10
+2026-01-05 14:55:40+00:00,10,21855889674,label,borisbaldassari,labeled Trust Goal,https://github.com/borisbaldassari/my-ggi-board/issues/10
+2026-01-05 14:55:38+00:00,9,21855888856,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/9
+2026-01-05 14:55:38+00:00,9,21855888894,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/9
+2026-01-05 14:55:38+00:00,9,21855888944,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/9
+2026-01-05 14:55:38+00:00,9,21855888997,label,borisbaldassari,labeled Trust Goal,https://github.com/borisbaldassari/my-ggi-board/issues/9
+2026-01-05 14:55:36+00:00,8,21855888307,label,borisbaldassari,labeled Developer,https://github.com/borisbaldassari/my-ggi-board/issues/8
+2026-01-05 14:55:36+00:00,8,21855888374,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/8
+2026-01-05 14:55:36+00:00,8,21855888416,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/8
+2026-01-05 14:55:36+00:00,8,21855888461,label,borisbaldassari,labeled Trust Goal,https://github.com/borisbaldassari/my-ggi-board/issues/8
+2026-01-05 14:55:34+00:00,7,21855887672,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/7
+2026-01-05 14:55:34+00:00,7,21855887712,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/7
+2026-01-05 14:55:34+00:00,7,21855887766,label,borisbaldassari,labeled Trust Goal,https://github.com/borisbaldassari/my-ggi-board/issues/7
+2026-01-05 14:55:31+00:00,6,21855886604,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/6
+2026-01-05 14:55:31+00:00,6,21855886675,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/6
+2026-01-05 14:55:31+00:00,6,21855886731,label,borisbaldassari,labeled Trust Goal,https://github.com/borisbaldassari/my-ggi-board/issues/6
+2026-01-05 14:55:29+00:00,5,21855885926,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/5
+2026-01-05 14:55:29+00:00,5,21855885977,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/5
+2026-01-05 14:55:29+00:00,5,21855886031,label,borisbaldassari,labeled Usage Goal,https://github.com/borisbaldassari/my-ggi-board/issues/5
+2026-01-05 14:55:26+00:00,4,21855884890,label,borisbaldassari,labeled Decision Maker,https://github.com/borisbaldassari/my-ggi-board/issues/4
+2026-01-05 14:55:26+00:00,4,21855884935,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/4
+2026-01-05 14:55:26+00:00,4,21855884991,label,borisbaldassari,labeled Usage Goal,https://github.com/borisbaldassari/my-ggi-board/issues/4
+2026-01-05 14:55:23+00:00,3,21855884149,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/3
+2026-01-05 14:55:24+00:00,3,21855884191,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/3
+2026-01-05 14:55:24+00:00,3,21855884245,label,borisbaldassari,labeled Usage Goal,https://github.com/borisbaldassari/my-ggi-board/issues/3
+2026-01-05 14:55:21+00:00,2,21855883366,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/2
+2026-01-05 14:55:21+00:00,2,21855883415,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/2
+2026-01-05 14:55:21+00:00,2,21855883461,label,borisbaldassari,labeled Usage Goal,https://github.com/borisbaldassari/my-ggi-board/issues/2
+2026-01-05 14:55:19+00:00,1,21855882592,label,borisbaldassari,labeled Developer,https://github.com/borisbaldassari/my-ggi-board/issues/1
+2026-01-05 14:55:19+00:00,1,21855882630,label,borisbaldassari,labeled Team Leader,https://github.com/borisbaldassari/my-ggi-board/issues/1
+2026-01-05 14:55:19+00:00,1,21855882689,label,borisbaldassari,labeled Not Selected,https://github.com/borisbaldassari/my-ggi-board/issues/1
+2026-01-05 14:55:19+00:00,1,21855882730,label,borisbaldassari,labeled Usage Goal,https://github.com/borisbaldassari/my-ggi-board/issues/1
